@@ -1,0 +1,17 @@
+rules_version = '2';
+// NMD Development Desk — who may read and write the database.
+// Only people signed in with a company Google account (or the reports account).
+// Keep this list the same as allowedDomains / allowedEmails in firebase-config.js.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function allowedUser() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && (request.auth.token.email.matches('.*@pmiglobal[.]co[.]in$')
+            || request.auth.token.email == 'reportspmi411@gmail.com');
+    }
+    match /{document=**} {
+      allow read, write: if allowedUser();
+    }
+  }
+}

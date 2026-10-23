@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NMD Data Backup</title>
+<style>
+  :root{--bg:#f1f5f4;--card:#fff;--ink:#15201f;--ink2:#55615f;--brand:#0e7c6b;--line:#dde5e3;--warn:#b54708}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px max(16px,env(safe-area-inset-left,0px))}
+  main{max-width:640px;margin:0 auto;display:grid;gap:16px}
+  h1{font-size:22px;margin:0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:10px}
+  h2{font-size:16px;margin:0}
+  p{margin:0;color:var(--ink2)}
+  button{font:600 14px system-ui;padding:10px 16px;border-radius:8px;border:0;background:var(--brand);color:#fff;cursor:pointer;justify-self:start}
+  button:disabled{opacity:.5;cursor:default}
+  pre{background:#0f1f1d;color:#d6f5ee;border-radius:8px;padding:12px;font:12px/1.5 ui-monospace,monospace;max-height:260px;overflow:auto;margin:0;white-space:pre-wrap}
+  .warn{color:var(--warn)}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../js/claude-firebase-shim.js"></script>
+</head>
+<body>
+<main>
+  <h1>NMD Development Desk — data backup</h1>
+  <section>
+    <h2>1. Load a backup into Firebase</h2>
+    <p>Pick the <b>nmd_data_backup_….json</b> file. Every project, task, special DB, customer and setting in it is written to the Firebase database. Existing records with the same id are replaced.</p>
+    <input type="file" id="file" accept=".json,application/json">
+    <button id="imp" disabled>Load into Firebase</button>
+  </section>
+  <section>
+    <h2>2. Download a backup from Firebase</h2>
+    <p>Saves everything in the database as one JSON file. Do this every week and keep the file somewhere safe (not in a public repository).</p>
+    <button id="exp">Download backup</button>
+  </section>
+  <pre id="log">Connecting…</pre>
+</main>
+<script>
+(function(){
+  var COLS = ["config","projects","tasks","customers","sdbs","sdorders","sdnotes","checkins","plans"];
+  var logEl = document.getElementById("log"), db = null, picked = null;
+  function log(s){ logEl.textContent += "\n" + s; logEl.scrollTop = logEl.scrollHeight; }
+  window.claude.use("db").then(function(d){ db = d; logEl.textContent = "Signed in. Ready."; });
+
+  document.getElementById("file").onchange = function(e){
+    var f = e.target.files[0]; if(!f) return;
+    f.text().then(function(t){
+      picked = JSON.parse(t);
+      var c = picked.collections || picked;
+      log("Backup read: " + Object.keys(c).map(function(k){ return k + " " + Object.keys(c[k]).length; }).join(", "));
+      document.getElementById("imp").disabled = false;
+    }).catch(function(err){ log("Could not read the file: " + err.message); });
+  };
+  document.getElementById("imp").onclick = function(){
+    if(!db || !picked) return;
+    var btn = this; btn.disabled = true;
+    var c = picked.collections || picked, jobs = [];
+    Object.keys(c).forEach(function(col){
+      Object.keys(c[col]).forEach(function(id){ jobs.push([col, id, c[col][id]]); });
+    });
+    var done = 0, failed = 0;
+    (function next(){
+      var batch = jobs.splice(0, 20);
+      if(!batch.length){ log("Finished: " + done + " written, " + failed + " failed. Open the dashboard now."); return; }
+      Promise.all(batch.map(function(j){
+        return db.doc(j[0] + "/" + j[1]).set(j[2]).then(function(){ done++; }, function(e){ failed++; log("Failed " + j[0] + "/" + j[1] + ": " + (e.message || e.code)); });
+      })).then(function(){ log("… " + done + " written"); next(); });
+    })();
+  };
+  document.getElementById("exp").onclick = function(){
+    if(!db) return;
+    var out = {app:"NMD Development Desk", exportedAt:new Date().toISOString().slice(0,10), collections:{}};
+    Promise.all(COLS.map(function(col){
+      return db.collection(col).get().then(function(s){
+        out.collections[col] = {};
+        s.docs.forEach(function(d){ out.collections[col][d.id] = d.data(); });
+      });
+    })).then(function(){
+      return window.claude.use("downloads").then(function(dl){
+        return dl.save({filename:"nmd_data_backup_" + out.exportedAt + ".json", data:JSON.stringify(out, null, 1), mimeType:"application/json"});
+      });
+    }).then(function(){ log("Backup downloaded."); }, function(e){ log("Backup failed: " + (e.message || e.code)); });
+  };
+})();
+</script>
+</body>
+</html>
