@@ -33,7 +33,7 @@
     if(authCfg.mode === "anonymous") return true;
     return emailAllowed(user.email);
   }
-  /* sign-in: a link sent to the company e-mail (works with Outlook), or Google */
+  /* sign-in: company e-mail + password (accounts made by the admin), an e-mailed link, or Google */
   var gate = null, LS_KEY = "nmd_signin_email";
   function lsGet(){ try { return localStorage.getItem(LS_KEY) || ""; } catch(e){ return ""; } }
   function lsSet(v){ try { if(v) localStorage.setItem(LS_KEY, v); else localStorage.removeItem(LS_KEY); } catch(e){} }
@@ -42,24 +42,49 @@
       gate = document.createElement("div");
       gate.style.cssText = "position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:linear-gradient(160deg,#0e7c6b,#0b4f47);color:#fff;font:15px/1.5 system-ui,sans-serif;padding:24px";
       var btn = "font:600 15px system-ui;padding:12px 22px;border-radius:10px;border:0;cursor:pointer;";
+      var inp = "font:15px system-ui;padding:12px 14px;border-radius:10px;border:0;width:100%;box-sizing:border-box;color:#15201f;background:#fff";
       gate.innerHTML = "<form id='nmdGateForm' style='max-width:420px;width:100%;text-align:center;display:grid;gap:12px'>" +
         "<div style='font:700 26px/1.2 system-ui;letter-spacing:.04em'>NMD DEVELOPMENT DESK</div>" +
         "<p id='nmdGateMsg' style='opacity:.92;margin:0'></p>" +
-        "<input id='nmdGateEmail' type='email' required autocomplete='email' placeholder='name@pmiglobal.co.in' " +
-          "style='font:15px system-ui;padding:12px 14px;border-radius:10px;border:0;width:100%;box-sizing:border-box;color:#15201f;background:#fff'>" +
-        "<button type='submit' style='" + btn + "background:#ffb020;color:#1d1300'>E-mail me the sign-in link</button>" +
+        "<input id='nmdGateEmail' type='email' required autocomplete='username' placeholder='name@pmiglobal.co.in' style='" + inp + "'>" +
+        "<input id='nmdGatePass' type='password' autocomplete='current-password' placeholder='Password' style='" + inp + "'>" +
+        "<button type='submit' style='" + btn + "background:#ffb020;color:#1d1300'>Sign in</button>" +
+        "<button type='button' id='nmdGateLink' style='border:0;background:none;color:#d9f3ee;font:13px system-ui;cursor:pointer;text-decoration:underline'>No password? E-mail me a sign-in link instead</button>" +
         (authCfg.google !== false ? "<button type='button' id='nmdGateGoogle' style='" + btn + "background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)'>or sign in with Google</button>" : "") +
+        "<div style='font:11px ui-monospace,monospace;opacity:.55'>sign-in v3</div>" +
         "</form>";
       document.body.appendChild(gate);
-      gate.querySelector("#nmdGateEmail").value = lsGet();
+      var emEl = gate.querySelector("#nmdGateEmail"), pwEl = gate.querySelector("#nmdGatePass");
+      emEl.value = lsGet();
+      function emailOk(){
+        var em = emEl.value.trim().toLowerCase();
+        if(!em){ emEl.focus(); return ""; }
+        if(!emailAllowed(em)){ showGate("<b>" + em + "</b> is not allowed. Use your company e-mail."); return ""; }
+        return em;
+      }
       gate.querySelector("#nmdGateForm").onsubmit = function(ev){
         ev.preventDefault();
-        var em = gate.querySelector("#nmdGateEmail").value.trim().toLowerCase();
-        if(!emailAllowed(em)){ showGate("<b>" + em + "</b> is not allowed. Use your company e-mail."); return; }
+        var em = emailOk(); if(!em) return;
+        if(!pwEl.value){ pwEl.focus(); return; }
+        auth.signInWithEmailAndPassword(em, pwEl.value).then(function(){ lsSet(em); pwEl.value = ""; })
+          .catch(function(e){
+            var c = e && e.code;
+            showGate(c === "auth/wrong-password" || c === "auth/invalid-credential" || c === "auth/invalid-login-credentials" || c === "auth/user-not-found"
+              ? "E-mail or password is wrong. Ask the Development Head if you do not have a password yet."
+              : c === "auth/too-many-requests" ? "Too many tries. Wait a few minutes and try again."
+              : "Could not sign in (" + (c || e.message) + "). Try again.");
+          });
+      };
+      gate.querySelector("#nmdGateLink").onclick = function(){
+        var em = emailOk(); if(!em) return;
         auth.sendSignInLinkToEmail(em, {url: location.href.split("#")[0].split("?")[0], handleCodeInApp: true}).then(function(){
-          lsSet(em); gate.querySelector("#nmdGateEmail").value = em;
+          lsSet(em);
           showGate("Link sent to <b>" + em + "</b>. Open your Outlook inbox (check Junk too) and click the link <b>on this same device and browser</b>.");
-        }).catch(function(e){ showGate("Could not send the link (" + (e.code || e.message) + "). Try again."); });
+        }).catch(function(e){
+          showGate(e && e.code === "auth/quota-exceeded"
+            ? "Today's limit for sign-in e-mails is used up. Sign in with your password instead."
+            : "Could not send the link (" + (e.code || e.message) + "). Try again.");
+        });
       };
       var g = gate.querySelector("#nmdGateGoogle");
       if(g) g.onclick = function(){
@@ -92,7 +117,7 @@
         if(!user){ auth.signInAnonymously().catch(function(e){ fail("Could not connect (" + e.code + ")."); }); return; }
         resolve(user); return;
       }
-      if(!user){ onBody(function(){ showGate("Enter your company e-mail. A sign-in link is sent to your inbox — no password needed. You stay signed in on this device."); }); return; }
+      if(!user){ onBody(function(){ showGate("Sign in with your company e-mail and password. You stay signed in on this computer."); }); return; }
       if(!allowed(user)){
         onBody(function(){ showGate("<b>" + user.email + "</b> is not allowed to open this dashboard. Use your company e-mail."); });
         auth.signOut(); return;
