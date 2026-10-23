@@ -6,12 +6,12 @@
    the protection is the sign-in + firestore.rules.
 ------------------------------------------------------------------- */
 window.NMD_FIREBASE_CONFIG = {
-  apiKey:            "PASTE_API_KEY",
-  authDomain:        "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId:         "PASTE_PROJECT_ID",
-  storageBucket:     "PASTE_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId:             "PASTE_APP_ID"
+  apiKey:            "AIzaSyDIteLEQ4gyoQ-6qzd_5lqQfspiv9vjiyE",
+  authDomain:        "nmd-development-desk.firebaseapp.com",
+  projectId:         "nmd-development-desk",
+  storageBucket:     "nmd-development-desk.firebasestorage.app",
+  messagingSenderId: "763312520748",
+  appId:             "1:763312520748:web:26145b71d7bb92d13e1b89"
 };
 
 /* Who may open the dashboard:
