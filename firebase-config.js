@@ -15,11 +15,12 @@ window.NMD_FIREBASE_CONFIG = {
 };
 
 /* Who may open the dashboard:
-   "google"    = sign in with a Google account whose e-mail ends with
-                 one of allowedDomains or is in allowedEmails (recommended)
-   "anonymous" = no Google sign-in; only the dashboard PINs protect it  */
+   Sign-in is by a link e-mailed to the company address (works with Outlook),
+   or with a Google account. Only these e-mails / domains get in.
+   google: false hides the "sign in with Google" button.               */
 window.NMD_AUTH = {
-  mode: "google",
+  mode: "email",
+  google: true,
   allowedDomains: ["pmiglobal.co.in"],
   allowedEmails:  ["reportspmi411@gmail.com"]
 };

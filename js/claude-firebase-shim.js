@@ -31,21 +31,38 @@
   function allowed(user){
     if(!user) return false;
     if(authCfg.mode === "anonymous") return true;
-    var em = String(user.email || "").toLowerCase();
-    if((authCfg.allowedEmails || []).some(function(x){ return x.toLowerCase() === em; })) return true;
-    return (authCfg.allowedDomains || []).some(function(d){ return em.slice(-(d.length + 1)) === "@" + d.toLowerCase(); });
+    return emailAllowed(user.email);
   }
-  var gate = null;
+  /* sign-in: a link sent to the company e-mail (works with Outlook), or Google */
+  var gate = null, LS_KEY = "nmd_signin_email";
+  function lsGet(){ try { return localStorage.getItem(LS_KEY) || ""; } catch(e){ return ""; } }
+  function lsSet(v){ try { if(v) localStorage.setItem(LS_KEY, v); else localStorage.removeItem(LS_KEY); } catch(e){} }
   function showGate(msg){
     if(!gate){
       gate = document.createElement("div");
       gate.style.cssText = "position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:linear-gradient(160deg,#0e7c6b,#0b4f47);color:#fff;font:15px/1.5 system-ui,sans-serif;padding:24px";
-      gate.innerHTML = "<div style='max-width:420px;text-align:center'>" +
+      var btn = "font:600 15px system-ui;padding:12px 22px;border-radius:10px;border:0;cursor:pointer;";
+      gate.innerHTML = "<form id='nmdGateForm' style='max-width:420px;width:100%;text-align:center;display:grid;gap:12px'>" +
         "<div style='font:700 26px/1.2 system-ui;letter-spacing:.04em'>NMD DEVELOPMENT DESK</div>" +
-        "<p id='nmdGateMsg' style='opacity:.9;margin:12px 0 20px'></p>" +
-        "<button id='nmdGateBtn' style='font:600 15px system-ui;padding:12px 22px;border-radius:10px;border:0;background:#fff;color:#0b4f47;cursor:pointer'>Sign in with Google</button></div>";
+        "<p id='nmdGateMsg' style='opacity:.92;margin:0'></p>" +
+        "<input id='nmdGateEmail' type='email' required autocomplete='email' placeholder='name@pmiglobal.co.in' " +
+          "style='font:15px system-ui;padding:12px 14px;border-radius:10px;border:0;width:100%;box-sizing:border-box;color:#15201f;background:#fff'>" +
+        "<button type='submit' style='" + btn + "background:#ffb020;color:#1d1300'>E-mail me the sign-in link</button>" +
+        (authCfg.google !== false ? "<button type='button' id='nmdGateGoogle' style='" + btn + "background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)'>or sign in with Google</button>" : "") +
+        "</form>";
       document.body.appendChild(gate);
-      gate.querySelector("#nmdGateBtn").onclick = function(){
+      gate.querySelector("#nmdGateEmail").value = lsGet();
+      gate.querySelector("#nmdGateForm").onsubmit = function(ev){
+        ev.preventDefault();
+        var em = gate.querySelector("#nmdGateEmail").value.trim().toLowerCase();
+        if(!emailAllowed(em)){ showGate("<b>" + em + "</b> is not allowed. Use your company e-mail."); return; }
+        auth.sendSignInLinkToEmail(em, {url: location.href.split("#")[0].split("?")[0], handleCodeInApp: true}).then(function(){
+          lsSet(em); gate.querySelector("#nmdGateEmail").value = em;
+          showGate("Link sent to <b>" + em + "</b>. Open your Outlook inbox (check Junk too) and click the link <b>on this same device and browser</b>.");
+        }).catch(function(e){ showGate("Could not send the link (" + (e.code || e.message) + "). Try again."); });
+      };
+      var g = gate.querySelector("#nmdGateGoogle");
+      if(g) g.onclick = function(){
         var p = new firebase.auth.GoogleAuthProvider();
         p.setCustomParameters({prompt:"select_account"});
         auth.signInWithPopup(p).catch(function(e){ showGate("Sign-in did not finish (" + (e.code || e.message) + "). Try again."); });
@@ -54,15 +71,30 @@
     gate.querySelector("#nmdGateMsg").innerHTML = msg;
     gate.hidden = false;
   }
+  function emailAllowed(em){
+    em = String(em || "").toLowerCase();
+    if((authCfg.allowedEmails || []).some(function(x){ return x.toLowerCase() === em; })) return true;
+    return (authCfg.allowedDomains || []).some(function(d){ return em.slice(-(d.length + 1)) === "@" + d.toLowerCase(); });
+  }
+  /* coming back from the e-mail link */
+  try {
+    if(auth.isSignInWithEmailLink && auth.isSignInWithEmailLink(location.href)){
+      var em = lsGet();
+      if(!em) em = (window.prompt && window.prompt("Confirm your e-mail address")) || "";
+      if(em) auth.signInWithEmailLink(em, location.href).then(function(){
+        history.replaceState(null, "", location.href.split("?")[0]);
+      }).catch(function(e){ onBody(function(){ showGate("This sign-in link has expired or was already used (" + e.code + "). Ask for a new one."); }); });
+    }
+  } catch(e){}
   var ready = new Promise(function(resolve){
     auth.onAuthStateChanged(function(user){
       if(authCfg.mode === "anonymous"){
         if(!user){ auth.signInAnonymously().catch(function(e){ fail("Could not connect (" + e.code + ")."); }); return; }
         resolve(user); return;
       }
-      if(!user){ onBody(function(){ showGate("Sign in with your company Google account to open the dashboard."); }); return; }
+      if(!user){ onBody(function(){ showGate("Enter your company e-mail. A sign-in link is sent to your inbox — no password needed. You stay signed in on this device."); }); return; }
       if(!allowed(user)){
-        onBody(function(){ showGate("<b>" + user.email + "</b> is not allowed to open this dashboard. Use your company account."); });
+        onBody(function(){ showGate("<b>" + user.email + "</b> is not allowed to open this dashboard. Use your company e-mail."); });
         auth.signOut(); return;
       }
       if(gate) gate.hidden = true;

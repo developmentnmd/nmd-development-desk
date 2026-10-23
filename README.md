@@ -34,13 +34,17 @@ The code is now backed up with full history. Each time the dashboard is changed,
 
 ## Part B — Create the Firebase database (free)
 
-1. Go to **console.firebase.google.com**, sign in with the company Google account → **Create a project** → name `nmd-development-desk` → Google Analytics **off** → **Create project**.
+> **Which account?** Firebase needs a *Google* account to create the project. It does **not** have to be the same account as GitHub, and it does not have to be a company account — use **reportspmi411@gmail.com** (or any Gmail the company controls). Avoid a personal Gmail, so the project stays with the company if someone leaves. The team itself signs in with their **Outlook company e-mails** (step 4) — they don't need Gmail.
+
+1. Go to **console.firebase.google.com**, sign in with that Google account → **Create a project** → name `nmd-development-desk` → Google Analytics **off** → **Create project**.
 2. Left menu **Build → Firestore Database** → **Create database**
    - Location: **asia-south1 (Mumbai)** → **Next**
    - **Start in production mode** → **Create**.
 3. In Firestore open the **Rules** tab → delete everything → paste the whole content of `firestore.rules` → **Publish**.
    - The rules allow only `@pmiglobal.co.in` Google accounts and `reportspmi411@gmail.com`. To add another person with a different e-mail, add it in **both** `firestore.rules` and `firebase-config.js`.
-4. Left menu **Build → Authentication** → **Get started** → **Sign-in method** → **Google** → **Enable** → choose the support e-mail → **Save**.
+4. Left menu **Build → Authentication** → **Get started** → **Sign-in method**:
+   - Click **Email/Password** → turn on **Email/Password** *and* **Email link (passwordless sign-in)** → **Save**. This lets everyone sign in with their Outlook company e-mail: they type it in, get a link in their inbox, click it, and stay signed in on that device.
+   - (Optional) **Add new provider → Google** → **Enable** → **Save**, for anyone who prefers a Google account.
 5. ⚙ **Project settings** → **General** → scroll to **Your apps** → click the **`</>`** (Web) icon → nickname `nmd-desk` → **Register app**. Firebase shows a block like `const firebaseConfig = { apiKey: "...", ... }`.
    Copy the six values into `firebase-config.js` (replace every `PASTE_…`), then upload the edited `firebase-config.js` to GitHub (**Add file → Upload files**, it replaces the old one).
 
@@ -59,9 +63,9 @@ The code is now backed up with full history. Each time the dashboard is changed,
 ## Part D — Move the data in (one time)
 
 1. Open `https://YOUR-NAME.github.io/nmd-development-desk/tools/backup.html`.
-2. **Sign in with Google** (company account).
+2. Type your company e-mail → **E-mail me the sign-in link** → open Outlook → click the link (on the same computer and browser).
 3. Section 1 → choose the file **`nmd_data_backup_2026-10-23.json`** → **Load into Firebase**. Wait for "Finished: … written, 0 failed".
-4. Open `https://YOUR-NAME.github.io/nmd-development-desk/` → sign in with Google → pick your name → enter your **same PIN** as before.
+4. Open `https://YOUR-NAME.github.io/nmd-development-desk/` → sign in the same way → pick your name → enter your **same PIN** as before.
 
 Projects, tasks, special DBs, customers, team, PINs and plans are all carried over.
 
@@ -84,4 +88,5 @@ The claude.ai dashboard and the GitHub dashboard have **separate databases**. Th
 - **Changing the dashboard:** edit with Claude, then upload the new `index.html` to GitHub → **Commit changes**. The site updates in about a minute (press Ctrl + F5 to see it).
 - **Free limits (Firebase Spark plan):** 50,000 reads and 20,000 writes per day — far more than the team needs (about 250 reads each time someone opens the dashboard).
 - **Someone cannot sign in:** check their e-mail is in `firestore.rules` and `firebase-config.js`, and that the GitHub address is in Firebase *Authorized domains*.
+- **Sign-in link not arriving:** it comes from `noreply@<project>.firebaseapp.com` — check Outlook *Junk*. If the company mail filter blocks it, ask IT to allow that sender, or use **sign in with Google** instead. The link must be opened on the same device and browser where it was requested.
 - **Forgot PIN:** Firebase → Firestore Database → `config` → `pins` → delete that person's field (kiran, atharva, prathamesh, head or owner). Next time they open the dashboard they set a new PIN.
