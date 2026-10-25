@@ -1306,6 +1306,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 
 .cad .btn.up{border-color:var(--hot); color:var(--hot-ink); background:linear-gradient(180deg, color-mix(in srgb, var(--hot) 55%, #fff), var(--hot))}
 .cad .mytasks{box-shadow:inset 4px 0 0 var(--sel), var(--shadow)}
+.cad .btn.resume{margin-left:6px; padding:2px 8px; font-size:11.5px}
+.cad .holdbox{background:color-mix(in srgb, var(--crit) 6%, var(--paper)); border-left:4px solid var(--crit); padding:12px 14px; border-radius:4px}
 /* Today's Work: tasks are closed only from Submit end of day */
 .cad .tick.ro{cursor:default; border-style:dashed}
 .cad .tick.ro:hover{border-color:var(--frame)}
@@ -1467,7 +1469,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 
   var REASONS = ["Customer reply / approval pending","Drawing or data not received","Material / RM not available",
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
-    "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Other"];
+    "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
+  var HOLD_REASON = "Project on hold";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -1541,7 +1544,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function stageNo(s){ var m = /^(\d+)\./.exec(s || ""); return m ? m[1] : ""; }
   function hasSteps(p){ return !!(p && p.steps && p.steps.length); }
   function currentPStep(p){
-    if(!hasSteps(p) || !isActive(p)) return null;
+    if(!hasSteps(p) || !isActive(p) || isOnHold(p)) return null;
     for(var i = 0; i < p.steps.length; i++){ if(p.steps[i].status === "open") return p.steps[i]; }
     return null;
   }
@@ -1696,11 +1699,76 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     title = String(title || "");
     return /follow[\s-]?up/i.test(title) && /customer/i.test(title) && !/missing/i.test(title);
   }
+  /* ---------- leave: whoever is on leave gets no work; their open tasks go
+     to the others for the days away and come back when they return ---------- */
+  function leaveOf(id){ return (state.leave || {})[id] || null; }
+  function onLeave(id, day){
+    var l = leaveOf(id), d = day || today();
+    return !!(l && l.from && l.to && l.from <= d && d <= l.to);
+  }
+  function presentTeam(){
+    var p = state.team.filter(function(m){ return !onLeave(m.id); });
+    return p.length ? p : state.team;
+  }
+  function lightestPresent(except){
+    var best = null, bl = 1e9;
+    presentTeam().forEach(function(m){
+      if(m.id === except) return;
+      var l = openLoad(m.id); if(l < bl){ bl = l; best = m.id; }
+    });
+    return best;
+  }
+  function saveLeave(){
+    if(state.db) state.db.doc("config/leave").set({people:state.leave}).catch(onWriteErr);
+    render(); keepBalanced();
+  }
+  function setLeave(id, from, to){
+    state.leave = Object.assign({}, state.leave);
+    state.leave[id] = {from:from, to:to < from ? from : to, by:state.who, at:new Date().toISOString()};
+    saveLeave();
+    if(state.canWrite) applyLeave();
+  }
+  function endLeave(id){
+    state.leave = Object.assign({}, state.leave);
+    delete state.leave[id];
+    saveLeave();
+    if(state.canWrite) applyLeave();
+  }
+  function leaveMoves(){
+    return state.tasks.some(function(t){
+      return t.status !== "done" && ((onLeave(t.assignee) && state.team.some(function(m){ return m.id === t.assignee; })) ||
+                                     (t.leaveFor && !onLeave(t.leaveFor)));
+    });
+  }
+  /* hand the tasks of people on leave to the others (lightest load first) and
+     give covered tasks back once the person is back */
+  function applyLeave(){
+    var moved = 0, now = new Date().toISOString();
+    state.tasks.forEach(function(t){
+      if(t.status === "done" || !t.leaveFor || onLeave(t.leaveFor)) return;
+      saveTask(t, {assignee:t.leaveFor, leaveFor:"", leaveTill:"", transferReason:"", transferredBy:"",
+                   transferredFrom:"", seenAt:"", backFromLeave:today()});
+      moved++;
+    });
+    state.team.forEach(function(m){
+      if(!onLeave(m.id)) return;
+      var l = leaveOf(m.id);
+      state.tasks.filter(function(t){ return t.assignee === m.id && t.status !== "done"; }).forEach(function(t){
+        var to = lightestPresent(m.id);
+        if(!to) return;
+        saveTask(t, {assignee:to, leaveFor:m.id, leaveTill:l.to, transferredFrom:m.id, transferredBy:l.by || state.who,
+                     transferredAt:now, transferReason:shortName(m.id) + " on leave", seenAt:""});
+        moved++;
+      });
+    });
+    return moved;
+  }
   function stepAssignee(p, st){
     if(st && isCustFollowUp(st.t || st.title)) return "head";
     var n = state.team.length || 1, seed = hashStr(p.id + "|" + (st ? st.k : ""));
     var best = null, bestScore = 1e9;
     state.team.forEach(function(m, i){
+      if(onLeave(m.id) && presentTeam() !== state.team) return;
       var score = openLoad(m.id) * 100 + ((i + seed) % n);
       if(score < bestScore){ bestScore = score; best = m.id; }
     });
@@ -1715,7 +1783,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function balanceStepTasks(){
     var moved = 0;
     for(var guard = 0; guard < 300; guard++){
-      var loads = state.team.map(function(m){ return {id:m.id, n:openLoad(m.id)}; })
+      var loads = presentTeam().map(function(m){ return {id:m.id, n:openLoad(m.id)}; })
                             .sort(function(a,b){ return b.n - a.n; });
       var lo = loads[loads.length - 1], pick = null;
       for(var i = 0; i < loads.length - 1 && !pick; i++){
@@ -1760,7 +1828,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   var balTimer = null, balBusy = false;
   function balanceNeeded(){
     if(!state.team.length) return false;
-    var n = state.team.map(function(m){ return openLoad(m.id); });
+    var n = presentTeam().map(function(m){ return openLoad(m.id); });
     return Math.max.apply(null, n) - Math.min.apply(null, n) > 1;
   }
   function keepBalanced(){
@@ -1804,6 +1872,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function runBalance(){
     if(!balBusy && state.db && state.canWrite && state.tasks.length && needsFollowUpMove()){ missingFollowUpsToTeam(); followUpsToHead(); }
+    if(!balBusy && state.db && state.canWrite && state.tasks.length && leaveMoves()) applyLeave();
     if(balBusy || !state.db || !state.canWrite || !state.tasks.length || !balanceNeeded()) return;
     balBusy = true;
     var ref = state.db.doc("config/balance");
@@ -1831,7 +1900,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
      Mayur sir (customer not responding / final approval) and Mayur sir can pass
      it back to Manish sir */
   function transferTargets(t){
-    var list = state.team.map(function(m){ return {id:m.id, name:m.name}; });
+    var list = presentTeam().map(function(m){ return {id:m.id, name:m.name}; });
     if(state.who === "head" || t.assignee === "head") list.push({id:"owner", name:OWNER.name, up:true});
     if(state.who === "owner" || t.assignee === "owner") list.push({id:"head", name:HEAD.name});
     return list.filter(function(x){ return x.id !== t.assignee; });
@@ -1928,7 +1997,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
 
   var state = {
-    projects:[], tasks:[], checkins:[], customers:[], sdbs:[], sdorders:[], sdnotes:[], sdplan:null, teamAdmin:"", pinsLoaded:false, sdMonth:null, repMonth:null, repPending:false, auth:false, pinFor:null, pins:{}, team:DEFAULT_TEAM.slice(),
+    projects:[], tasks:[], checkins:[], customers:[], sdbs:[], sdorders:[], sdnotes:[], sdplan:null, teamAdmin:"", pinsLoaded:false, leave:{}, sdMonth:null, repMonth:null, repPending:false, auth:false, pinFor:null, pins:{}, team:DEFAULT_TEAM.slice(),
     scoring:{wValue:50, wCustomer:25, wGrowth:25, growthFull:25},
     ready:false, db:null, canWrite:true, planRan:false, diag:{claude:false, store:false, loaded:'', err:''},
     tab:"today", sub:"live", reopen:null, views:{}, writeChecked:false, who:"head", filters:{type:"all", status:"active", owner:"all", plant:"all", q:""},
@@ -2006,6 +2075,30 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     return Math.round((i+1)/list.length*100);
   }
   function isActive(p){ return p.status !== "Completed" && p.status !== "Dropped"; }
+  function isOnHold(p){ return !!p && p.status === "On Hold"; }
+  /* tasks of a project on hold stay saved but drop out of every list until the
+     project is resumed */
+  function splitHeld(){
+    var all = state.allTasks || state.tasks;
+    state.allTasks = all;
+    state.tasks = all.filter(function(t){ return !(t.status !== "done" && t.projectId && isOnHold(projById(t.projectId))); });
+  }
+  function heldTasksOf(pid){
+    return (state.allTasks || []).filter(function(t){ return t.projectId === pid && t.status !== "done"; });
+  }
+  function putOnHold(p, by, note){
+    if(!p || isOnHold(p)) return;
+    var lg = (p.log||[]).map(function(x){ return Object.assign({}, x); });
+    lg.unshift({d:today(), by:by, t:"Project put on hold" + (note ? " · " + note : ""), stage:p.stage||"", status:"On Hold"});
+    saveProject(p, {status:"On Hold", holdSince:today(), holdBy:by, holdFrom:p.status || "In Progress", log:lg.slice(0,40)});
+  }
+  function resumeProject(p, by){
+    if(!p || !isOnHold(p)) return;
+    var back = (p.holdFrom && p.holdFrom !== "On Hold") ? p.holdFrom : "In Progress";
+    var lg = (p.log||[]).map(function(x){ return Object.assign({}, x); });
+    lg.unshift({d:today(), by:by, t:"Project resumed after hold since " + fmtDate(p.holdSince), stage:p.stage||"", status:back});
+    saveProject(p, {status:back, resumedAt:today(), resumedBy:by, log:lg.slice(0,40)});
+  }
   /* how long a project has been sitting in its current stage */
   function stageSince(p){
     var logs = (p.log||[]).slice().reverse(), cur = p.stage||"", prev = null, since = "";
@@ -2139,7 +2232,15 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function ssSet(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }
 
   function saveProject(p, patch){
+    var wasHeld = isOnHold(p);
     Object.keys(patch).forEach(function(k){ p[k] = patch[k]; });
+    if(wasHeld !== isOnHold(p)){
+      splitHeld();
+      if(wasHeld){                                   /* resumed: its tasks come back for the next working day */
+        heldTasksOf(p.id).forEach(function(t){ saveTask(t, {date:workToday(), miss:null}); });
+        setTimeout(function(){ if(!isOnHold(p)) openPStepTask(p); }, 0);
+      }
+    }
     if(!state.db) { render(); return Promise.resolve(); }
     var body = {}; Object.keys(p).forEach(function(k){ if(k.charAt(0) !== "_") body[k] = p[k]; });
     render();
@@ -2151,7 +2252,9 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     if(patch) Object.keys(patch).forEach(function(k){ t[k] = patch[k]; });
     var i = -1;
     state.tasks.forEach(function(x,k){ if(x.id===t.id) i=k; });
-    if(i<0) state.tasks.push(t);
+    if(i<0 && !(t.status !== "done" && t.projectId && isOnHold(projById(t.projectId)))) state.tasks.push(t);
+    if(state.allTasks && state.allTasks !== state.tasks && state.allTasks.indexOf(t) < 0 &&
+       !state.allTasks.some(function(x){ return x.id === t.id; })) state.allTasks.push(t);
     if(!state.db){ render(); return Promise.resolve(); }
     var body = {}; Object.keys(t).forEach(function(k){ if(k.charAt(0) !== "_") body[k] = t[k]; });
     render();
@@ -2172,6 +2275,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function removeTask(t){
     state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
+    if(state.allTasks) state.allTasks = state.allTasks.filter(function(x){ return x.id !== t.id; });
     render();
     if(state.db) state.db.doc("tasks/"+t.id).delete().catch(onWriteErr);
   }
@@ -2674,10 +2778,10 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       done();
     }
     db.collection("projects").get().then(function(snap){
-      state.projects = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; return o; }); done();
+      state.projects = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; return o; }); if(state.allTasks) splitHeld(); done();
     }).catch(fail);
     db.collection("tasks").get().then(function(snap){
-      state.tasks = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; o._saved = true; return o; }); done();
+      state.allTasks = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; o._saved = true; return o; }); splitHeld(); done();
     }).catch(fail);
     db.collection("customers").get().then(function(snap){
       state.customers = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; return o; }); done();
@@ -2734,10 +2838,12 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     db.collection("projects").onSnapshot(function(snap){
       if(!snap.docs.length && state.projects.length) return;      /* keep what we already read */
       state.projects = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; return o; });
+      if(state.allTasks) splitHeld();
       state.ready = true; render(); ensureCustomers();
     }, onErr("projects"));
     db.collection("tasks").onSnapshot(function(snap){
-      state.tasks = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; o._saved = true; return o; });
+      state.allTasks = snap.docs.map(function(d){ var o = Object.assign({}, d.data()||{}); o.id = d.id; o._saved = true; return o; });
+      splitHeld();
       render(); rollForward(); maybeBuildDailyPlan(); keepBalanced();
     }, onErr("tasks"));
     db.collection("customers").onSnapshot(function(snap){
@@ -2769,6 +2875,10 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         state.team = snap.data().people.map(function(m){ return Object.assign({}, m); });
         buildWho(); render(); keepBalanced();
       }
+    }, function(){});
+    db.doc("config/leave").onSnapshot(function(snap){
+      state.leave = (snap.exists && snap.data() && snap.data().people) ? Object.assign({}, snap.data().people) : {};
+      render(); keepBalanced();
     }, function(){});
     db.doc("config/views").onSnapshot(function(snap){
       if(snap.exists && snap.data()) state.views = Object.assign({}, (snap.data().views) || {});
@@ -2902,7 +3012,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function makeSdTask(sd, step){
     return {id:uid("T"), projectId:"", sdId:sd.id, sdStep:step.n, sdCode:sd.sdCode,
-            title:step.title, assignee:isCustFollowUp(step.title) ? "head" : step.who, date:workDay(step.plan || today()),
+            title:step.title, assignee:isCustFollowUp(step.title) ? "head" : (onLeave(step.who) ? (lightestPresent(step.who) || step.who) : step.who), date:workDay(step.plan || today()),
             plannedDate:step.plan ? workDay(step.plan) : "", firstDate:workDay(step.plan || today()), status:"open",
             createdAt:new Date().toISOString(), note:""};
   }
@@ -3049,7 +3159,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function lightestMember(){
     var best = null, bestLoad = 1e9;
-    state.team.forEach(function(m){
+    presentTeam().forEach(function(m){
       var l = loadOf(m.id);
       if(l < bestLoad){ bestLoad = l; best = m.id; }
     });
@@ -3128,7 +3238,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       var have = {}; open.forEach(function(t){ have[t.projectId] = true; });
       var room = CAPACITY - open.length;
       if(room <= 0) return;
-      state.projects.filter(function(p){ return isActive(p) && p.owner === m.id && !have[p.id] && !currentPStep(p); })
+      state.projects.filter(function(p){ return isActive(p) && !isOnHold(p) && p.owner === m.id && !have[p.id] && !currentPStep(p); })
         .sort(function(a,b){ return bandRank(a) - bandRank(b); })
         .slice(0, room)
         .forEach(function(p){ saveTask(makeTask(p, m.id)); made++; });
@@ -3276,7 +3386,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
             misses.unshift({d:today(), reason:r.why.value, note:n, by:person});
             saveTask(r.task, {note:n, miss:{d:today(), reason:r.why.value, note:n, by:person}, misses:misses.slice(0,20)});
             var pp = projById(r.task.projectId);
-            if(pp){
+            if(pp && r.why.value === HOLD_REASON) putOnHold(pp, person, n);
+            else if(pp){
               var lg = (pp.log||[]).map(function(x){ return Object.assign({}, x); });
               lg.unshift({d:today(), by:person, t:"Not finished — " + r.why.value + (n ? " · " + n : ""), stage:pp.stage||"", status:pp.status||""});
               saveProject(pp, {log:lg.slice(0,40)});
@@ -3299,12 +3410,76 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     ]);
     drawer("End of day — " + fmtDate(today()), "Close today's tasks and leave the status for tomorrow", body);
   }
+  function leaveText(id){
+    var l = leaveOf(id); if(!l) return "";
+    return l.from === l.to ? fmtDate(l.from) : fmtDate(l.from) + " – " + fmtDate(l.to);
+  }
+  function leaveCard(){
+    var me = state.who, lead = isLead(me);
+    var chips = state.team.map(function(m){
+      var l = leaveOf(m.id), now = onLeave(m.id), later = l && !now && l.from > today();
+      return el("span",{class:"chip " + (now ? "over" : (later ? "p2" : "plain")),
+        title: now ? "On leave " + leaveText(m.id) + " — tasks are with the others" : (later ? "Leave planned " + leaveText(m.id) : "Present")},
+        [m.name.split(" ")[0] + (now ? " · on leave till " + fmtDate(l.to) : (later ? " · leave " + leaveText(m.id) : " · present"))]);
+    });
+    var canMark = lead || state.team.some(function(m){ return m.id === me; });
+    return el("div",{class:"card leavecard", style:"margin-bottom:18px"},[
+      el("div",{class:"cardhead"},[
+        el("h3",{},["Leave"]),
+        el("div",{style:"display:flex;gap:6px;flex-wrap:wrap;flex:1"}, chips),
+        canMark ? el("button",{class:"btn sm", onclick:function(){ openLeaveForm(); }},[lead ? "Mark leave" : "Apply my leave"]) : null
+      ])
+    ]);
+  }
+  function openLeaveForm(){
+    var me = state.who, lead = isLead(me);
+    var people = lead ? state.team : state.team.filter(function(m){ return m.id === me; });
+    var fWho = el("select",{}, people.map(function(m){ return el("option",{value:m.id},[m.name]); }));
+    var fFrom = el("input",{type:"date", value:workToday()});
+    var fTo = el("input",{type:"date", value:workToday()});
+    fFrom.addEventListener("change", function(){ if(fTo.value < fFrom.value) fTo.value = fFrom.value; });
+    var warn = el("p",{class:"muted", style:"color:var(--crit);font-weight:600;font-size:13px;margin:8px 0 0", hidden:"hidden"});
+    var current = state.team.filter(function(m){ var l = leaveOf(m.id); return l && l.to >= today() && (lead || m.id === me); });
+    drawer("Leave", "Tasks of whoever is on leave go to the others and come back when they return", el("div",{},[
+      el("div",{class:"dsec"},[
+        el("div",{class:"formgrid"},[
+          el("div",{class:"field"},[el("label",{},["Who"]), fWho]),
+          el("div",{class:"field"},[el("label",{},["From"]), fFrom]),
+          el("div",{class:"field"},[el("label",{},["To (last day of leave)"]), fTo])
+        ]),
+        el("p",{class:"muted", style:"font-size:12.5px;margin:10px 0 0"},[
+          "From the first day of leave, every open task of this person is shared out to the others (lightest load first). " +
+          "Each task shows whose it is and that they are on leave, and the new person gets a notification. " +
+          "No new task is given to them while they are away. When the leave ends, unfinished tasks go back to them."]),
+        warn,
+        el("button",{class:"btn primary", style:"margin-top:12px", onclick:function(){
+          if(!fFrom.value){ warn.textContent = "Pick the first day of leave."; warn.hidden = false; return; }
+          setLeave(fWho.value, fFrom.value, fTo.value || fFrom.value);
+          closeDrawer();
+          banner(memberName(fWho.value) + " on leave " + leaveText(fWho.value) + (onLeave(fWho.value) ? " — open tasks are being shared out." : "."));
+          setTimeout(function(){ banner(""); }, 7000);
+        }},["Save leave"])
+      ]),
+      current.length ? el("div",{class:"dsec"},[ el("h4",{},["Current and planned leave"]),
+        el("div",{class:"card"}, current.map(function(m){
+          var covered = state.tasks.filter(function(t){ return t.leaveFor === m.id && t.status !== "done"; }).length;
+          return el("div",{class:"task"},[
+            el("div",{class:"taskmain"},[ el("div",{class:"tt"},[m.name]),
+              el("div",{class:"tmeta"},[ el("span",{class:"chip " + (onLeave(m.id) ? "over" : "p2")},[leaveText(m.id)]),
+                covered ? el("span",{class:"chip"},[covered + " task" + (covered === 1 ? "" : "s") + " with others"]) : null ]) ]),
+            el("div",{class:"taskact"},[ el("button",{class:"btn sm", onclick:function(){ endLeave(m.id); openLeaveForm(); }},
+              [onLeave(m.id) ? "Back today — end leave" : "Cancel leave"]) ])
+          ]);
+        })) ]) : null
+    ]));
+  }
   function eodStrip(){
     var strip = el("div",{class:"card", style:"margin-bottom:18px"},[
       el("div",{class:"cardhead"},[
         el("h3",{},["End of day"]),
         el("div",{style:"display:flex;gap:6px;flex-wrap:wrap;flex:1"}, state.team.map(function(m){
           var c = checkinOf(m.id, today());
+          if(!c && onLeave(m.id)) return el("span",{class:"chip plain", title:"On leave"},[m.name.split(" ")[0] + " · leave"]);
           return el("span",{class:"chip " + (c ? "today" : "nv"), title:c ? (c.summary || "submitted") : "not submitted yet"},
             [m.name.split(" ")[0] + (c ? " ✓" : " —")]);
         })),
@@ -3530,6 +3705,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     wrap.firstChild.appendChild(weekStrip(open, isLead(who)));
     if(isLead(who)) wrap.appendChild(assignCard(who));
     if(isLead(who)) wrap.appendChild(myOwnTasks(who));
+    wrap.appendChild(leaveCard());
     wrap.appendChild(eodStrip());
 
     /* plan */
@@ -3571,7 +3747,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var haveTask = {};
     open.forEach(function(t){ haveTask[t.projectId] = true; });
     var suggestPool = state.projects.filter(function(p){
-      return isActive(p) && !haveTask[p.id] && (isLead(who) || p.owner === who || !p.owner);
+      return isActive(p) && !isOnHold(p) && !haveTask[p.id] && (isLead(who) || p.owner === who || !p.owner);
     }).sort(function(a,b){ return bandRank(a) - bandRank(b); }).slice(0, 6);
 
     var sug = el("div",{class:"card"});
@@ -3776,10 +3952,12 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         [fmtDate(t.startDate) + " → " + fmtDate(t.plannedDate || t.date) + " · " + taskSpan(t)]) : null,
       (t.assignedBy && t.assignedBy !== t.assignee) ? el("span",{class:"chip given", title:"Given by " + memberName(t.assignedBy)},
         ["from " + shortName(t.assignedBy)]) : null,
-      (!t.assignedBy && t.transferredBy && t.transferredBy !== t.assignee) ? el("span",{class:"chip xfer",
+      t.leaveFor ? el("span",{class:"chip xfer", title:memberName(t.leaveFor) + "'s task — given to you while they are on leave (till " + fmtDate(t.leaveTill) + "). It goes back to them when they return."},
+        [shortName(t.leaveFor) + "'s task · on leave till " + fmtDate(t.leaveTill)]) : null,
+      (!t.leaveFor && !t.assignedBy && t.transferredBy && t.transferredBy !== t.assignee) ? el("span",{class:"chip xfer",
         title:"Transferred by " + memberName(t.transferredBy) + (t.transferredAt ? " on " + fmtDate(t.transferredAt.slice(0,10)) : "")},
         ["↪ from " + shortName(t.transferredFrom || t.transferredBy)]) : null,
-      (t.transferReason && t.status !== "done") ? el("span",{class:"chip over"},[t.transferReason]) : null,
+      (t.transferReason && !t.leaveFor && t.status !== "done") ? el("span",{class:"chip over"},[t.transferReason]) : null,
       (isCustFollowUp(t.title) && !t.transferReason) ? el("span",{class:"chip st-int", title:"Customer follow-up — Manish sir's work"},["customer follow-up"]) : null,
       avatarChip(t.assignee),
       (t.status !== "done" && t.miss && t.miss.reason)
@@ -4166,7 +4344,9 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
           el("div",{class:"track", title:hasSteps(p) ? projStepPct(p) + "% of the process steps done" : ""},[el("i",{style:"width:"+projPct(p)+"%"})]),
           cps ? el("div",{class:"psub", title:cpsText},[cpsText.length > 48 ? cpsText.slice(0,48) + "…" : cpsText]) : null
         ]) ]),
-      el("td",{"data-l":"Status"},[ el("span",{class:"chip " + ({"Completed":"today","Waiting for Customer":"p2","In Progress":"st-prog","Waiting Internal":"st-int","On Hold":"st-hold","Dropped":"nv"}[p.status] || "")},[p.status || "—"]) ]),
+      el("td",{"data-l":"Status"},[ el("span",{class:"chip " + ({"Completed":"today","Waiting for Customer":"p2","In Progress":"st-prog","Waiting Internal":"st-int","On Hold":"st-hold","Dropped":"nv"}[p.status] || "")},[p.status || "—"]),
+        isOnHold(p) && state.auth ? el("button",{class:"btn sm resume", title:"Resume this project — its tasks come back to the plan",
+          onclick:function(e){ e.stopPropagation(); resumeProject(p, state.who); }},["Resume"]) : null ]),
       el("td",{"data-l":"Owner"},[ p.owner ? avatarChip(p.owner) : el("span",{class:"chip nv"},["assign"]) ]),
       el("td",{class:"n", "data-l":kind==="qve"?"₹ saving":"₹ / month"},[ valueKnown(p) ? inr(p._value) : "—" ])
     ];
@@ -4662,7 +4842,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         try{ res = parseSdWorkbook(new Uint8Array(fr.result)); }
         catch(e){ res = {error: errText(e)}; }
         if(res.error){ banner("Could not read that file: " + res.error); return; }
-        previewUpload(m, f.name, res.items);
+        previewUpload(defaultOrderMonth(m), f.name, res.items);
       };
       fr.readAsArrayBuffer(f);
       inp.value = "";
@@ -4670,12 +4850,38 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     return el("span",{},[btn, inp]);
   }
 
+  function monthAdd(m, n){ var p = m.split("-"), d = new Date(+p[0], +p[1] - 1 + n, 1); return d.getFullYear() + "-" + pad(d.getMonth() + 1); }
+  /* the month a newly uploaded order belongs to: the month on screen, unless
+     that month already has its order and has started — then it is next month's order */
+  function defaultOrderMonth(m){
+    return (orderOfMonth(m) && m <= shiftMonth(0)) ? monthAdd(m, 1) : m;
+  }
+  /* the same SD code finished in an earlier month: the file is already made,
+     so a new order of it is a repeat (2 steps) */
+  function developedBefore(code, m){
+    return state.sdbs.filter(function(x){ return x.sdCode === code && x.month < m && sdProgress(x) === 100; })
+      .sort(function(a, b){ return b.month.localeCompare(a.month); })[0] || null;
+  }
   function previewUpload(m, fileName, items){
     var existing = {};
     sdOfMonth(m).forEach(function(x){ existing[x.sdCode] = x; });
+    items = items.map(function(i){
+      var o = Object.assign({}, i), prev = developedBefore(i.sdCode, m);
+      o.prev = prev ? prev.month : "";
+      if(prev && o.kind === "new"){ o.kind = "repeat"; o.wasNew = true; }
+      return o;
+    });
     var fresh = items.filter(function(i){ return !existing[i.sdCode]; });
     var again = items.filter(function(i){ return existing[i.sdCode]; });
+    var finishedAgain = again.filter(function(i){ return sdProgress(existing[i.sdCode]) === 100; });
     var news = items.filter(function(i){ return i.kind === "new"; });
+
+    /* which month is this order for? */
+    var monthSel = el("select",{style:"width:auto;min-width:180px", onchange:function(){ previewUpload(monthSel.value, fileName, items); }},
+      [-1, 0, 1, 2].map(function(k){ return monthAdd(shiftMonth(0), k); })
+        .concat(m.indexOf("-") > 0 ? [m] : []).filter(function(x, i, a){ return a.indexOf(x) === i; }).sort()
+        .map(function(x){ return el("option",{value:x, selected:x === m ? "selected" : null},[monthName(x) + (orderOfMonth(x) ? " — order already uploaded" : "")]); }));
+    var restart = el("input",{type:"checkbox", style:"width:auto"});
 
     var rows = el("div",{class:"tablewrap"});
     var t = el("table",{style:"min-width:520px"});
@@ -4686,45 +4892,65 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var tb = el("tbody");
     items.forEach(function(i){
       var n = (i.kind === "new" ? SD_NEW_STEPS.length - (sdMissing(i).length ? 0 : 1) : SD_REPEAT_STEPS.length);
+      var ex = existing[i.sdCode];
       tb.appendChild(el("tr",{},[
         el("td",{},[i.sdCode]),
-        el("td",{},[ i.kind === "new" ? el("span",{class:"chip p1"},["new"]) : el("span",{class:"chip"},["repeat"]) ]),
+        el("td",{},[ i.kind === "new" ? el("span",{class:"chip p1"},["new"]) : el("span",{class:"chip"},["repeat"]),
+          i.prev ? el("div",{class:"muted", style:"font-size:11px;margin-top:2px"},[(i.wasNew ? "marked new · " : "") + "made " + monthName(i.prev).replace(/^(\w{3})\w*/, "$1")]) : null ]),
         el("td",{class:"n"},[String(i.orderQty || 0)]),
         el("td",{},[i.cad]), el("td",{},[i.gad]), el("td",{},[i.bom]),
-        el("td",{},[ existing[i.sdCode] ? el("span",{class:"chip"},["already added"]) : (n + " steps") ])
+        el("td",{},[ !ex ? (n + " steps start")
+          : (sdProgress(ex) === 100 ? el("span",{class:"chip"},["finished — restart if ticked below"]) : el("span",{class:"chip"},["already on the list"])) ])
       ]));
     });
     t.appendChild(tb); rows.appendChild(t);
 
     drawer("Order file — " + monthName(m), fileName + " · " + items.length + " DB codes read", el("div",{},[
       el("div",{class:"dsec"},[
+        el("div",{class:"field"},[ el("label",{},["This order is for"]), monthSel ]),
+        el("p",{class:"muted", style:"font-size:12.5px;margin:8px 0 0"},[
+          "Each month's order gets its own list. Every repeat DB in it starts its 2 steps again (update the job card, submit to purchase); " +
+          "a DB already made in an earlier month counts as a repeat."])
+      ]),
+      el("div",{class:"dsec"},[
         el("div",{class:"tiles"},[
-          tile("DB codes", String(items.length), news.length + " new", ""),
-          tile("To be added", String(fresh.length), again.length + " already on the list", "")
+          tile("DB codes", String(items.length), news.length + " new · " + (items.length - news.length) + " repeat", ""),
+          tile("Steps start for", String(fresh.length), again.length ? again.length + " already in " + monthName(m) : "all codes in the file", "")
         ]),
-        el("p",{class:"muted", style:"font-size:12.5px;margin:10px 0 0"},[
-          "Repeated lines of the same SD code are merged and their quantities added. New DBs get the full development ladder; "+
-          "the follow-up step is added only when CAD, GAD or BOM is marked not available."])
+        finishedAgain.length ? el("label",{style:"display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13px;cursor:pointer"},[
+          restart, el("span",{},[el("b",{},["Start the steps again for " + finishedAgain.length + " finished DB" + (finishedAgain.length === 1 ? "" : "s")]),
+            " already in " + monthName(m) + " (a second order of the same code this month). Leave unticked if you are only re-uploading a corrected file."]) ]) : null
       ]),
       el("div",{class:"dsec"},[ el("h4",{},["What the file says"]), rows ]),
       el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},[
         el("button",{class:"btn primary", onclick:function(){
-          commitUpload(m, fileName, items, existing);
-        }},["Add to the month and create tasks"]),
+          commitUpload(m, fileName, items, existing, restart.checked);
+        }},["Add to " + monthName(m) + " and create tasks"]),
         el("button",{class:"btn", onclick:closeDrawer},["Cancel"])
       ])
     ]));
   }
 
-  function commitUpload(m, fileName, items, existing){
-    var added = 0, updated = 0;
+  function commitUpload(m, fileName, items, existing, restart){
+    var added = 0, updated = 0, restarted = 0;
     items.forEach(function(i){
       var old = existing[i.sdCode];
+      var data = {orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines, poNos:i.poNos,
+                  cad:i.cad, gad:i.gad, bom:i.bom, sfgCode:i.sfgCode, commDate:i.commDate,
+                  critical:i.critical, desc:i.desc || (old && old.desc) || ""};
+      if(old && restart && sdProgress(old) === 100){
+        /* a new order of a finished DB: its steps start again from today */
+        var re = Object.assign({}, old, data, {startDate:today(), steps:[]});
+        re.steps = buildSteps(re);
+        saveSd(old, Object.assign(data, {startDate:today(), steps:re.steps, reorderedAt:new Date().toISOString(),
+                                         orders:(old.orders || 1) + 1}));
+        openStepTask(sdById(old.id) || old);
+        restarted++;
+        return;
+      }
       if(old){
         /* keep the step progress, refresh the commercial and data columns */
-        saveSd(old, {orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines, poNos:i.poNos,
-                     cad:i.cad, gad:i.gad, bom:i.bom, sfgCode:i.sfgCode, commDate:i.commDate,
-                     critical:i.critical, desc:i.desc || old.desc});
+        saveSd(old, data);
         updated++;
         return;
       }
@@ -4732,24 +4958,22 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
                 critical:i.critical, orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines,
                 poNos:i.poNos, sfgItem:i.sfgItem, commDate:i.commDate, cad:i.cad, gad:i.gad,
                 bom:i.bom, sfgCode:i.sfgCode, remarks:i.remarks || "", createdAt:today(), startDate:today(),
-                createdBy:state.who, steps:[]};
+                createdBy:state.who, steps:[], madeIn:i.prev || ""};
       sd.steps = buildSteps(sd);
       saveSd(sd, {});
       openStepTask(sd);
       added++;
     });
-    if(state.db){
-      state.db.doc("sdorders/" + m).set({month:m, fileName:fileName, uploadedBy:state.who,
-        uploadedAt:new Date().toISOString(), codes:items.length,
-        newCodes:items.filter(function(i){ return i.kind === "new"; }).length}).catch(onWriteErr);
-    }
-    state.sdorders = state.sdorders.filter(function(x){ return x.id !== m; })
-      .concat([{id:m, month:m, fileName:fileName, uploadedBy:state.who, uploadedAt:new Date().toISOString(),
-                codes:items.length, newCodes:items.filter(function(i){ return i.kind === "new"; }).length}]);
+    var meta = {month:m, fileName:fileName, uploadedBy:state.who, uploadedAt:new Date().toISOString(),
+                codes:items.length, newCodes:items.filter(function(i){ return i.kind === "new"; }).length};
+    if(state.db) state.db.doc("sdorders/" + m).set(meta).catch(onWriteErr);
+    state.sdorders = state.sdorders.filter(function(x){ return x.id !== m; }).concat([Object.assign({id:m}, meta)]);
+    state.sdMonth = m;                                   /* show the month the order went into */
     closeDrawer();
-    banner(added + " DB" + (added===1?"":"s") + " added and the first task given to each owner" +
-           (updated ? ", " + updated + " existing updated" : "") + ".");
-    setTimeout(function(){ banner(""); }, 7000);
+    banner(monthName(m) + ": " + added + " DB" + (added===1?"":"s") + " added with their steps" +
+           (restarted ? ", " + restarted + " finished DB" + (restarted===1?"":"s") + " started again" : "") +
+           (updated ? ", " + updated + " already on the list updated" : "") + ".");
+    setTimeout(function(){ banner(""); }, 8000);
     render();
   }
 
@@ -5306,6 +5530,15 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var p = projById(id); if(!p) return;
     var body = el("div");
 
+    if(isOnHold(p)){
+      var nHeld = heldTasksOf(p.id).length;
+      body.appendChild(el("div",{class:"dsec holdbox"},[
+        el("h4",{},["On hold since " + fmtDate(p.holdSince) + (p.holdBy ? " · " + memberName(p.holdBy) : "")]),
+        el("p",{class:"muted", style:"font-size:13px;margin:0 0 10px"},[nHeld + " open task" + (nHeld === 1 ? " is" : "s are") +
+          " parked and do not show in anyone's plan. Resume the project to bring them back."]),
+        el("button",{class:"btn primary", onclick:function(){ resumeProject(p, state.who); openProject(p.id); }},["Resume project"])
+      ]));
+    }
     /* update box first — this is the daily job */
     var upText = el("textarea",{placeholder:"What happened today on this project?"});
     var upStage = el("select",{}, [el("option",{value:""},["Stage — no change"])].concat(
