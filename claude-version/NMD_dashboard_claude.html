@@ -1010,6 +1010,25 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 
 /* measure readouts */
 .cad .tiles{gap:14px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+/* work week strip: Sunday → Saturday, Saturday is the weekly off */
+.cad .weekstrip{margin-top:14px; background:var(--paper); border:1px solid var(--frame); border-radius:4px; box-shadow:var(--shadow)}
+.cad .weekstrip .wshead{display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:10px 14px 8px; border-bottom:1px solid var(--frame-soft)}
+.cad .weekstrip .wshead h3{margin:0; font-size:13px; letter-spacing:.08em; text-transform:uppercase}
+.cad .weekstrip .wshead span{font-size:12.5px; color:var(--ink2)}
+.cad .weekdays{display:grid; grid-template-columns:repeat(7,minmax(0,1fr))}
+.cad .wday{padding:9px 10px 10px; border-right:1px solid var(--frame-soft); min-width:0; display:grid; gap:2px}
+.cad .wday:last-child{border-right:0}
+.cad .wday .wn{font:600 11px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink2)}
+.cad .wday .wd{font-size:13px; font-weight:600}
+.cad .wday .wc{font-size:11.5px; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cad .wday.is-today{background:color-mix(in srgb, var(--sel) 9%, var(--paper)); box-shadow:inset 0 3px 0 var(--sel)}
+.cad .wday.is-today .wn{color:var(--sel)}
+.cad .wday.is-off{background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--crit) 7%, var(--paper)) 0 6px, var(--paper) 6px 12px)}
+.cad .wday.is-off .wn, .cad .wday.is-off .wc{color:var(--crit); font-weight:700}
+@media (max-width:640px){
+  .cad .wday{padding:7px 4px; text-align:center}
+  .cad .wday .wc{white-space:normal; font-size:10.5px}
+}
 .cad .tile{position:relative; overflow:hidden; background:var(--paper); background-image:none; border:1px solid var(--frame);
   border-radius:3px; padding:14px 16px 26px 18px; box-shadow:inset 3px 0 0 var(--tc), var(--shadow);
   -webkit-backdrop-filter:none; backdrop-filter:none}
@@ -3419,6 +3438,27 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
 
   /* ---------- shared pieces ---------- */
+  /* this week, Sunday to Saturday, with the open tasks due each day */
+  function weekStrip(open, lead){
+    var t0 = today(), d = parseISO(t0); d.setDate(d.getDate() - d.getDay());   /* back to Sunday */
+    var names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], cells = [];
+    for(var i = 0; i < 7; i++){
+      var ds = iso(d), off = isOffDay(ds), n = open.filter(function(t){ return t.date === ds; }).length;
+      cells.push(el("div",{class:"wday" + (ds === t0 ? " is-today" : "") + (off ? " is-off" : ""),
+        title: off ? "Weekly off — no tasks are planned on Saturday" : n + " open task" + (n === 1 ? "" : "s") + " due"},[
+        el("span",{class:"wn"},[names[d.getDay()] + (ds === t0 ? " · today" : "")]),
+        el("span",{class:"wd"},[fmtDate(ds).replace(/ \d\d$/, "")]),
+        el("span",{class:"wc"},[off ? "WEEKLY OFF" : (n ? n + " due" : (ds < t0 ? "—" : "free"))])
+      ]));
+      d.setDate(d.getDate() + 1);
+    }
+    return el("div",{class:"weekstrip"},[
+      el("div",{class:"wshead"},[ el("h3",{},["Work week"]),
+        el("span",{},["Sunday to Friday are working days · ", el("b",{style:"color:var(--crit)"},["Saturday is the weekly off"]),
+          " — no task is planned or due on it" + (lead ? " (team)" : "")]) ]),
+      el("div",{class:"weekdays"}, cells)
+    ]);
+  }
   function tile(lab, val, sub, cls){
     return el("div",{class:"tile " + (cls||"")},[
       el("div",{class:"lab"},[lab]),
@@ -3487,6 +3527,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       ])
     ]));
 
+    wrap.firstChild.appendChild(weekStrip(open, isLead(who)));
     if(isLead(who)) wrap.appendChild(assignCard(who));
     if(isLead(who)) wrap.appendChild(myOwnTasks(who));
     wrap.appendChild(eodStrip());
@@ -6039,6 +6080,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       sb.appendChild(el("span",{class:"sp"}));
       sb.appendChild(el("span",{},[el("b",{},[String(due)]), " due"]));
       sb.appendChild(el("span",{class:"late"},[el("b",{},[String(late)]), " late"]));
+      sb.appendChild(el("span",{title:"No tasks are planned on Saturday"},["Weekly off ", el("b",{},["SAT"])]));
       sb.appendChild(el("span",{},["MMGS"]));
       sb.appendChild(el("span",{},["Grid ", el("b",{},["ON"])]));
     }
