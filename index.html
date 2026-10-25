@@ -1559,11 +1559,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     if(st.q && !st.answer) return "Step " + st.k + ": " + st.q + " (Yes / No) → " + st.title;
     return "Step " + st.k + ": " + st.title;
   }
-  function addDaysF(isoDate, n){
-    var d = parseISO(isoDate) || new Date();
-    d.setDate(d.getDate() + Math.ceil(n || 0));
-    return isoOf(d);
-  }
+  function addDaysF(isoDate, n){ return addWork(isoDate || today(), n); }
   /* planned dates run on from `from`; a step with no fixed time stops the chain
      until it is finished, then the rest are planned from that day */
   function planSteps(steps, from){
@@ -1952,6 +1948,26 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function iso(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
   function today(){ return iso(new Date()); }
   function parseISO(s){ if(!s) return null; var p = s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+  /* ---------- weekly off: Saturday. No task is ever dated on it ---------- */
+  var OFF_DAYS = [6];                                   /* 0 = Sun … 6 = Sat */
+  function isOffDay(s){ var d = parseISO(String(s || "").slice(0,10)); return !!d && OFF_DAYS.indexOf(d.getDay()) >= 0; }
+  function workDay(s){                                  /* the day itself, or the next working day */
+    var d = parseISO(String(s || "").slice(0,10)) || new Date();
+    for(var g = 0; g < 7 && OFF_DAYS.indexOf(d.getDay()) >= 0; g++) d.setDate(d.getDate() + 1);
+    return iso(d);
+  }
+  function workToday(){ return workDay(today()); }
+  function addWork(s, n){                               /* n working days after s (Saturdays skipped) */
+    var d = parseISO(workDay(s)); n = Math.ceil(+n || 0);
+    while(n > 0){ d.setDate(d.getDate() + 1); if(OFF_DAYS.indexOf(d.getDay()) < 0) n--; }
+    return iso(d);
+  }
+  function workDiff(a, b){                              /* a - b counted in working days */
+    var x = parseISO(a), y = parseISO(b); if(!x || !y) return null;
+    var sign = x >= y ? 1 : -1, lo = sign > 0 ? y : x, hi = sign > 0 ? x : y, n = 0, d = new Date(lo);
+    while(d < hi){ d.setDate(d.getDate() + 1); if(OFF_DAYS.indexOf(d.getDay()) < 0) n++; }
+    return sign * n;
+  }
   function dayDiff(a,b){ // a - b in days
     var x = parseISO(a), y = parseISO(b); if(!x||!y) return null;
     return Math.round((x - y)/86400000);
@@ -2802,11 +2818,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     {t:"Update the job card in the DB file (change process flow / BOM / drawings if required)", who:"prathamesh", days:2},
     {t:"Submit the updated file to the purchase team", who:"prathamesh", days:1}
   ];
-  function addDays(iso, n){
-    var d = parseISO(iso) || new Date();
-    d.setDate(d.getDate() + (+n || 0));
-    return iso ? isoOf(d) : isoOf(d);
-  }
+  function addDays(s, n){ return addWork(s || today(), n); }    /* working days — Saturday is off */
   function isoOf(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
   function planDays(kind){
     var cfg = state.sdplan || {};
@@ -2885,8 +2897,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function makeSdTask(sd, step){
     return {id:uid("T"), projectId:"", sdId:sd.id, sdStep:step.n, sdCode:sd.sdCode,
-            title:step.title, assignee:isCustFollowUp(step.title) ? "head" : step.who, date:step.plan || today(),
-            plannedDate:step.plan || "", firstDate:step.plan || today(), status:"open",
+            title:step.title, assignee:isCustFollowUp(step.title) ? "head" : step.who, date:workDay(step.plan || today()),
+            plannedDate:step.plan ? workDay(step.plan) : "", firstDate:workDay(step.plan || today()), status:"open",
             createdAt:new Date().toISOString(), note:""};
   }
   function openStepTask(sd){
@@ -3048,15 +3060,42 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
      instead of piling up as "late". A task closed at end of day with a reason
      keeps its original date, because that delay is real. Runs on every load and
      writes only the tasks that actually need moving. */
+  /* planned step dates that land on the weekly off move to the next working day */
+  function fixOffDayPlans(){
+    var t0 = today();
+    state.projects.forEach(function(p){
+      if(!(p.steps || []).some(function(st){ return st.status === "open" && st.plan && st.plan >= t0 && isOffDay(st.plan); })) return;
+      saveProject(p, {steps:(p.steps || []).map(function(st){
+        var x = Object.assign({}, st);
+        if(x.status === "open" && x.plan && x.plan >= t0 && isOffDay(x.plan)) x.plan = workDay(x.plan);
+        return x;
+      })});
+    });
+    state.sdbs.forEach(function(sd){
+      if(!(sd.steps || []).some(function(st){ return st.status !== "done" && st.plan && st.plan >= t0 && isOffDay(st.plan); })) return;
+      saveSd(sd, {steps:(sd.steps || []).map(function(st){
+        var x = Object.assign({}, st);
+        if(x.status !== "done" && x.plan && x.plan >= t0 && isOffDay(x.plan)) x.plan = workDay(x.plan);
+        return x;
+      })});
+    });
+  }
   function rollForward(){
     if(!state.db || !state.canWrite) return 0;
+    if(!state.offFixed && state.projects.length){ state.offFixed = true; try { fixOffDayPlans(); } catch(e){} }
     var moved = 0;
     state.tasks.forEach(function(t){
       if(t.status === "done") return;
+      /* nothing is ever due on the weekly off: move it to the next working day */
+      if(t.date && isOffDay(t.date) && t.date >= today()){
+        var fix = {date: workDay(t.date)};
+        if(t.plannedDate && isOffDay(t.plannedDate)) fix.plannedDate = workDay(t.plannedDate);
+        saveTask(t, fix); moved++; return;
+      }
       if(t.miss || (t.misses && t.misses.length)) return;
       if(t.plannedDate) return;          /* a committed special-DB date stands */
-      if(t.date && t.date < today()){
-        saveTask(t, {date: today(), rolled: (t.rolled||0) + 1});
+      if(t.date && t.date < today() && !isOffDay(today())){
+        saveTask(t, {date: workToday(), rolled: (t.rolled||0) + 1});
         moved++;
       }
     });
@@ -3064,7 +3103,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function makeTask(p, assignee, date){
     var st = currentPStep(p);
-    var d0 = date || (st && st.plan) || today();
+    var d0 = workDay(date || (st && st.plan) || today());
     var t = {id:uid("T"), projectId:p.id, title:nextStep(p), assignee:assignee, date:d0, firstDate:d0,
             status:"open", createdAt:new Date().toISOString(), note:"", auto:true};
     if(st){ t.pStep = st.k; if(st.plan && !date) t.plannedDate = st.plan; }
@@ -3094,6 +3133,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function maybeBuildDailyPlan(){
     if(state.planRan || !state.db || !state.projects.length || !state.canWrite) return;
     state.planRan = true;
+    if(isOffDay(today())){ rollForward(); return; }       /* weekly off: no plan, no new tasks */
     var ref = state.db.doc("plans/" + today());
     ref.get().then(function(sn){
       if(sn.exists) return null;
@@ -3418,9 +3458,10 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
   function dueChip(t){
     if(t.status === "done") return el("span",{class:"chip today"},["done " + fmtDate(t.doneAt||t.date)]);
-    var d = dayDiff(t.date, today());
+    var d = workDiff(t.date, today());
     if(d === null) return null;
-    if(d < 0) return el("span",{class:"chip over"},[Math.abs(d) + (Math.abs(d)===1?" day late":" days late")]);
+    if(d < 0) return el("span",{class:"chip over", title:"working days — Saturday not counted"},[Math.abs(d) + (Math.abs(d)===1?" day late":" days late")]);
+    if(d === 0 && t.date > today()) return el("span",{class:"chip"},["next working day"]);
     if(d === 0) return el("span",{class:"chip today"},["today"]);
     return el("span",{class:"chip"},["in " + d + (d===1?" day":" days")]);
   }
@@ -3468,7 +3509,9 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var planCard = el("div",{class:"card"});
     planCard.appendChild(el("div",{class:"cardhead"},[
       el("h3",{},[isLead(who) ? "Team plan for today" : shortName(who) + "'s plan for today"]),
-      el("p",{class:"eodhint"},["Made automatically each morning from the priority list. Write updates and tick tasks done in ",
+      el("p",{class:"eodhint"},[ isOffDay(today())
+        ? el("b",{},["Saturday — weekly off. No tasks are planned today; open work moves to the next working day. "]) : null,
+        "Made automatically each morning from the priority list (Saturday off). Write updates and tick tasks done in ",
         el("b",{},["Submit end of day"]), "."]),
       el("div",{class:"spacer", style:"flex:1"}),
       el("button",{class:"btn sm" + (isLead(who) ? " primary" : ""), onclick:function(){ if(isLead(who)) openAssignForm(); else openTaskForm(); }},
@@ -3842,20 +3885,24 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         return el("option",{value:p.id},[p.id + " · " + p.customer + " · " + p.name]);
       })));
     if(preProject) fProject.value = preProject;
-    var fStart = el("input",{type:"date", id:"asgStart", value:today()});
+    var fStart = el("input",{type:"date", id:"asgStart", value:workToday()});
     var fDays = el("input",{type:"number", id:"asgDays", min:"1", max:"365", value:"1"});
-    var fDue = el("input",{type:"date", id:"asgDue", value:today()});
+    var fDue = el("input",{type:"date", id:"asgDue", value:workToday()});
     var fNote = el("textarea",{id:"asgNote", placeholder:"Instructions, drawing numbers, who to contact"});
     var line = el("div",{class:"tl-preview"});
     function paintLine(){
       var n = Math.max(1, +fDays.value || 1);
       line.innerHTML = "";
       line.appendChild(el("span",{class:"tl-bar"},[ el("i",{style:"width:" + Math.min(100, 12 + n * 6) + "%"}) ]));
-      line.appendChild(el("span",{class:"tl-txt"},[fmtDate(fStart.value) + " → " + fmtDate(fDue.value) + " · " + n + (n === 1 ? " working day" : " days")]));
+      line.appendChild(el("span",{class:"tl-txt"},[fmtDate(fStart.value) + " → " + fmtDate(fDue.value) + " · " + n + (n === 1 ? " working day" : " working days") + " · Saturday off"]));
     }
-    function fromDays(){ var n = Math.max(1, +fDays.value || 1); fDue.value = addDays(fStart.value || today(), n - 1); paintLine(); }
+    function fromDays(){
+      if(fStart.value && isOffDay(fStart.value)) fStart.value = workDay(fStart.value);
+      var n = Math.max(1, +fDays.value || 1); fDue.value = addDays(fStart.value || workToday(), n - 1); paintLine();
+    }
     function fromDue(){
-      var n = dayDiff(fDue.value, fStart.value);
+      if(fDue.value && isOffDay(fDue.value)) fDue.value = workDay(fDue.value);
+      var n = workDiff(fDue.value, fStart.value);
       if(n == null || n < 0){ fDue.value = fStart.value; n = 0; }
       fDays.value = String(n + 1); paintLine();
     }
@@ -3885,7 +3932,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         var who = Object.keys(picked).filter(function(k){ return picked[k]; });
         if(!who.length){ warn.textContent = "Pick at least one person."; warn.hidden = false; return; }
         if(!fTitle.value.trim()){ warn.textContent = "Write what the task is."; warn.hidden = false; fTitle.focus(); return; }
-        var start = fStart.value || today(), due = fDue.value || start;
+        var start = workDay(fStart.value || today()), due = workDay(fDue.value || start);
         who.forEach(function(id){
           saveTask({id:uid("T"), projectId:fProject.value, title:fTitle.value.trim(), assignee:id,
                     date:due, firstDate:due, plannedDate:due, startDate:start, status:"open",
@@ -4018,7 +4065,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       el("button",{class:"btn primary", onclick:function(){
         if(!fTitle.value.trim()){ fTitle.focus(); return; }
         saveTask({id:uid("T"), projectId:fProject.value, title:fTitle.value.trim(), assignee:fWho.value,
-                  date:fDate.value || today(), firstDate:fDate.value || today(), status:"open",
+                  date:workDay(fDate.value || today()), firstDate:workDay(fDate.value || today()), status:"open",
                   createdAt:new Date().toISOString(), note:""});
         closeDrawer();
       }},["Save task"])
@@ -4776,11 +4823,13 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
           ]),
           el("div",{style:"margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"},[
             el("input",{type:"date", value:st.plan || "", style:"max-width:150px", onchange:function(e){
+              var pd = e.target.value ? workDay(e.target.value) : "";
+              if(pd !== e.target.value) e.target.value = pd;      /* Saturday → next working day */
               var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
-              steps.forEach(function(x){ if(x.n === st.n) x.plan = e.target.value; });
+              steps.forEach(function(x){ if(x.n === st.n) x.plan = pd; });
               saveSd(sd, {steps:steps});
               state.tasks.filter(function(t){ return t.sdId === sd.id && t.sdStep === st.n && t.status !== "done"; })
-                .forEach(function(t){ saveTask(t, {date:e.target.value, plannedDate:e.target.value}); });
+                .forEach(function(t){ saveTask(t, {date:pd, plannedDate:pd}); });
             }}),
             el("span",{class:"muted", style:"font-size:11.5px"},["planned date"])
           ])
