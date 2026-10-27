@@ -1480,7 +1480,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "27 Oct 2026 · special DB fresh upload";
+  var APP_VERSION = "27 Oct 2026 · special DB full report";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -3055,7 +3055,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
     var found = false;
     steps.forEach(function(x){
-      if(x.n === t.sdStep && x.status !== "done"){ x.status = "done"; x.doneAt = today(); found = true; }
+      if(x.n === t.sdStep && x.status !== "done"){ x.status = "done"; x.doneAt = today(); x.doneBy = t.assignee || state.who; found = true; }
     });
     if(!found) return;
     sd.steps = steps;
@@ -4537,7 +4537,11 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         el("button",{class:"btn sm" + (state.sdOnlyPending ? " primary" : ""), onclick:function(){
           state.sdOnlyPending = !state.sdOnlyPending; render();
         }},[state.sdOnlyPending ? "Showing open DBs only" : "Show open DBs only"]),
-        el("button",{class:"btn sm", onclick:function(){ exportSdMonth(m); }},["Export to Excel"]),
+        el("button",{class:"btn sm", onclick:function(){
+          exportSdArchive(sdOfMonth(m), "NMD_Special_DB_Report_" + m + "_" + today() + ".xlsx").then(function(ok){
+            if(!ok) banner("The Excel report could not be saved. Allow the download and try again.");
+          });
+        }},["Export report to Excel"]),
         canUpload() ? uploadControl(m, true) : null
       ])
     ]));
@@ -4843,51 +4847,136 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     state.sdbs = state.sdbs.filter(function(x){ return x.id !== sd.id; });
     if(state.db) state.db.doc("sdbs/" + sd.id).delete().catch(onWriteErr);
   }
-  /* everything on the Special DB page goes into one Excel file before it is cleared */
+  /* who finished a step: recorded on the step, else the person whose task it was */
+  function sdStepDoneBy(sd, st, tasks){
+    if(st.doneBy) return st.doneBy;
+    var t = tasks.filter(function(x){ return x.sdId === sd.id && x.sdStep === st.n && x.status === "done"; })[0];
+    if(t){
+      var u = (t.updates || []).filter(function(x){ return x.s === "done"; })[0];
+      return (u && u.by) || t.assignee || st.who;
+    }
+    return st.who || "";
+  }
+  function sdStepNote(sd, st, tasks){
+    var t = tasks.filter(function(x){ return x.sdId === sd.id && x.sdStep === st.n; })[0];
+    if(!t) return "";
+    var u = (t.updates || []).filter(function(x){ return x.t; })[0];
+    return u ? u.t : (t.note || "");
+  }
+  /* the full Special DB report: DB details with quantities, every task done with
+     date and who did it, the open work, and all updates — one Excel file */
   function exportSdArchive(list, fileName){
     if(typeof XLSX === "undefined") return Promise.resolve(false);
-    var wb = XLSX.utils.book_new(), ids = {};
+    var tasks = state.allTasks || state.tasks, ids = {};
     list.forEach(function(sd){ ids[sd.id] = sd; });
+    var sorted = list.slice().sort(function(a, b){ return (a.kind === b.kind ? 0 : (a.kind === "new" ? -1 : 1)) || a.sdCode.localeCompare(b.sdCode); });
     var months = list.map(function(x){ return x.month; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; }).sort();
-    var sum = [["Special DBs (Legrand customised) — data saved before the new order file was loaded"],
-               ["Saved on", new Date().toLocaleString("en-IN")], ["Saved by", memberName(state.who)],
-               ["Months", months.map(monthName).join(", ")],
-               ["Order files", state.sdorders.map(function(o){ return monthName(o.id) + ": " + (o.fileName || "") + " (" + memberName(o.uploadedBy) + ", " + String(o.uploadedAt || "").slice(0,10) + ")"; }).join(" | ")],
-               [], ["DB codes", list.length],
-               ["New DBs", list.filter(function(x){ return x.kind === "new"; }).length],
-               ["Repeat DBs", list.filter(function(x){ return x.kind !== "new"; }).length],
-               ["Fully completed", list.filter(function(x){ return sdProgress(x) === 100; }).length],
-               ["Still open", list.filter(function(x){ return sdProgress(x) < 100; }).length],
-               ["Total pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0)]];
-    state.sdnotes.forEach(function(n){ if(n.text) sum.push(["Review notes " + monthName(n.id), n.text]); });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), "Summary");
-    var dbs = [["Month","SD code","Description","Type","Critical","Order qty","Pending qty","Lines in file","Start date","Steps done","Steps total",
-                "Current step","Planned date","With","CAD","GA drawing","BOM","SFG code","PO no","Remarks"]];
-    list.forEach(function(sd){
-      var st = sd.steps || [], cur = currentStep(sd);
-      dbs.push([monthName(sd.month), sd.sdCode, sd.desc || "", sd.kind === "new" ? "New" : "Repeat", sd.critical ? "Critical" : "",
-                sd.orderQty || 0, sd.pendingQty || 0, sd.lines || 1, sd.startDate || sd.createdAt || "",
-                st.filter(function(x){ return x.status === "done"; }).length, st.length,
-                cur ? cur.title.replace(" — " + sd.sdCode, "") : "All done", cur ? (cur.plan || "") : "", cur ? memberName(cur.who) : "",
-                sd.cad || "", sd.gad || "", sd.bom || "", sd.sfgCode || "", (sd.poNos || []).join(", "), sd.remarks || ""]);
-    });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dbs), "DB list");
-    var sch = [["Month","SD code","Type","Step no","Step","With","Planned date","Done date","Delay (days)","Status"]];
+    var D = function(s){ return s ? fmtDate(s) : ""; };
+    var wb = XLSX.utils.book_new();
+    function sheet(rows, widths, name, headRow){
+      var ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = widths.map(function(w){ return {wch:w}; });
+      if(headRow != null && rows.length > headRow + 1){
+        var last = XLSX.utils.encode_col(rows[headRow].length - 1);
+        ws["!autofilter"] = {ref:"A" + (headRow + 1) + ":" + last + rows.length};
+      }
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    }
+    var doneSteps = 0, allSteps = 0;
+    list.forEach(function(sd){ (sd.steps || []).forEach(function(st){ allSteps++; if(st.status === "done") doneSteps++; }); });
+    var finished = list.filter(function(x){ return sdProgress(x) === 100; });
+
+    /* 1. summary */
+    var byPerson = {};
     list.forEach(function(sd){ (sd.steps || []).forEach(function(st){
-      var d = stepDelay(st);
-      sch.push([monthName(sd.month), sd.sdCode, sd.kind === "new" ? "New" : "Repeat", st.n, st.title.replace(" — " + sd.sdCode, ""),
-                memberName(st.who), st.plan || "", st.doneAt || "", d === null ? "" : d,
-                st.status === "done" ? (d > 0 ? "Finished late" : "Finished on time") : (d > 0 ? "Overdue" : "Open")]);
+      if(st.status !== "done") return;
+      var w = memberName(sdStepDoneBy(sd, st, tasks)) || "—";
+      byPerson[w] = (byPerson[w] || 0) + 1;
     }); });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sch), "Step schedule");
-    var upd = [["Date","SD code","Task","Person","Update / reason"]];
-    (state.allTasks || state.tasks).forEach(function(t){
-      if(!t.sdId || !ids[t.sdId]) return;
-      (t.updates || []).forEach(function(u){ upd.push([u.d, ids[t.sdId].sdCode, t.title, memberName(u.by), (u.r ? "Held up: " + u.r + " · " : "") + (u.t || "") + (u.s === "done" ? " (finished)" : "")]); });
-      (t.misses || []).forEach(function(x){ if(!(t.updates || []).some(function(u){ return u.d === x.d; })) upd.push([x.d, ids[t.sdId].sdCode, t.title, memberName(x.by || t.assignee), "Held up: " + (x.reason || "") + (x.note ? " · " + x.note : "")]); });
+    var sum = [["NMD DEVELOPMENT DESK — SPECIAL DB REPORT (Legrand customised)"], [],
+      ["Report for", months.map(monthName).join(", ") || "—"],
+      ["Order file", state.sdorders.map(function(o){ return (o.fileName || "") + " — uploaded " + D(String(o.uploadedAt || "").slice(0,10)) + " by " + memberName(o.uploadedBy); }).join(" | ") || "—"],
+      ["Report taken on", new Date().toLocaleString("en-IN") + " by " + memberName(state.who)], [],
+      ["DBs in the order", list.length],
+      ["  New DBs (full development)", list.filter(function(x){ return x.kind === "new"; }).length],
+      ["  Repeat DBs (file update)", list.filter(function(x){ return x.kind !== "new"; }).length],
+      ["DBs completed (all steps done)", finished.length],
+      ["DBs still open", list.length - finished.length],
+      ["Total order qty", list.reduce(function(a, x){ return a + (+x.orderQty || 0); }, 0)],
+      ["Total pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0)],
+      ["Tasks (steps) done", doneSteps + " of " + allSteps], [],
+      ["Tasks done by each team member"]];
+    Object.keys(byPerson).sort(function(a, b){ return byPerson[b] - byPerson[a]; }).forEach(function(k){ sum.push(["  " + k, byPerson[k]]); });
+    state.sdnotes.forEach(function(n){ if(n.text){ sum.push([]); sum.push(["Review notes " + monthName(n.id), n.text]); } });
+    sum.push([]); sum.push(["Sheets in this file: 1 Summary · 2 DB details · 3 Tasks done · 4 Open tasks · 5 Updates and hold-ups"]);
+    sheet(sum, [38, 90], "1 Summary");
+
+    /* 2. DB details with quantities */
+    var dbs = [["Sr","SD code","Description","Type","Critical","PO no","Order qty","Pending qty","Lines in file",
+                "CAD","GA drawing","BOM","SFG code","Customer data","Started on","Tasks done","Tasks total","Status",
+                "Completed on","Current task","With","Remarks"]];
+    sorted.forEach(function(sd, i){
+      var st = sd.steps || [], cur = currentStep(sd), done = st.filter(function(x){ return x.status === "done"; });
+      var miss = sdMissing(sd);
+      dbs.push([i + 1, sd.sdCode, sd.desc || "", sd.kind === "new" ? "New" : "Repeat", sd.critical ? "Critical" : "",
+                (sd.poNos || []).join(", "), +sd.orderQty || 0, +sd.pendingQty || 0, sd.lines || 1,
+                sd.cad || "", sd.gad || "", sd.bom || "", sd.sfgCode || "", miss.length ? miss.join(", ") + " pending" : "Complete",
+                D(sd.startDate || sd.createdAt), done.length, st.length, cur ? "In progress" : "Completed",
+                cur ? "" : D(done.length ? done[done.length - 1].doneAt : ""),
+                cur ? cur.title.replace(" — " + sd.sdCode, "") : "", cur ? memberName(cur.who) : "", sd.remarks || ""]);
     });
-    list.forEach(function(sd){ (sd.log || []).forEach(function(l){ upd.push([l.d, sd.sdCode, l.task || "", memberName(l.by), l.t || ""]); }); });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(upd), "Updates and hold-ups");
+    dbs.push([]);
+    dbs.push(["", "TOTAL", "", "", "", "", list.reduce(function(a, x){ return a + (+x.orderQty || 0); }, 0),
+              list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0)]);
+    sheet(dbs, [5, 14, 34, 8, 9, 22, 10, 11, 8, 14, 14, 14, 14, 18, 12, 10, 10, 12, 13, 46, 18, 30], "2 DB details", 0);
+
+    /* 3. tasks done in each DB — date and who did it */
+    var td = [["SD code","Description","Type","Task no","Task done","Done on","Done by","Planned date","On time / late","Note / update"]];
+    sorted.forEach(function(sd){
+      (sd.steps || []).filter(function(st){ return st.status === "done"; }).forEach(function(st){
+        var d = stepDelay(st);
+        td.push([sd.sdCode, sd.desc || "", sd.kind === "new" ? "New" : "Repeat", st.n, st.title.replace(" — " + sd.sdCode, ""),
+                 D(st.doneAt), memberName(sdStepDoneBy(sd, st, tasks)), D(st.plan),
+                 d == null ? "" : (d > 0 ? d + " days late" : "On time"), sdStepNote(sd, st, tasks)]);
+      });
+    });
+    if(td.length === 1) td.push(["", "", "", "", "No task finished yet"]);
+    sheet(td, [14, 30, 8, 8, 56, 12, 22, 12, 14, 50], "3 Tasks done", 0);
+
+    /* 4. what is still open */
+    var op = [["SD code","Description","Task no","Task","With","Planned date","Days overdue","Last update"]];
+    sorted.forEach(function(sd){
+      (sd.steps || []).filter(function(st){ return st.status !== "done"; }).forEach(function(st){
+        var late = st.plan ? dayDiff(today(), st.plan) : null;
+        op.push([sd.sdCode, sd.desc || "", st.n, st.title.replace(" — " + sd.sdCode, ""), memberName(st.who), D(st.plan),
+                 late > 0 ? late : "", sdStepNote(sd, st, tasks)]);
+      });
+    });
+    if(op.length === 1) op.push(["", "", "", "Nothing open — every task is done"]);
+    sheet(op, [14, 30, 8, 56, 22, 12, 12, 50], "4 Open tasks", 0);
+
+    /* 5. every update and hold-up */
+    var upd = [["Date","SD code","Task","Person","What happened"]];
+    tasks.forEach(function(t){
+      if(!t.sdId || !ids[t.sdId]) return;
+      var code = ids[t.sdId].sdCode, ttl = t.title.replace(" — " + code, "");
+      (t.updates || []).forEach(function(u){
+        upd.push([u.d, code, ttl, memberName(u.by), (u.s === "done" ? "Finished. " : "") + (u.r ? "Held up: " + u.r + ". " : "") + (u.t || "")]);
+      });
+      (t.misses || []).forEach(function(x){
+        if(!(t.updates || []).some(function(u){ return u.d === x.d; }))
+          upd.push([x.d, code, ttl, memberName(x.by || t.assignee), "Held up: " + (x.reason || "") + (x.note ? ". " + x.note : "")]);
+      });
+    });
+    list.forEach(function(sd){ (sd.log || []).forEach(function(l){
+      if(!upd.some(function(r){ return r[0] === l.d && r[1] === sd.sdCode && String(r[4]).indexOf(l.t || "") >= 0; }))
+        upd.push([l.d, sd.sdCode, (l.task || "").replace(" — " + sd.sdCode, ""), memberName(l.by), l.t || ""]);
+    }); });
+    upd = [upd[0]].concat(upd.slice(1).sort(function(a, b){ return String(a[0]).localeCompare(String(b[0])) || String(a[1]).localeCompare(String(b[1])); })
+      .map(function(r){ return [D(r[0])].concat(r.slice(1)); }));
+    if(upd.length === 1) upd.push(["", "", "", "", "No updates written"]);
+    sheet(upd, [12, 14, 52, 22, 70], "5 Updates and hold-ups", 0);
+
     var buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
     return claude.use("downloads").then(function(d){
       if(!d) return false;
@@ -4948,7 +5037,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       prev.length ? el("div",{class:"dsec holdbox"},[
         el("h4",{},["Previous data: " + prev.length + " DB" + (prev.length === 1 ? "" : "s") + (prevMonths.length ? " (" + prevMonths.map(monthName).join(", ") + ")" : "")]),
         el("p",{style:"font-size:13px;margin:0"},[
-          "When you click the button below, all of it is first downloaded as an Excel file (DB list, step schedule, updates and hold-ups), " +
+          "When you click the button below, the full report is first downloaded as an Excel file — DB details with quantities, every task done with the date and who did it, open tasks, and all updates — " +
           "then cleared from the dashboard, so only this new file is shown. " +
           (carried.length ? carried.length + " DB" + (carried.length === 1 ? " that is" : "s that are") + " still in progress and also in the new file keep" + (carried.length === 1 ? "s its" : " their") + " steps done so far. " : "") +
           "Open tasks of cleared DBs are removed."])
@@ -4974,7 +5063,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var go = function(){ replaceSdData(m, fileName, items, prev); };
     if(!prev.length) return go();
     banner("Saving the previous Special DB data to Excel…");
-    exportSdArchive(prev, "NMD_Special_DBs_saved_" + today() + ".xlsx").then(function(ok){
+    exportSdArchive(prev, "NMD_Special_DB_Report_" + (prev[0] && prev[0].month || "") + "_saved_" + today() + ".xlsx").then(function(ok){
       if(!ok){
         banner("The Excel file of the previous data could not be saved, so nothing was cleared. Allow the download and try again.");
         closeDrawer();
@@ -5119,7 +5208,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
           var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
           var openNext = cur.status !== "done";
           steps.forEach(function(x){
-            if(x.n === st.n){ x.status = openNext ? "done" : "open"; x.doneAt = openNext ? today() : ""; }
+            if(x.n === st.n){ x.status = openNext ? "done" : "open"; x.doneAt = openNext ? today() : ""; x.doneBy = openNext ? state.who : ""; }
           });
           sd.steps = steps;
           saveSd(sd, Object.assign({steps:steps}, (openNext && isFollowUpStep(sd, st.n)) ? dataReceivedPatch(sd) : {}));
