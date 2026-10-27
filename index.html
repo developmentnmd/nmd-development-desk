@@ -1390,6 +1390,84 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   .cad .subtabs button{flex:1; padding:8px 4px; font-size:11.5px}
   .cad .subtabs button::before{display:none}
 }
+
+/* ---------- calm palette: light top bar, one sky-blue accent, amber only for attention ---------- */
+body.cad{
+  --paper:#ffffff; --surface:#f2f5f9; --raise:#ffffff;
+  --ink:#152230; --ink2:#4f6072; --ink3:#8292a3;
+  --line:#d3dce6; --line2:#e6ecf2;
+  --brand:#1f6fc2; --brand-ink:#ffffff; --brand-soft:#e6f0fb;
+  --good:#1f6fc2; --good-soft:#e6f0fb;
+  --warn:#a86400; --warn-soft:#fdf2dc;
+  --crit:#b8590c; --crit-soft:#fdecdc;
+  --bar:#3d8ddc; --bar-track:#e8eef5; --bar-2:#9cc6f0;
+  --pc1:#2b7fd4; --pc2:#2b7fd4; --pc3:#c27c12; --pc4:#2b7fd4; --pc5:#d4860f;
+  --sel:#2b7fd4; --hot:#f5a524; --hot-ink:#3a2400;
+  --chrome:#ffffff; --chrome2:#f6f8fb; --chrome3:#e9f1fa; --chrome-ink:#152230; --chrome-ink2:#5f7184; --chrome-line:#dae2eb;
+  --chrome-grad:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  --vp-top:#e9eff6; --vp-bot:#f7f9fc; --gmin:rgba(43,127,212,.04); --gmaj:rgba(43,127,212,.08);
+  --frame:#cdd8e3; --frame-soft:#e3e9f0; --head:#f3f6fa; --zebra:#f8fafc;
+  --cm:#9aabbb;
+  --card-glass:#ffffff; --cardhead-glass:#f3f6fa; --lift:0 14px 30px -18px rgba(20,50,90,.35);
+  --shadow:0 1px 0 rgba(20,50,90,.04), 0 8px 20px -14px rgba(20,50,90,.30);
+  --x:#e39b2f; --y:#2b7fd4; --z:#8292a3;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) body.cad{
+    --paper:#171e27; --surface:#11171e; --raise:#1b2430;
+    --ink:#e5ecf3; --ink2:#a7b6c5; --ink3:#748596;
+    --line:#2f3c4a; --line2:#242f3b;
+    --brand:#62a9f0; --brand-ink:#06182b; --brand-soft:#15273b;
+    --good:#62a9f0; --good-soft:#15273b;
+    --warn:#f2b552; --warn-soft:#2e2412;
+    --crit:#f39a4f; --crit-soft:#33220f;
+    --bar:#4f9be6; --bar-track:#222d39; --bar-2:#9ccaf6;
+    --pc1:#62a9f0; --pc2:#62a9f0; --pc3:#f2b552; --pc4:#62a9f0; --pc5:#f39a4f;
+    --sel:#62a9f0; --hot:#f5a524; --hot-ink:#2a1a00;
+    --chrome:#161d26; --chrome2:#1a222c; --chrome3:#223041; --chrome-ink:#e5ecf3; --chrome-ink2:#9aabbd; --chrome-line:#2b3746;
+    --chrome-grad:linear-gradient(180deg, #19212b 0%, #161d26 100%);
+    --vp-top:#0f141a; --vp-bot:#161d25; --gmin:rgba(98,169,240,.035); --gmaj:rgba(98,169,240,.07);
+    --frame:#324152; --frame-soft:#253140; --head:#1e2834; --zebra:#1a232e;
+    --cm:#566676;
+    --card-glass:#171e27; --cardhead-glass:#1e2834; --lift:0 16px 34px -18px rgba(0,0,0,.85);
+    --shadow:0 1px 0 rgba(0,0,0,.35), 0 10px 24px -14px rgba(0,0,0,.85);
+    --x:#f2b552; --y:#62a9f0; --z:#748596;
+  }
+}
+:root[data-theme="dark"] body.cad{
+  --paper:#171e27; --surface:#11171e; --raise:#1b2430;
+  --ink:#e5ecf3; --ink2:#a7b6c5; --ink3:#748596;
+  --line:#2f3c4a; --line2:#242f3b;
+  --brand:#62a9f0; --brand-ink:#06182b; --brand-soft:#15273b;
+  --good:#62a9f0; --good-soft:#15273b;
+  --warn:#f2b552; --warn-soft:#2e2412;
+  --crit:#f39a4f; --crit-soft:#33220f;
+  --bar:#4f9be6; --bar-track:#222d39; --bar-2:#9ccaf6;
+  --pc1:#62a9f0; --pc2:#62a9f0; --pc3:#f2b552; --pc4:#62a9f0; --pc5:#f39a4f;
+  --sel:#62a9f0; --hot:#f5a524; --hot-ink:#2a1a00;
+  --chrome:#161d26; --chrome2:#1a222c; --chrome3:#223041; --chrome-ink:#e5ecf3; --chrome-ink2:#9aabbd; --chrome-line:#2b3746;
+  --chrome-grad:linear-gradient(180deg, #19212b 0%, #161d26 100%);
+  --vp-top:#0f141a; --vp-bot:#161d25; --gmin:rgba(98,169,240,.035); --gmaj:rgba(98,169,240,.07);
+  --frame:#324152; --frame-soft:#253140; --head:#1e2834; --zebra:#1a232e;
+  --cm:#566676;
+  --card-glass:#171e27; --cardhead-glass:#1e2834; --lift:0 16px 34px -18px rgba(0,0,0,.85);
+  --shadow:0 1px 0 rgba(0,0,0,.35), 0 10px 24px -14px rgba(0,0,0,.85);
+  --x:#f2b552; --y:#62a9f0; --z:#748596;
+}
+.cad .mark{background:linear-gradient(140deg, color-mix(in srgb, var(--hot) 45%, #fff), var(--hot)); color:var(--hot-ink)}
+.cad .statusbar .late b{color:var(--crit)}
+.cad nav.tabs button[aria-selected="true"]{color:var(--sel); background:color-mix(in srgb, var(--sel) 11%, var(--chrome2));
+  border-color:color-mix(in srgb, var(--sel) 38%, transparent); box-shadow:inset 3px 0 0 var(--sel)}
+.cad nav.tabs button[aria-selected="true"] .tcount{background:var(--sel); border-color:var(--sel); color:#fff}
+:root[data-theme="dark"] .cad nav.tabs button[aria-selected="true"]{color:var(--sel)}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cad nav.tabs button[aria-selected="true"]{color:var(--sel)} }
+.cad .avatar.pc0, .cad .who.pc0 .wa, .cad .pick.pc0 .wa{background:linear-gradient(140deg, color-mix(in srgb, var(--sel) 70%, #fff), var(--sel)); color:#fff}
+.cad .tiles > .tile, .cad .tiles > .tile:nth-child(4n+2), .cad .tiles > .tile:nth-child(4n+3), .cad .tiles > .tile:nth-child(4n+4){--tc:var(--sel)}
+.cad .tiles > .tile.alert{--tc:var(--crit)}
+.cad nav.tabs button[data-tab]{--tabc:var(--sel)}
+body.cad[data-sec]{--sec:var(--sel)}
+.cad .avatar.pc3, .cad .who.pc3 .wa, .cad .pick.pc3 .wa{background:color-mix(in srgb, var(--sel) 80%, #000)}
+.cad .avatar.pc5, .cad .who.pc5 .wa, .cad .pick.pc5 .wa{background:color-mix(in srgb, var(--sel) 70%, #fff)}
 </style>
 
 <header class="top">
@@ -1494,7 +1572,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "27 Oct 2026 · special DB full report";
+  var APP_VERSION = "27 Oct 2026 · light + blue";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
