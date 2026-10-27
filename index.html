@@ -1321,6 +1321,15 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 .cad .btn.up{border-color:var(--hot); color:var(--hot-ink); background:linear-gradient(180deg, color-mix(in srgb, var(--hot) 55%, #fff), var(--hot))}
 .cad .mytasks{box-shadow:inset 4px 0 0 var(--sel), var(--shadow)}
 .cad .btn.resume{margin-left:6px; padding:2px 8px; font-size:11.5px}
+.cad td.pendq{font-weight:700; color:var(--ink)}
+.cad .stepblocks{display:flex; flex-wrap:wrap; gap:4px}
+.cad .sblk{display:inline-grid; justify-items:center; min-width:46px; padding:3px 5px; border:1px solid var(--frame); border-radius:3px;
+  font:600 11.5px/1.2 var(--mono, ui-monospace, monospace); color:var(--ink2); background:var(--paper)}
+.cad .sblk small{font:500 10px/1.2 var(--mono, ui-monospace, monospace); white-space:nowrap}
+.cad .sblk.ok{background:color-mix(in srgb, var(--good) 14%, var(--paper)); border-color:color-mix(in srgb, var(--good) 45%, var(--paper)); color:var(--good)}
+.cad .sblk.late{background:color-mix(in srgb, var(--warn, #c27a12) 14%, var(--paper)); border-color:color-mix(in srgb, var(--warn, #c27a12) 45%, var(--paper)); color:var(--warn, #c27a12)}
+.cad .sblk.over{background:color-mix(in srgb, var(--crit) 12%, var(--paper)); border-color:color-mix(in srgb, var(--crit) 45%, var(--paper)); color:var(--crit)}
+.cad .sblk.cur{border-color:var(--sel); color:var(--sel); box-shadow:inset 0 2px 0 var(--sel)}
 .cad .holdbox{background:color-mix(in srgb, var(--crit) 6%, var(--paper)); border-left:4px solid var(--crit); padding:12px 14px; border-radius:4px}
 /* Today's Work: tasks are closed only from Submit end of day */
 .cad .tick.ro{cursor:default; border-style:dashed}
@@ -1485,6 +1494,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
+  var APP_VERSION = "27 Oct 2026 · special DB fresh upload";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -2011,7 +2021,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   }
 
   var state = {
-    projects:[], tasks:[], checkins:[], customers:[], sdbs:[], sdorders:[], sdnotes:[], sdplan:null, teamAdmin:"", pinsLoaded:false, leave:{}, sdMonth:null, repMonth:null, repPending:false, auth:false, pinFor:null, pins:{}, team:DEFAULT_TEAM.slice(),
+    projects:[], tasks:[], checkins:[], customers:[], sdbs:[], sdorders:[], sdnotes:[], sdplan:null, sdhist:{}, teamAdmin:"", pinsLoaded:false, leave:{}, sdMonth:null, repMonth:null, repPending:false, auth:false, pinFor:null, pins:{}, team:DEFAULT_TEAM.slice(),
     scoring:{wValue:50, wCustomer:25, wGrowth:25, growthFull:25},
     ready:false, db:null, canWrite:true, planRan:false, diag:{claude:false, store:false, loaded:'', err:''},
     tab:"today", sub:"live", reopen:null, views:{}, writeChecked:false, who:"head", filters:{type:"all", status:"active", owner:"all", plant:"all", q:""},
@@ -2825,6 +2835,9 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       if(sn.exists && sn.data()) state.sdplan = Object.assign({}, sn.data());
       render();
     }).catch(function(){});
+    db.doc("config/sdhistory").get().then(function(sn){
+      if(sn.exists && sn.data()) state.sdhist = Object.assign({}, sn.data().codes || {});
+    }).catch(function(){});
     db.doc("config/team").get().then(function(sn){
       if(sn.exists && sn.data() && sn.data().people && sn.data().people.length){
         if(sn.data().admin) state.teamAdmin = sn.data().admin;
@@ -2964,7 +2977,12 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     var late = dayDiff(today(), st.plan);
     return late > 0 ? late : 0;
   }
-  function sdMonth(){ return state.sdMonth || shiftMonth(0); }
+  function latestOrderMonth(){
+    var ms = state.sdbs.map(function(x){ return x.month; }).concat(state.sdorders.map(function(x){ return x.id; })).filter(Boolean).sort();
+    return ms.length ? ms[ms.length - 1] : "";
+  }
+  function sdMonth(){ return state.sdMonth || latestOrderMonth() || shiftMonth(0); }
+  function sdKey(code){ return String(code == null ? "" : code).replace(/\u00a0/g, " ").replace(/\s+/g, "").toUpperCase(); }
   function sdById(id){ return state.sdbs.filter(function(x){ return x.id === id; })[0]; }
   function sdDocId(month, code){ return month + "_" + String(code).replace(/[^A-Za-z0-9_.~:@+-]/g, "-").slice(0, 60); }
   function avail(v){
@@ -3109,8 +3127,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       if(k.indexOf("sd code") >= 0) map.code = i;
       else if(k.indexOf("description") >= 0) map.desc = i;
       else if(k.indexOf("critical") >= 0) map.critical = i;
-      else if(k.indexOf("order qty") >= 0) map.qty = i;
-      else if(k.indexOf("pending qty") >= 0) map.pend = i;
+      else if(k.indexOf("pending") >= 0 || k.indexOf("pend") === 0 || k.indexOf("balance") >= 0 || k.indexOf("bal qty") >= 0) map.pend = i;
+      else if(k.indexOf("order qty") >= 0 || k.indexOf("ord qty") >= 0 || (map.qty == null && /\bqty\b|quantity/.test(k))) map.qty = i;
       else if(k.indexOf("sfg item") >= 0) map.sfgItem = i;
       else if(k.indexOf("communication") >= 0) map.comm = i;
       else if(k.indexOf("po no") >= 0 || k === "po") map.po = i;
@@ -3138,7 +3156,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       if(norm(code) === "sd code" || norm(code).indexOf("total") === 0) continue;
       var isNew = hasMarker ? marked(row)
                             : (map.newdb != null && norm(row[map.newdb]).indexOf("yes") >= 0);
-      var item = byCode[code];
+      var key = sdKey(code);
+      var item = byCode[key];
       if(!item){
         item = {sdCode:code,
                 desc:String(row[map.desc] == null ? "" : row[map.desc]).replace(/\u00a0/g, " ").trim(),
@@ -3152,11 +3171,13 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
                 bom: avail(map.bom == null ? "" : row[map.bom]),
                 sfgCode: avail(map.sfgCode == null ? "" : row[map.sfgCode]),
                 remarks: map.remark == null ? "" : String(row[map.remark] || "").trim()};
-        byCode[code] = item; order.push(code);
+        byCode[key] = item; order.push(key);
       }
       if(isNew) item.kind = "new";
-      item.orderQty += (+row[map.qty] || 0);
-      item.pendingQty += (map.pend == null ? 0 : (+row[map.pend] || 0));
+      var num = function(v){ return +String(v == null ? "" : v).replace(/[, ]/g, "") || 0; };
+      item.orderQty += (map.qty == null ? 0 : num(row[map.qty]));
+      item.pendingQty += (map.pend == null ? num(row[map.qty]) : num(row[map.pend]));   /* no pending column: whole order is pending */
+      if(item.lines && !item.desc) item.desc = String(row[map.desc] == null ? "" : row[map.desc]).trim();
       item.lines++;
       var po = map.po == null ? "" : String(row[map.po] || "").trim();
       if(po && item.poNos.indexOf(po) < 0) item.poNos.push(po);
@@ -4465,6 +4486,15 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function sdOfMonth(m){ return state.sdbs.filter(function(x){ return x.month === m; }); }
   function orderOfMonth(m){ return state.sdorders.filter(function(x){ return x.id === m; })[0]; }
 
+  function stepBlocks(sd){
+    var cur = currentStep(sd);
+    return el("div",{class:"stepblocks"}, (sd.steps || []).map(function(st){
+      var d = stepDelay(st), cls = st.status === "done" ? (d > 0 ? "late" : "ok") : (d > 0 ? "over" : (cur && cur.n === st.n ? "cur" : ""));
+      return el("span",{class:"sblk " + cls, title:st.n + ". " + st.title.replace(" — " + sd.sdCode, "") + " · " + shortName(st.who) +
+          " · planned " + (st.plan ? fmtDate(st.plan) : "—") + (st.doneAt ? " · done " + fmtDate(st.doneAt) : "") + (d > 0 ? " · +" + d + " d" : "")},
+        [String(st.n), el("small",{},[st.status === "done" ? "✓ " + fmtDate(st.doneAt).replace(/ \d\d$/, "") : (st.plan ? fmtDate(st.plan).replace(/ \d\d$/, "") : "—")])]);
+    }));
+  }
   function viewSpecial(){
     var wrap = el("div");
     var m = sdMonth();
@@ -4507,7 +4537,8 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
     wrap.appendChild(el("div",{class:"tiles"},[
       tile("DBs this month", String(list.length), news.length + " new · " + reps.length + " repeat", ""),
       tile("Waiting for customer data", String(dataPending.length), "CAD / GAD / BOM not available", dataPending.length ? "alert" : ""),
-      tile("Open tasks", String(openTasks.length), "across Atharva and Prathamesh", ""),
+      tile("Pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0).toLocaleString("en-IN"),
+           "total across " + list.length + " DBs · " + openTasks.length + " open tasks", ""),
       tile("Completed", String(finished.length), "all steps ticked", "")
     ]));
 
@@ -4517,6 +4548,10 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
         el("span",{class:"chip"},[order.fileName || "uploaded"]),
         el("span",{class:"chip"},[(order.uploadedBy ? memberName(order.uploadedBy) : "—") + " · " + fmtDate((order.uploadedAt||"").slice(0,10))]),
         el("div",{class:"spacer", style:"flex:1"}),
+        el("button",{class:"btn sm" + (state.sdOnlyPending ? " primary" : ""), onclick:function(){
+          state.sdOnlyPending = !state.sdOnlyPending; render();
+        }},[state.sdOnlyPending ? "Showing open DBs only" : "Show open DBs only"]),
+        el("button",{class:"btn sm", onclick:function(){ exportSdMonth(m); }},["Export to Excel"]),
         canUpload() ? uploadControl(m, true) : null
       ])
     ]));
@@ -4531,11 +4566,12 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       var t = el("table");
       t.appendChild(el("thead",{},[el("tr",{},[
         el("th",{},["SD code"]), el("th",{},["Description"]), el("th",{class:"n"},["Order qty"]),
-        el("th",{class:"n"},["Pending"]), el("th",{},["Customer data"]), el("th",{},["Progress"]),
+        el("th",{class:"n"},["Pending qty"]), el("th",{},["Customer data"]), el("th",{},["Steps (planned · ✓ done)"]),
         el("th",{},["Current step"]), el("th",{},["Due"]), el("th",{},["With"])
       ])]));
       var tb = el("tbody");
-      grp[1].slice().sort(function(a,b){ return sdProgress(a) - sdProgress(b) || a.sdCode.localeCompare(b.sdCode); })
+      grp[1].filter(function(sd){ return !state.sdOnlyPending || sdProgress(sd) < 100; })
+        .sort(function(a,b){ return sdProgress(a) - sdProgress(b) || a.sdCode.localeCompare(b.sdCode); })
         .forEach(function(sd){
         var st = currentStep(sd);
         var miss = sdMissing(sd);
@@ -4544,14 +4580,13 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
                        sd.critical ? el("span",{class:"chip over"},["critical"]) : null ]),
           el("td",{},[ el("div",{style:"font-size:12.5px"},[sd.desc || "—"]),
                        sd.poNos && sd.poNos.length ? el("div",{class:"psub"},["PO " + sd.poNos.join(", ")]) : null ]),
-          el("td",{class:"n"},[sd.orderQty ? sd.orderQty.toLocaleString("en-IN") : "—"]),
-          el("td",{class:"n"},[sd.pendingQty ? sd.pendingQty.toLocaleString("en-IN") : "—"]),
+          el("td",{class:"n"},[sd.orderQty ? sd.orderQty.toLocaleString("en-IN") : "—",
+            sd.lines > 1 ? el("div",{class:"psub", title:"This SD code is on " + sd.lines + " lines of the order file; the quantities are added together"},[sd.lines + " lines combined"]) : null]),
+          el("td",{class:"n pendq"},[sd.pendingQty ? sd.pendingQty.toLocaleString("en-IN") : "0"]),
           el("td",{},[ miss.length ? el("span",{class:"chip over"},[miss.join(", ") + " pending"])
                                    : el("span",{class:"chip today"},["complete"]) ]),
-          el("td",{},[ el("div",{class:"stage"},[
-              el("span",{class:"stagetxt"},[ (sd.steps||[]).filter(function(x){return x.status==="done";}).length + " of " + (sd.steps||[]).length ]),
-              el("div",{class:"track"},[el("i",{style:"width:"+sdProgress(sd)+"%"})])
-            ]) ]),
+          el("td",{},[ stepBlocks(sd),
+              el("div",{class:"psub", style:"margin-top:3px"},[(sd.steps||[]).filter(function(x){return x.status==="done";}).length + " of " + (sd.steps||[]).length + " done"]) ]),
           el("td",{},[ st ? el("div",{style:"font-size:12.5px"},[st.title.replace(" — " + sd.sdCode, "")])
                           : el("span",{class:"chip today"},["all steps done"]) ]),
           el("td",{},[ st && st.plan
@@ -4636,69 +4671,6 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       tile("Average delay", avg > 0 ? "+" + avg.toFixed(1) + " d" : (avg < 0 ? Math.abs(avg).toFixed(1) + " d early" : "0 d"),
            "on finished steps", avg > 0 ? "alert" : "")
     ]));
-
-    /* slippage per SD code — the month's delay in one picture */
-    var per = {};
-    rows.forEach(function(r){
-      var k = r.sd.sdCode, d = stepDelay(r.st);
-      if(d == null) return;
-      if(!per[k]) per[k] = {label:k, v:0, late:0};
-      if(d > per[k].v) per[k].v = d;
-      if(d > 0) per[k].late++;
-    });
-    var slip = Object.keys(per).map(function(k){ return per[k]; })
-      .filter(function(r){ return r.v > 0; })
-      .sort(function(a,b){ return b.v - a.v; }).slice(0, 12);
-    if(slip.length){
-      wrap.appendChild(el("div",{class:"card", style:"margin-top:14px"},[
-        el("div",{class:"cardhead"},[ el("h3",{},["Slippage by SD code"]),
-          el("p",{class:"muted", style:"margin:0;font-size:12.5px"},
-            ["Worst delay on any step of that DB" + (slip.length === 12 ? " — twelve worst" : "") + "."]) ]),
-        el("div",{class:"cardbody"},[ barList(slip.map(function(r){
-          return {label:r.label, v:r.v,
-                  amt:"+" + r.v + " d · " + r.late + (r.late === 1 ? " step" : " steps")};
-        }), function(v){ return "+" + v + " d"; }, "bad") ])
-      ]));
-    }
-
-    var only = state.sdOnlyPending;
-    var card = el("div",{class:"card", style:"margin-top:14px"});
-    card.appendChild(el("div",{class:"cardhead"},[
-      el("h3",{},["Step schedule and delay"]),
-      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Which step is due on which date, and how far it ran over."]),
-      el("div",{class:"spacer", style:"flex:1"}),
-      el("button",{class:"btn sm" + (only ? " primary" : ""), onclick:function(){
-        state.sdOnlyPending = !state.sdOnlyPending; render();
-      }},[only ? "Showing pending only" : "Show pending only"]),
-      el("button",{class:"btn sm primary", onclick:function(){ exportSdMonth(m); }},["Export to Excel"])
-    ]));
-    var t = el("table");
-    t.appendChild(el("thead",{},[el("tr",{},[
-      el("th",{},["SD code"]), el("th",{},["Step"]), el("th",{},["With"]),
-      el("th",{},["Planned"]), el("th",{},["Done"]), el("th",{class:"n"},["Delay"]), el("th",{},["Status"])
-    ])]));
-    var tb = el("tbody");
-    rows.filter(function(r){ return !only || r.st.status !== "done"; })
-      .sort(function(a,b){ return String(a.st.plan).localeCompare(String(b.st.plan)) || a.sd.sdCode.localeCompare(b.sd.sdCode); })
-      .forEach(function(r){
-        var d = stepDelay(r.st);
-        var isOver = r.st.status !== "done" && d > 0;
-        tb.appendChild(el("tr",{class:"clickable", onclick:function(){ openSd(r.sd.id); }},[
-          el("td",{},[ el("div",{class:"pname"},[r.sd.sdCode]),
-                       el("div",{class:"psub"},[r.sd.kind === "new" ? "new" : "repeat"]) ]),
-          el("td",{},[ el("div",{style:"font-size:12.5px"},[r.st.n + ". " + r.st.title.replace(" — " + r.sd.sdCode, "")]) ]),
-          el("td",{},[shortName(r.st.who)]),
-          el("td",{},[ r.st.plan ? fmtDate(r.st.plan) : "—" ]),
-          el("td",{},[ r.st.doneAt ? fmtDate(r.st.doneAt) : "—" ]),
-          el("td",{class:"n"},[ d === null ? "—" : (d > 0 ? "+" + d + " d" : (d < 0 ? d + " d" : "0")) ]),
-          el("td",{},[ r.st.status === "done"
-              ? (d > 0 ? el("span",{class:"chip over"},["late " + d + " d"]) : el("span",{class:"chip today"},["on time"]))
-              : (isOver ? el("span",{class:"chip over"},["overdue " + d + " d"]) : el("span",{class:"chip"},["open"])) ])
-        ]));
-      });
-    t.appendChild(tb);
-    card.appendChild(el("div",{class:"tablewrap"},[t]));
-    wrap.appendChild(card);
 
     /* improvement points + notes */
     var note = sdNote(m);
@@ -4870,51 +4842,112 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
   function defaultOrderMonth(m){
     return (orderOfMonth(m) && m <= shiftMonth(0)) ? monthAdd(m, 1) : m;
   }
-  /* the same SD code finished in an earlier month: the file is already made,
-     so a new order of it is a repeat (2 steps) */
-  function developedBefore(code, m){
-    return state.sdbs.filter(function(x){ return x.sdCode === code && x.month < m && sdProgress(x) === 100; })
-      .sort(function(a, b){ return b.month.localeCompare(a.month); })[0] || null;
+  /* the same SD code was finished before (in the data on screen or in the
+     history kept when old data is cleared): the file is already made, so a
+     new order of it is a repeat (2 steps) */
+  function developedBefore(code){
+    var k = sdKey(code);
+    var fin = state.sdbs.filter(function(x){ return sdKey(x.sdCode) === k && sdProgress(x) === 100; })
+      .sort(function(a, b){ return b.month.localeCompare(a.month); })[0];
+    if(fin) return {month:fin.month};
+    var h = (state.sdhist || {})[k];
+    return h ? {month:h} : null;
   }
+  function deleteSd(sd){
+    state.sdbs = state.sdbs.filter(function(x){ return x.id !== sd.id; });
+    if(state.db) state.db.doc("sdbs/" + sd.id).delete().catch(onWriteErr);
+  }
+  /* everything on the Special DB page goes into one Excel file before it is cleared */
+  function exportSdArchive(list, fileName){
+    if(typeof XLSX === "undefined") return Promise.resolve(false);
+    var wb = XLSX.utils.book_new(), ids = {};
+    list.forEach(function(sd){ ids[sd.id] = sd; });
+    var months = list.map(function(x){ return x.month; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; }).sort();
+    var sum = [["Special DBs (Legrand customised) — data saved before the new order file was loaded"],
+               ["Saved on", new Date().toLocaleString("en-IN")], ["Saved by", memberName(state.who)],
+               ["Months", months.map(monthName).join(", ")],
+               ["Order files", state.sdorders.map(function(o){ return monthName(o.id) + ": " + (o.fileName || "") + " (" + memberName(o.uploadedBy) + ", " + String(o.uploadedAt || "").slice(0,10) + ")"; }).join(" | ")],
+               [], ["DB codes", list.length],
+               ["New DBs", list.filter(function(x){ return x.kind === "new"; }).length],
+               ["Repeat DBs", list.filter(function(x){ return x.kind !== "new"; }).length],
+               ["Fully completed", list.filter(function(x){ return sdProgress(x) === 100; }).length],
+               ["Still open", list.filter(function(x){ return sdProgress(x) < 100; }).length],
+               ["Total pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0)]];
+    state.sdnotes.forEach(function(n){ if(n.text) sum.push(["Review notes " + monthName(n.id), n.text]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), "Summary");
+    var dbs = [["Month","SD code","Description","Type","Critical","Order qty","Pending qty","Lines in file","Start date","Steps done","Steps total",
+                "Current step","Planned date","With","CAD","GA drawing","BOM","SFG code","PO no","Remarks"]];
+    list.forEach(function(sd){
+      var st = sd.steps || [], cur = currentStep(sd);
+      dbs.push([monthName(sd.month), sd.sdCode, sd.desc || "", sd.kind === "new" ? "New" : "Repeat", sd.critical ? "Critical" : "",
+                sd.orderQty || 0, sd.pendingQty || 0, sd.lines || 1, sd.startDate || sd.createdAt || "",
+                st.filter(function(x){ return x.status === "done"; }).length, st.length,
+                cur ? cur.title.replace(" — " + sd.sdCode, "") : "All done", cur ? (cur.plan || "") : "", cur ? memberName(cur.who) : "",
+                sd.cad || "", sd.gad || "", sd.bom || "", sd.sfgCode || "", (sd.poNos || []).join(", "), sd.remarks || ""]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dbs), "DB list");
+    var sch = [["Month","SD code","Type","Step no","Step","With","Planned date","Done date","Delay (days)","Status"]];
+    list.forEach(function(sd){ (sd.steps || []).forEach(function(st){
+      var d = stepDelay(st);
+      sch.push([monthName(sd.month), sd.sdCode, sd.kind === "new" ? "New" : "Repeat", st.n, st.title.replace(" — " + sd.sdCode, ""),
+                memberName(st.who), st.plan || "", st.doneAt || "", d === null ? "" : d,
+                st.status === "done" ? (d > 0 ? "Finished late" : "Finished on time") : (d > 0 ? "Overdue" : "Open")]);
+    }); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sch), "Step schedule");
+    var upd = [["Date","SD code","Task","Person","Update / reason"]];
+    (state.allTasks || state.tasks).forEach(function(t){
+      if(!t.sdId || !ids[t.sdId]) return;
+      (t.updates || []).forEach(function(u){ upd.push([u.d, ids[t.sdId].sdCode, t.title, memberName(u.by), (u.r ? "Held up: " + u.r + " · " : "") + (u.t || "") + (u.s === "done" ? " (finished)" : "")]); });
+      (t.misses || []).forEach(function(x){ if(!(t.updates || []).some(function(u){ return u.d === x.d; })) upd.push([x.d, ids[t.sdId].sdCode, t.title, memberName(x.by || t.assignee), "Held up: " + (x.reason || "") + (x.note ? " · " + x.note : "")]); });
+    });
+    list.forEach(function(sd){ (sd.log || []).forEach(function(l){ upd.push([l.d, sd.sdCode, l.task || "", memberName(l.by), l.t || ""]); }); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(upd), "Updates and hold-ups");
+    var buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
+    return claude.use("downloads").then(function(d){
+      if(!d) return false;
+      return d.save({filename:fileName, data:buf}).then(function(){ return true; }, function(){ return false; });
+    }).catch(function(){ return false; });
+  }
+
   function previewUpload(m, fileName, items){
-    var existing = {};
-    sdOfMonth(m).forEach(function(x){ existing[x.sdCode] = x; });
+    var prev = state.sdbs.slice();
+    var prevByKey = {}; prev.forEach(function(x){ prevByKey[sdKey(x.sdCode)] = x; });
     items = items.map(function(i){
-      var o = Object.assign({}, i), prev = developedBefore(i.sdCode, m);
-      o.prev = prev ? prev.month : "";
-      if(prev && o.kind === "new"){ o.kind = "repeat"; o.wasNew = true; }
+      var o = Object.assign({}, i), before = developedBefore(i.sdCode);
+      o.prev = before ? before.month : "";
+      if(before && o.kind === "new"){ o.kind = "repeat"; o.wasNew = true; }
+      var old = prevByKey[sdKey(i.sdCode)];
+      o.carry = !!(old && sdProgress(old) < 100);         /* still in progress: keeps its steps */
+      if(o.carry){ o.kind = old.kind; o.prev = ""; o.wasNew = false; }
       return o;
     });
-    var fresh = items.filter(function(i){ return !existing[i.sdCode]; });
-    var again = items.filter(function(i){ return existing[i.sdCode]; });
-    var finishedAgain = again.filter(function(i){ return sdProgress(existing[i.sdCode]) === 100; });
+    var carried = items.filter(function(i){ return i.carry; });
     var news = items.filter(function(i){ return i.kind === "new"; });
+    var prevMonths = prev.map(function(x){ return x.month; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; }).sort();
 
     /* which month is this order for? */
     var monthSel = el("select",{style:"width:auto;min-width:180px", onchange:function(){ previewUpload(monthSel.value, fileName, items); }},
       [-1, 0, 1, 2].map(function(k){ return monthAdd(shiftMonth(0), k); })
         .concat(m.indexOf("-") > 0 ? [m] : []).filter(function(x, i, a){ return a.indexOf(x) === i; }).sort()
-        .map(function(x){ return el("option",{value:x, selected:x === m ? "selected" : null},[monthName(x) + (orderOfMonth(x) ? " — order already uploaded" : "")]); }));
-    var restart = el("input",{type:"checkbox", style:"width:auto"});
+        .map(function(x){ return el("option",{value:x, selected:x === m ? "selected" : null},[monthName(x)]); }));
 
     var rows = el("div",{class:"tablewrap"});
-    var t = el("table",{style:"min-width:520px"});
+    var t = el("table",{style:"min-width:560px"});
     t.appendChild(el("thead",{},[el("tr",{},[
-      el("th",{},["SD code"]), el("th",{},["Type"]), el("th",{class:"n"},["Qty"]),
+      el("th",{},["SD code"]), el("th",{},["Type"]), el("th",{class:"n"},["Order qty"]), el("th",{class:"n"},["Pending qty"]),
       el("th",{},["CAD"]), el("th",{},["GAD"]), el("th",{},["BOM"]), el("th",{},["Tasks"])
     ])]));
     var tb = el("tbody");
     items.forEach(function(i){
       var n = (i.kind === "new" ? SD_NEW_STEPS.length - (sdMissing(i).length ? 0 : 1) : SD_REPEAT_STEPS.length);
-      var ex = existing[i.sdCode];
       tb.appendChild(el("tr",{},[
-        el("td",{},[i.sdCode]),
+        el("td",{},[i.sdCode, i.lines > 1 ? el("div",{class:"psub"},[i.lines + " lines combined"]) : null]),
         el("td",{},[ i.kind === "new" ? el("span",{class:"chip p1"},["new"]) : el("span",{class:"chip"},["repeat"]),
           i.prev ? el("div",{class:"muted", style:"font-size:11px;margin-top:2px"},[(i.wasNew ? "marked new · " : "") + "made " + monthName(i.prev).replace(/^(\w{3})\w*/, "$1")]) : null ]),
         el("td",{class:"n"},[String(i.orderQty || 0)]),
+        el("td",{class:"n pendq"},[String(i.pendingQty || 0)]),
         el("td",{},[i.cad]), el("td",{},[i.gad]), el("td",{},[i.bom]),
-        el("td",{},[ !ex ? (n + " steps start")
-          : (sdProgress(ex) === 100 ? el("span",{class:"chip"},["finished — restart if ticked below"]) : el("span",{class:"chip"},["already on the list"])) ])
+        el("td",{},[ i.carry ? el("span",{class:"chip p2", title:"Not finished yet — keeps the steps already done"},["in progress — kept"]) : (n + " steps start") ])
       ]));
     });
     t.appendChild(tb); rows.appendChild(t);
@@ -4923,51 +4956,79 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       el("div",{class:"dsec"},[
         el("div",{class:"field"},[ el("label",{},["This order is for"]), monthSel ]),
         el("p",{class:"muted", style:"font-size:12.5px;margin:8px 0 0"},[
-          "Each month's order gets its own list. Every repeat DB in it starts its 2 steps again (update the job card, submit to purchase); " +
-          "a DB already made in an earlier month counts as a repeat."])
+          "The same SD code on several lines of the file is shown once, with the quantities added. Every repeat DB starts its 2 steps " +
+          "(update the job card, submit to purchase); a DB made before counts as a repeat."])
       ]),
+      prev.length ? el("div",{class:"dsec holdbox"},[
+        el("h4",{},["Previous data: " + prev.length + " DB" + (prev.length === 1 ? "" : "s") + (prevMonths.length ? " (" + prevMonths.map(monthName).join(", ") + ")" : "")]),
+        el("p",{style:"font-size:13px;margin:0"},[
+          "When you click the button below, all of it is first downloaded as an Excel file (DB list, step schedule, updates and hold-ups), " +
+          "then cleared from the dashboard, so only this new file is shown. " +
+          (carried.length ? carried.length + " DB" + (carried.length === 1 ? " that is" : "s that are") + " still in progress and also in the new file keep" + (carried.length === 1 ? "s its" : " their") + " steps done so far. " : "") +
+          "Open tasks of cleared DBs are removed."])
+      ]) : null,
       el("div",{class:"dsec"},[
         el("div",{class:"tiles"},[
           tile("DB codes", String(items.length), news.length + " new · " + (items.length - news.length) + " repeat", ""),
-          tile("Steps start for", String(fresh.length), again.length ? again.length + " already in " + monthName(m) : "all codes in the file", "")
-        ]),
-        finishedAgain.length ? el("label",{style:"display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13px;cursor:pointer"},[
-          restart, el("span",{},[el("b",{},["Start the steps again for " + finishedAgain.length + " finished DB" + (finishedAgain.length === 1 ? "" : "s")]),
-            " already in " + monthName(m) + " (a second order of the same code this month). Leave unticked if you are only re-uploading a corrected file."]) ]) : null
+          tile("Pending qty", items.reduce(function(a, i){ return a + (+i.pendingQty || 0); }, 0).toLocaleString("en-IN"), "total in this file", "")
+        ])
       ]),
       el("div",{class:"dsec"},[ el("h4",{},["What the file says"]), rows ]),
       el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},[
-        el("button",{class:"btn primary", onclick:function(){
-          commitUpload(m, fileName, items, existing, restart.checked);
-        }},["Add to " + monthName(m) + " and create tasks"]),
+        el("button",{class:"btn primary", onclick:function(e){
+          e.target.disabled = true;
+          commitUpload(m, fileName, items, prev);
+        }},[prev.length ? "Download old data, clear it and load this file" : "Load this file and create tasks"]),
         el("button",{class:"btn", onclick:closeDrawer},["Cancel"])
       ])
     ]));
   }
 
-  function commitUpload(m, fileName, items, existing, restart){
-    var added = 0, updated = 0, restarted = 0;
+  function commitUpload(m, fileName, items, prev){
+    var go = function(){ replaceSdData(m, fileName, items, prev); };
+    if(!prev.length) return go();
+    banner("Saving the previous Special DB data to Excel…");
+    exportSdArchive(prev, "NMD_Special_DBs_saved_" + today() + ".xlsx").then(function(ok){
+      if(!ok){
+        banner("The Excel file of the previous data could not be saved, so nothing was cleared. Allow the download and try again.");
+        closeDrawer();
+        return;
+      }
+      go();
+    });
+  }
+  function replaceSdData(m, fileName, items, prev){
+    var byKey = {}; items.forEach(function(i){ byKey[sdKey(i.sdCode)] = i; });
+    var hist = Object.assign({}, state.sdhist || {});
+    var added = 0, kept = 0, cleared = 0;
+    var newIds = {}; items.forEach(function(i){ if(!i.carry) newIds[sdDocId(m, i.sdCode)] = true; });
+    var tasksAll = state.allTasks || state.tasks;
+    /* 1. the previous data: keep what is still in progress and in the new file, clear the rest */
+    prev.forEach(function(sd){
+      var k = sdKey(sd.sdCode), it = byKey[k];
+      if(sdProgress(sd) === 100) hist[k] = sd.month;
+      if(it && it.carry){
+        var data = {orderQty:it.orderQty, pendingQty:it.pendingQty, lines:it.lines, poNos:it.poNos, cad:it.cad, gad:it.gad,
+                    bom:it.bom, sfgCode:it.sfgCode, commDate:it.commDate, critical:it.critical, desc:it.desc || sd.desc, month:m};
+        var nid = sdDocId(m, sd.sdCode);
+        if(nid === sd.id){ saveSd(sd, data); }
+        else {
+          var moved = Object.assign({}, sd, data, {id:nid});
+          saveSd(moved, {});
+          tasksAll.filter(function(t){ return t.sdId === sd.id; }).forEach(function(t){ saveTask(t, {sdId:nid}); });
+          deleteSd(sd);
+        }
+        kept++;
+        return;
+      }
+      tasksAll.filter(function(t){ return t.sdId === sd.id && t.status !== "done"; }).forEach(function(t){ removeTask(t); });
+      if(newIds[sd.id]) state.sdbs = state.sdbs.filter(function(x){ return x.id !== sd.id; });   /* overwritten below */
+      else deleteSd(sd);
+      cleared++;
+    });
+    /* 2. the new file */
     items.forEach(function(i){
-      var old = existing[i.sdCode];
-      var data = {orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines, poNos:i.poNos,
-                  cad:i.cad, gad:i.gad, bom:i.bom, sfgCode:i.sfgCode, commDate:i.commDate,
-                  critical:i.critical, desc:i.desc || (old && old.desc) || ""};
-      if(old && restart && sdProgress(old) === 100){
-        /* a new order of a finished DB: its steps start again from today */
-        var re = Object.assign({}, old, data, {startDate:today(), steps:[]});
-        re.steps = buildSteps(re);
-        saveSd(old, Object.assign(data, {startDate:today(), steps:re.steps, reorderedAt:new Date().toISOString(),
-                                         orders:(old.orders || 1) + 1}));
-        openStepTask(sdById(old.id) || old);
-        restarted++;
-        return;
-      }
-      if(old){
-        /* keep the step progress, refresh the commercial and data columns */
-        saveSd(old, data);
-        updated++;
-        return;
-      }
+      if(i.carry) return;
       var sd = {id:sdDocId(m, i.sdCode), month:m, sdCode:i.sdCode, desc:i.desc, kind:i.kind,
                 critical:i.critical, orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines,
                 poNos:i.poNos, sfgItem:i.sfgItem, commDate:i.commDate, cad:i.cad, gad:i.gad,
@@ -4978,16 +5039,24 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       openStepTask(sd);
       added++;
     });
+    /* 3. order records, notes and the history of finished codes */
+    state.sdorders.filter(function(o){ return o.id !== m; }).forEach(function(o){
+      if(state.db) state.db.doc("sdorders/" + o.id).delete().catch(onWriteErr);
+    });
+    state.sdnotes.forEach(function(n){ if(state.db) state.db.doc("sdnotes/" + n.id).delete().catch(onWriteErr); });
+    state.sdnotes = [];
+    state.sdhist = hist;
+    if(state.db) state.db.doc("config/sdhistory").set({codes:hist}).catch(onWriteErr);
     var meta = {month:m, fileName:fileName, uploadedBy:state.who, uploadedAt:new Date().toISOString(),
                 codes:items.length, newCodes:items.filter(function(i){ return i.kind === "new"; }).length};
     if(state.db) state.db.doc("sdorders/" + m).set(meta).catch(onWriteErr);
-    state.sdorders = state.sdorders.filter(function(x){ return x.id !== m; }).concat([Object.assign({id:m}, meta)]);
-    state.sdMonth = m;                                   /* show the month the order went into */
+    state.sdorders = [Object.assign({id:m}, meta)];
+    state.sdMonth = m;
     closeDrawer();
-    banner(monthName(m) + ": " + added + " DB" + (added===1?"":"s") + " added with their steps" +
-           (restarted ? ", " + restarted + " finished DB" + (restarted===1?"":"s") + " started again" : "") +
-           (updated ? ", " + updated + " already on the list updated" : "") + ".");
-    setTimeout(function(){ banner(""); }, 8000);
+    banner((prev.length ? "Previous data saved to Excel and cleared (" + cleared + " DB" + (cleared === 1 ? "" : "s") + "). " : "") +
+           monthName(m) + ": " + added + " DB" + (added === 1 ? "" : "s") + " loaded with their steps" +
+           (kept ? ", " + kept + " in-progress DB" + (kept === 1 ? "" : "s") + " kept" : "") + ".");
+    setTimeout(function(){ banner(""); }, 9000);
     render();
   }
 
@@ -6278,6 +6347,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
           state.pinFor ? el("b",{},[memberName(state.pinFor)]) : null]));
         sbc.appendChild(el("span",{class:"sp"}));
         sbc.appendChild(el("span",{},["Sheet ", el("b",{},["0 / 5"])]));
+        sbc.appendChild(el("span",{},["Version ", el("b",{},[APP_VERSION])]));
         sbc.appendChild(el("span",{},["MMGS"]));
         sbc.appendChild(el("span",{},["Grid ", el("b",{},["ON"])]));
       }
@@ -6328,6 +6398,7 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
       sb.appendChild(el("span",{},[el("b",{},[String(due)]), " due"]));
       sb.appendChild(el("span",{class:"late"},[el("b",{},[String(late)]), " late"]));
       sb.appendChild(el("span",{title:"No tasks are planned on Saturday"},["Weekly off ", el("b",{},["SAT"])]));
+      sb.appendChild(el("span",{title:"Dashboard version — leave cover, project on hold, monthly orders, Saturday off"},["Version ", el("b",{},[APP_VERSION])]));
       sb.appendChild(el("span",{},["MMGS"]));
       sb.appendChild(el("span",{},["Grid ", el("b",{},["ON"])]));
     }
