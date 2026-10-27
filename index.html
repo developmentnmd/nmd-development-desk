@@ -1465,6 +1465,13 @@ body.cad{
 :root[data-theme="dark"] .cad nav.tabs button[aria-selected="true"]{color:var(--sel)}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cad nav.tabs button[aria-selected="true"]{color:var(--sel)} }
 .cad .avatar.pc0, .cad .who.pc0 .wa, .cad .pick.pc0 .wa{background:linear-gradient(140deg, color-mix(in srgb, var(--sel) 70%, #fff), var(--sel)); color:#fff}
+/* cover: landscape drawing sheet — sign-in cards three to a row */
+.cad .cover{max-width:1200px}
+.cad .cover .panel, .cad .cover .panelwrap{max-width:980px}
+.cad .cover .people{grid-template-columns:repeat(3, minmax(0, 1fr))}
+.cad .cover .covernote{max-width:70ch}
+@media (max-width:980px){ .cad .cover .people{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+@media (max-width:620px){ .cad .cover .people{grid-template-columns:minmax(0, 1fr)} }
 .cad .tiles > .tile, .cad .tiles > .tile:nth-child(4n+2), .cad .tiles > .tile:nth-child(4n+3), .cad .tiles > .tile:nth-child(4n+4){--tc:var(--sel)}
 .cad .tiles > .tile.alert{--tc:var(--crit)}
 .cad nav.tabs button[data-tab]{--tabc:var(--sel)}
@@ -1575,7 +1582,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "27 Oct 2026 · job cards";
+  var APP_VERSION = "27 Oct 2026 · landscape cover";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
