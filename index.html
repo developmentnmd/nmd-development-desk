@@ -1582,7 +1582,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "27 Oct 2026 · job card plain";
+  var APP_VERSION = "27 Oct 2026 · special DB fixes";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -3070,7 +3070,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     return ms.length ? ms[ms.length - 1] : "";
   }
   function sdMonth(){ return state.sdMonth || latestOrderMonth() || shiftMonth(0); }
-  function sdKey(code){ return String(code == null ? "" : code).replace(/\u00a0/g, " ").replace(/\s+/g, "").toUpperCase(); }
+  function sdKey(code){ return String(code == null ? "" : code).toUpperCase().replace(/[^A-Z0-9]/g, ""); }
   function sdById(id){ return state.sdbs.filter(function(x){ return x.id === id; })[0]; }
   function sdDocId(month, code){ return month + "_" + String(code).replace(/[^A-Za-z0-9_.~:@+-]/g, "-").slice(0, 60); }
   function avail(v){
@@ -3153,7 +3153,7 @@ body.cad[data-sec]{--sec:var(--sel)}
   /* a finished special-DB task moves that DB to its next step */
   function sdStepDone(t){
     var sd = sdById(t.sdId);
-    if(!sd) return;
+    if(!sd || !taskOfThisOrder(sd, t)) return;
     var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
     var found = false;
     steps.forEach(function(x){
@@ -3178,16 +3178,50 @@ body.cad[data-sec]{--sec:var(--sel)}
   }
   /* repair on load: a step whose task was finished counts as done, and a
      finished follow-up step means the customer data is complete */
+  /* a task belongs to this order of the DB only if it was made after the order
+     was loaded — tasks from an earlier order of the same SD code never tick it */
+  function taskOfThisOrder(sd, t){
+    var start = sd.startedAt || sd.startDate || sd.createdAt || "";
+    if(!start) return true;
+    return String(t.createdAt || "") >= (start.length > 10 ? start : start + "T00:00:00");
+  }
+  /* the same SD code twice in one month: keep one (the one with more work done,
+     else the newer), add the quantities if both came from the same file */
+  function dedupeSdbs(){
+    var groups = {};
+    state.sdbs.forEach(function(sd){ var k = sd.month + "|" + sdKey(sd.sdCode); (groups[k] = groups[k] || []).push(sd); });
+    var removed = 0, tasksAll = state.allTasks || state.tasks;
+    Object.keys(groups).forEach(function(k){
+      var g = groups[k]; if(g.length < 2) return;
+      g.sort(function(a, b){ return sdProgress(b) - sdProgress(a) || String(b.startedAt || b.createdAt || "").localeCompare(String(a.startedAt || a.createdAt || "")); });
+      var keep = g[0], add = {orderQty:+keep.orderQty || 0, pendingQty:+keep.pendingQty || 0, lines:+keep.lines || 1};
+      g.slice(1).forEach(function(d){
+        if(String(d.createdAt || "") === String(keep.createdAt || "")){
+          add.orderQty += +d.orderQty || 0; add.pendingQty += +d.pendingQty || 0; add.lines += +d.lines || 1;
+        }
+        tasksAll.filter(function(t){ return t.sdId === d.id && t.status !== "done"; }).forEach(function(t){ removeTask(t); });
+        tasksAll.filter(function(t){ return t.sdId === d.id && t.status === "done"; }).forEach(function(t){ saveTask(t, {sdId:keep.id}); });
+        deleteSd(d); removed++;
+      });
+      saveSd(keep, add);
+    });
+    return removed;
+  }
   function reconcileSdbs(){
     if(state.sdChecked || !state.db || !state.canWrite || !state.sdbs.length) return;
     state.sdChecked = true;
+    try { dedupeSdbs(); } catch(e){}
     state.sdbs.forEach(function(sd){
       var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
-      var changed = false;
+      var changed = false, start = String(sd.startDate || sd.createdAt || "").slice(0,10);
       steps.forEach(function(x){
+        /* undo a tick that came from an earlier order: done before this order started, by nobody */
+        if(x.status === "done" && !x.doneBy && x.doneAt && start && String(x.doneAt).slice(0,10) < start){
+          x.status = "open"; x.doneAt = ""; changed = true; return;
+        }
         if(x.status === "done") return;
-        var doneTask = state.tasks.filter(function(t){ return t.sdId === sd.id && t.sdStep === x.n && t.status === "done"; })[0];
-        if(doneTask){ x.status = "done"; x.doneAt = (doneTask.doneAt || "").slice(0,10) || today(); changed = true; }
+        var doneTask = state.tasks.filter(function(t){ return t.sdId === sd.id && t.sdStep === x.n && t.status === "done" && taskOfThisOrder(sd, t); })[0];
+        if(doneTask){ x.status = "done"; x.doneAt = (doneTask.doneAt || "").slice(0,10) || today(); x.doneBy = doneTask.assignee || ""; changed = true; }
       });
       var tmp = Object.assign({}, sd, {steps:steps});
       var fu = steps.filter(function(x){ return isFollowUpStep(tmp, x.n) && x.status === "done"; })[0];
@@ -4571,7 +4605,16 @@ body.cad[data-sec]{--sec:var(--sel)}
 
   /* ---------- SPECIAL DBs ---------- */
   function canUpload(){ return state.who === "atharva" || isLead(state.who); }
-  function sdOfMonth(m){ return state.sdbs.filter(function(x){ return x.month === m; }); }
+  /* one entry per SD code — if the same code is stored twice, show the one with more work done */
+  function sdOfMonth(m){
+    var best = {};
+    state.sdbs.forEach(function(x){
+      if(x.month !== m) return;
+      var k = sdKey(x.sdCode), b = best[k];
+      if(!b || sdProgress(x) > sdProgress(b) || (sdProgress(x) === sdProgress(b) && String(x.startedAt || x.createdAt || "") > String(b.startedAt || b.createdAt || ""))) best[k] = x;
+    });
+    return state.sdbs.filter(function(x){ return x.month === m && best[sdKey(x.sdCode)] === x; });
+  }
   function orderOfMonth(m){ return state.sdorders.filter(function(x){ return x.id === m; })[0]; }
 
 
@@ -5281,6 +5324,8 @@ body.cad[data-sec]{--sec:var(--sel)}
         return;
       }
       tasksAll.filter(function(t){ return t.sdId === sd.id && t.status !== "done"; }).forEach(function(t){ removeTask(t); });
+      /* finished tasks of the old order stay as history but no longer point at the DB */
+      tasksAll.filter(function(t){ return t.sdId === sd.id && t.status === "done"; }).forEach(function(t){ saveTask(t, {sdId:"", sdIdOld:sd.id, sdCode:sd.sdCode}); });
       if(newIds[sd.id]) state.sdbs = state.sdbs.filter(function(x){ return x.id !== sd.id; });   /* overwritten below */
       else deleteSd(sd);
       cleared++;
@@ -5292,7 +5337,7 @@ body.cad[data-sec]{--sec:var(--sel)}
                 critical:i.critical, orderQty:i.orderQty, pendingQty:i.pendingQty, lines:i.lines,
                 poNos:i.poNos, sfgItem:i.sfgItem, commDate:i.commDate, cad:i.cad, gad:i.gad,
                 bom:i.bom, sfgCode:i.sfgCode, remarks:i.remarks || "", createdAt:today(), startDate:today(),
-                createdBy:state.who, steps:[], madeIn:i.prev || ""};
+                startedAt:new Date().toISOString(), createdBy:state.who, steps:[], madeIn:i.prev || ""};
       sd.steps = buildSteps(sd);
       saveSd(sd, {});
       openStepTask(sd);
