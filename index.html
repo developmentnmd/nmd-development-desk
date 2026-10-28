@@ -1324,6 +1324,9 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 .cad .btn.resume{margin-left:6px; padding:2px 8px; font-size:11.5px}
 .cad td.pendq{font-weight:700; color:var(--ink)}
 .cad .ownerpick{display:flex; align-items:center; gap:6px; min-width:0}
+.cad .taskpicks{display:grid; gap:4px; margin-top:6px}
+.cad .tpick{display:flex; align-items:center; gap:6px; flex-wrap:wrap; min-width:0}
+.cad .tpick .tpl{font:500 10.5px/1.2 var(--mono, ui-monospace, monospace); color:var(--ink3); text-transform:uppercase; letter-spacing:.04em}
 .cad .ownerpick .who{padding:0; border:0; background:none}
 .cad select.ownersel{width:auto; max-width:150px; padding:3px 6px; font-size:12.5px; border:1px solid var(--frame); border-radius:4px;
   background:var(--paper); color:var(--ink); cursor:pointer}
@@ -1587,7 +1590,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "27 Oct 2026 · owner from project list";
+  var APP_VERSION = "28 Oct 2026 · task with from project list";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -4491,42 +4494,35 @@ body.cad[data-sec]{--sec:var(--sel)}
     var cls = g === "A" ? "p1" : (g === "B" ? "p2" : "p3");
     return el("span",{class:"chip " + cls, title:"Customer grade " + g + (c && +c.monthlySale ? " · " + inr(+c.monthlySale) + " per month now" : " · monthly sale not set")},["Grade " + g]);
   }
-  /* who has the project's work right now: the person with its open task, else the owner */
-  function projHolder(p){
-    var t = state.tasks.filter(function(x){ return x.projectId === p.id && x.status !== "done" && x.pStep; })[0]
-         || state.tasks.filter(function(x){ return x.projectId === p.id && x.status !== "done"; })[0];
-    return (t && t.assignee) || p.owner || "";
-  }
-  /* change the owner straight from the project list: the project and its open
-     tasks go to the new person (who gets a notification). Tasks given personally
-     by the director or the head move only when one of them makes the change. */
-  function setProjectOwner(p, id){
-    if(!id) return;
-    var lead = isLead(state.who), now = new Date().toISOString(), moved = 0, kept = 0, fu = 0;
-    saveProject(p, {owner: state.team.some(function(m){ return m.id === id; }) ? id : (p.owner || id)});
-    state.tasks.filter(function(t){ return t.projectId === p.id && t.status !== "done" && t.assignee !== id; }).forEach(function(t){
-      if(t.assignedBy && !lead){ kept++; return; }
-      if(isCustFollowUp(t.title) && !lead){ fu++; return; }      /* customer follow-ups stay with Manish sir */
-      saveTask(t, {assignee:id, transferredBy:state.who, transferredAt:now, transferredFrom:t.assignee || "", seenAt:"", transferReason:""});
-      moved++;
-    });
-    banner(p.name + " → " + memberName(id) + (moved ? " · " + moved + " open task" + (moved === 1 ? "" : "s") + " transferred" : " · no open task to move") +
-           (kept ? " · " + kept + " task" + (kept === 1 ? "" : "s") + " given by the director / head stayed" : "") +
-           (fu ? " · the customer follow-up stays with Manish sir" : "") + ".");
-    setTimeout(function(){ banner(""); }, 6000);
-  }
-  function ownerPicker(p){
-    var cur = projHolder(p);
-    if(!state.auth || !isActive(p)) return cur ? avatarChip(cur) : el("span",{class:"chip nv"},["assign"]);
-    var opts = state.team.map(function(m){ return [m.id, m.name.split(" ")[0] + (onLeave(m.id) ? " (leave)" : "") + " · " + openLoad(m.id)]; })
+  /* the project keeps its owner; each open task of the project can be handed to
+     whoever is really doing it, right from the project list */
+  function teamOptions(){
+    return state.team.map(function(m){ return [m.id, m.name.split(" ")[0] + (onLeave(m.id) ? " (leave)" : "") + " · " + openLoad(m.id)]; })
       .concat([["head","Manish sir"],["owner","Mayur sir"]]);
-    var sel = el("select",{class:"ownersel", title:"Give this project and its open task to someone else",
-      onclick:function(e){ e.stopPropagation(); },
-      onchange:function(e){ e.stopPropagation(); setProjectOwner(p, sel.value); }},
-      (cur ? [] : [el("option",{value:""},["assign…"])]).concat(opts.map(function(o){
-        return el("option",{value:o[0], selected:o[0] === cur ? "selected" : null},[o[1]]);
-      })));
-    return el("div",{class:"ownerpick", onclick:function(e){ e.stopPropagation(); }},[ cur ? el("span",{class:"who " + personColor(cur)},[el("span",{class:"wa"},[initials(memberName(cur))])]) : null, sel ]);
+  }
+  function moveTaskTo(t, id){
+    if(!id || t.assignee === id) return;
+    var lead = isLead(state.who);
+    if(t.assignedBy && !lead){ banner("This task was given by " + memberName(t.assignedBy) + " — only they can move it."); setTimeout(function(){ banner(""); }, 5000); render(); return; }
+    if(isCustFollowUp(t.title) && !lead && id !== "head"){ banner("Customer follow-ups stay with Manish sir — he can pass them on."); setTimeout(function(){ banner(""); }, 5000); render(); return; }
+    saveTask(t, {assignee:id, transferredBy:state.who, transferredAt:new Date().toISOString(), transferredFrom:t.assignee || "", seenAt:"", transferReason:""});
+    banner("“" + t.title.slice(0, 60) + "” → " + memberName(id) + ".");
+    setTimeout(function(){ banner(""); }, 5000);
+  }
+  function projTaskPickers(p){
+    var open = state.tasks.filter(function(t){ return t.projectId === p.id && t.status !== "done"; })
+      .sort(function(a, b){ return (b.pStep ? 1 : 0) - (a.pStep ? 1 : 0); });
+    if(!open.length) return null;
+    return el("div",{class:"taskpicks", onclick:function(e){ e.stopPropagation(); }}, open.map(function(t){
+      var fixed = t.assignedBy && !isLead(state.who);
+      var label = t.pStep ? "Step " + t.pStep + " task" : (t.title.length > 26 ? t.title.slice(0, 26) + "…" : t.title);
+      if(!state.auth || fixed) return el("div",{class:"tpick", title:t.title},[ el("span",{class:"tpl"},[label]), avatarChip(t.assignee) ]);
+      var sel = el("select",{class:"ownersel", title:"Hand this task to whoever is doing it — " + t.title,
+        onclick:function(e){ e.stopPropagation(); },
+        onchange:function(e){ e.stopPropagation(); moveTaskTo(t, sel.value); }},
+        teamOptions().map(function(o){ return el("option",{value:o[0], selected:o[0] === t.assignee ? "selected" : null},[o[1]]); }));
+      return el("div",{class:"tpick", title:t.title},[ el("span",{class:"tpl"},[label]), sel ]);
+    }));
   }
   /* special DB: give the current step (and its open task) to someone else */
   function sdHolder(sd, st){
@@ -4552,8 +4548,7 @@ body.cad[data-sec]{--sec:var(--sel)}
   function sdOwnerPicker(sd, st){
     var cur = sdHolder(sd, st);
     if(!state.auth) return cur ? shortName(cur) : "—";
-    var opts = state.team.map(function(m){ return [m.id, m.name.split(" ")[0] + (onLeave(m.id) ? " (leave)" : "") + " · " + openLoad(m.id)]; })
-      .concat([["head","Manish sir"],["owner","Mayur sir"]]);
+    var opts = teamOptions();
     var sel = el("select",{class:"ownersel", title:"Give this step and its open task to someone else",
       onclick:function(e){ e.stopPropagation(); },
       onchange:function(e){ e.stopPropagation(); setSdOwner(sd, st, sel.value); }},
@@ -4578,7 +4573,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       el("td",{"data-l":"Status"},[ el("span",{class:"chip " + ({"Completed":"today","Waiting for Customer":"p2","In Progress":"st-prog","Waiting Internal":"st-int","On Hold":"st-hold","Dropped":"nv"}[p.status] || "")},[p.status || "—"]),
         isOnHold(p) && state.auth ? el("button",{class:"btn sm resume", title:"Resume this project — its tasks come back to the plan",
           onclick:function(e){ e.stopPropagation(); resumeProject(p, state.who); }},["Resume"]) : null ]),
-      el("td",{"data-l":"Owner"},[ ownerPicker(p) ]),
+      el("td",{"data-l":"Owner"},[ p.owner ? avatarChip(p.owner) : el("span",{class:"chip nv"},["assign"]), projTaskPickers(p) ]),
       el("td",{class:"n", "data-l":kind==="qve"?"₹ saving":"₹ / month"},[ valueKnown(p) ? inr(p._value) : "—" ])
     ];
     if(kind === "live"){
@@ -4593,7 +4588,7 @@ body.cad[data-sec]{--sec:var(--sel)}
   function projTable(items, kind, partHeaders){
     var t = el("table");
     var heads = [el("th",{},["Pri"]), el("th",{},[kind==="qve"?"Idea":"Project / part"]), el("th",{},["Stage"]),
-                 el("th",{},["Status"]), el("th",{},["Owner"]), el("th",{class:"n"},[kind==="qve"?"₹ saving / month":"₹ / month"])];
+                 el("th",{},["Status"]), el("th",{},["Owner · task with"]), el("th",{class:"n"},[kind==="qve"?"₹ saving / month":"₹ / month"])];
     if(kind === "live"){ heads.push(el("th",{class:"n"},["Growth"])); heads.push(el("th",{},["Target"])); }
     heads.push(el("th",{},["Last update"]));
     t.appendChild(el("thead",{},[el("tr",{}, heads)]));
