@@ -1032,7 +1032,15 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 .sddropbox h4{color:var(--crit)}
 tr.sddrop td{color:var(--ink2)}
 tr.sddrop .pname{text-decoration:line-through}
+.projtools{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding-bottom:10px; margin-bottom:4px; border-bottom:1px solid var(--line)}
+.projtools .muted{font-size:12.5px}
+.btn.dropbtn{color:var(--crit); border-color:color-mix(in srgb, var(--crit) 45%, transparent); background:transparent}
+.btn.dropbtn:hover{background:color-mix(in srgb, var(--crit) 10%, transparent); border-color:var(--crit)}
+td .btn.dropbtn{margin-left:6px; padding:2px 8px; font-size:11.5px}
 .btn.danger{background:var(--crit); color:#fff; border-color:var(--crit)}
+.cad .btn.danger, .cad .btn.danger:hover{background:var(--crit); color:#fff; border-color:var(--crit)}
+.cad .btn.dropbtn{color:var(--crit); border-color:color-mix(in srgb, var(--crit) 45%, transparent); background:transparent}
+.cad .btn.dropbtn:hover{background:color-mix(in srgb, var(--crit) 10%, transparent); border-color:var(--crit)}
 .warnline{color:var(--crit); font-size:12.5px; font-weight:600}
 
 /* long project names in a task line never push the page wider */
@@ -1826,7 +1834,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "03 Nov 2026 · drop projects";
+  var APP_VERSION = "03 Nov 2026 · drop button on projects";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -5122,7 +5130,9 @@ body.cad[data-sec]{--sec:var(--sel)}
         ]) ]),
       el("td",{"data-l":"Status"},[ el("span",{class:"chip " + ({"Completed":"today","Waiting for Customer":"p2","In Progress":"st-prog","Waiting Internal":"st-int","On Hold":"st-hold","Dropped":"nv"}[p.status] || "")},[p.status || "—"]),
         isOnHold(p) && state.auth ? el("button",{class:"btn sm resume", title:"Resume this project — its tasks come back to the plan",
-          onclick:function(e){ e.stopPropagation(); resumeProject(p, state.who); }},["Resume"]) : null ]),
+          onclick:function(e){ e.stopPropagation(); resumeProject(p, state.who); }},["Resume"]) : null,
+        (isActive(p) && canDropProject()) ? el("button",{class:"btn sm dropbtn", title:"Drop this project — its open tasks close and it moves to the Dropped list",
+          onclick:function(e){ e.stopPropagation(); openProject(p.id, false, null, true); }},["Drop"]) : null ]),
       el("td",{"data-l":"Owner"},[ p.owner ? avatarChip(p.owner) : el("span",{class:"chip nv"},["assign"]), projTaskPickers(p) ]),
       el("td",{class:"n", "data-l":kind==="qve"?"₹ saving":"₹ / month"},[ valueKnown(p) ? inr(p._value) : "—" ])
     ];
@@ -6611,9 +6621,18 @@ body.cad[data-sec]{--sec:var(--sel)}
   }
 
   /* ---------- project drawer ---------- */
-  function openProject(id, focusUpdate, taskId){
+  function openProject(id, focusUpdate, taskId, toDrop){
     var p = projById(id); if(!p) return;
     var body = el("div");
+    if(isActive(p) && canDropProject()) body.appendChild(el("div",{class:"projtools"},[
+      el("span",{class:"muted"},[p.status + (p.stage ? " · " + p.stage : "")]),
+      el("button",{class:"btn sm dropbtn", type:"button", onclick:function(){
+        var box = document.getElementById("dropBox"); if(!box) return;
+        box.querySelector(".dropconfirm").hidden = false;
+        box.scrollIntoView({block:"center", behavior:"smooth"});
+        setTimeout(function(){ var i = box.querySelector("input"); if(i) i.focus(); }, 350);
+      }},["Drop project"])
+    ]));
 
     if(p.status === "Dropped"){
       body.appendChild(el("div",{class:"dsec sddropbox"},[
@@ -6704,7 +6723,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       var openN = (state.allTasks || state.tasks).filter(function(t){ return t.projectId === p.id && t.status !== "done"; }).length;
       var dReason = el("input",{type:"text", placeholder:"e.g. Customer cancelled the enquiry / idea not feasible", maxlength:"140"});
       var dWarn = el("div",{class:"warnline", hidden:true},["Write why the project is dropped."]);
-      var confirmBox = el("div",{hidden:true, style:"display:grid;gap:8px;margin-top:8px"},[
+      var confirmBox = el("div",{class:"dropconfirm", hidden:true, style:"display:grid;gap:8px;margin-top:8px"},[
         el("label",{class:"field"},[el("span",{},["Reason"]), dReason]), dWarn,
         el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},[
           el("button",{class:"btn danger", onclick:function(){
@@ -6716,7 +6735,7 @@ body.cad[data-sec]{--sec:var(--sel)}
           el("button",{class:"btn ghost", onclick:function(){ confirmBox.hidden = true; }},["Cancel"])
         ])
       ]);
-      body.appendChild(el("div",{class:"dsec sddropbox"},[
+      body.appendChild(el("div",{class:"dsec sddropbox", id:"dropBox"},[
         el("h4",{},["Drop this project?"]),
         el("p",{class:"muted", style:"margin:0 0 8px"},["If the customer cancelled or the " + (p.type === "qve" ? "idea" : "project") + " will not go ahead, drop it. " +
           (openN ? "Its " + openN + " open task" + (openN === 1 ? " is" : "s are") + " closed at once" : "No task will be given for it") +
@@ -6829,6 +6848,11 @@ body.cad[data-sec]{--sec:var(--sel)}
     drawer(p.customer + " — " + p.name,
       p.id + " · " + (p.type==="qve" ? "QVE" : "Live") + " · " + (p.detail||"") , body);
     if(focusUpdate) upText.focus();
+    if(toDrop){
+      var box = document.getElementById("dropBox");
+      if(box){ box.querySelector(".dropconfirm").hidden = false;
+        setTimeout(function(){ box.scrollIntoView({block:"center"}); var i = box.querySelector("input"); if(i) i.focus(); }, 120); }
+    }
   }
 
   function openProjectForm(kind){
