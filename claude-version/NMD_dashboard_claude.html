@@ -1425,6 +1425,72 @@ button.calcell:hover{border-color:var(--sel)}
 .cad .toolapp.soon:hover{transform:none; border-color:var(--frame); box-shadow:none}
 .cad .toolapp.soon .toolicon{background:var(--surface); color:var(--ink3)}
 @media (prefers-reduced-motion:reduce){ .cad .toolapp{transition:none} .cad .toolapp:hover{transform:none} }
+/* ===== Tools = NMD Workshop: a special section, set apart from the ordinary tabs ===== */
+:root{--ws1:#0d2747; --ws2:#173f6e; --wsline:rgba(255,255,255,.07); --wsink:#eaf2fb; --wsink2:#a9c1dc}
+/* sidebar: its own "Workshop" group under the tree */
+.cad nav.tabs button[data-tab="tools"]{--tabc:var(--hot); margin-top:30px; color:var(--wsink); font-weight:600; letter-spacing:.02em;
+  background:linear-gradient(135deg, var(--ws1), var(--ws2)); border-color:color-mix(in srgb, var(--hot) 55%, transparent);
+  box-shadow:0 6px 16px -10px rgba(13,39,71,.9), inset 0 0 0 1px rgba(255,255,255,.05); overflow:visible}
+.cad nav.tabs button[data-tab="tools"]::before{content:"Workshop"; left:-2px; top:-22px; width:auto; border-top:0; opacity:1;
+  font:600 10.5px/1 var(--mono, ui-monospace, monospace); letter-spacing:.14em; text-transform:uppercase; color:var(--hot)}
+.cad nav.tabs button[data-tab="tools"]::after{content:"★"; display:block; position:static; margin-left:auto; height:auto; width:auto;
+  background:none; transform:none; color:var(--hot); font-size:11px}
+.cad nav.tabs button[data-tab="tools"] .ti{color:var(--hot-ink, #1d1300); background:var(--hot)}
+.cad nav.tabs button[data-tab="tools"]:hover{background:linear-gradient(135deg, var(--ws2), var(--ws1)); border-color:var(--hot)}
+.cad nav.tabs button[data-tab="tools"][aria-selected="true"]{color:#fff; background:linear-gradient(135deg, var(--ws1), var(--ws2));
+  border-color:var(--hot); box-shadow:inset 3px 0 0 var(--hot), 0 8px 20px -10px rgba(13,39,71,.95)}
+@media (max-width:980px){
+  .cad nav.tabs button[data-tab="tools"]{margin-top:0; border-radius:8px}
+  .cad nav.tabs button[data-tab="tools"]::before, .cad nav.tabs button[data-tab="tools"]::after{display:none}
+  .cad nav.tabs button[data-tab="tools"][aria-selected="true"]{box-shadow:inset 0 2px 0 var(--hot)}
+}
+/* the page */
+.workshop{display:grid; gap:16px; min-width:0}
+.wshero{position:relative; overflow:hidden; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:18px 28px;
+  padding:26px 26px 22px; border-radius:10px; color:var(--wsink); border:1px solid color-mix(in srgb, var(--hot) 40%, transparent);
+  background:
+    linear-gradient(var(--wsline) 1px, transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg, var(--wsline) 1px, transparent 1px) 0 0/24px 24px,
+    linear-gradient(135deg, var(--ws1), var(--ws2));
+  box-shadow:0 18px 40px -26px rgba(13,39,71,.95)}
+.wshero::after{content:""; position:absolute; left:0; right:0; bottom:0; height:3px; background:linear-gradient(90deg, var(--hot), transparent 70%)}
+.wstitle{position:relative; z-index:1; display:grid; gap:6px; min-width:0; max-width:620px}
+.wskick{font:600 11px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.14em; text-transform:uppercase; color:var(--hot)}
+.wshero h2{margin:0; font-family:var(--cond, inherit); font-size:clamp(24px, 4vw, 34px); line-height:1.05; letter-spacing:.04em; text-transform:uppercase; color:#fff; text-wrap:balance}
+.wshero p{margin:0; color:var(--wsink2); font-size:14px; line-height:1.5}
+.wsstats{position:relative; z-index:1; display:flex; gap:10px; flex-wrap:wrap}
+.wsstats div{display:grid; gap:2px; min-width:92px; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12)}
+.wsstats b{font-family:var(--mono, ui-monospace, monospace); font-size:22px; color:#fff}
+.wsstats span{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--wsink2)}
+.wsbig{position:absolute; right:-40px; top:-46px; width:230px; height:230px; color:var(--hot); opacity:.16; pointer-events:none; animation:wsSpin 60s linear infinite}
+@keyframes wsSpin{to{transform:rotate(360deg)}}
+.wshero.slim{align-items:center; justify-content:flex-start; padding:14px 18px 16px; gap:12px 16px}
+.wshero.slim h2{font-size:clamp(19px, 3vw, 24px)}
+.wsback{position:relative; z-index:1; font:600 13px/1 inherit; padding:9px 14px; border-radius:6px; cursor:pointer;
+  color:var(--ws1); background:var(--hot); border:0}
+.wsback:hover{filter:brightness(1.08)}
+.wsgear{position:relative; z-index:1; display:grid; place-items:center; width:46px; height:46px; border-radius:10px; flex:none;
+  color:var(--hot); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14)}
+.wsbody{min-width:0; padding:16px; border-radius:10px; border:1px dashed color-mix(in srgb, var(--ws2) 35%, var(--frame, var(--line)));
+  background:
+    linear-gradient(color-mix(in srgb, var(--ws2) 6%, transparent) 1px, transparent 1px) 0 0/20px 20px,
+    linear-gradient(90deg, color-mix(in srgb, var(--ws2) 6%, transparent) 1px, transparent 1px) 0 0/20px 20px,
+    var(--surface, transparent)}
+/* workshop tiles: blueprint header, amber gear */
+.workshop .toolapp{position:relative; overflow:hidden; padding-top:0; border-color:color-mix(in srgb, var(--ws2) 30%, var(--frame))}
+.workshop .toolapp:not(.soon)::before{content:""; position:absolute; left:0; right:0; top:0; height:64px;
+  background:linear-gradient(var(--wsline) 1px, transparent 1px) 0 0/16px 16px, linear-gradient(90deg, var(--wsline) 1px, transparent 1px) 0 0/16px 16px,
+    linear-gradient(135deg, var(--ws1), var(--ws2))}
+.workshop .toolapp .toolicon{position:relative; margin-top:30px; background:linear-gradient(140deg, color-mix(in srgb, var(--hot) 55%, #fff), var(--hot)); color:var(--ws1)}
+.workshop .toolapp.soon{padding-top:18px}
+.workshop .toolapp.soon .toolicon{margin-top:0; background:var(--surface); color:var(--ink3)}
+.workshop .toolapp:not(.soon):hover{border-color:var(--hot); box-shadow:var(--lift), inset 0 -3px 0 var(--hot)}
+.workshop .tooltag{color:var(--ws2); border-color:color-mix(in srgb, var(--ws2) 35%, transparent)}
+:root[data-theme="dark"] .workshop .tooltag{color:var(--hot); border-color:color-mix(in srgb, var(--hot) 40%, transparent)}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .workshop .tooltag{color:var(--hot); border-color:color-mix(in srgb, var(--hot) 40%, transparent)} }
+@media (max-width:640px){ .wshero{padding:20px 16px 18px} .wsbody{padding:10px} .wsbig{width:170px; height:170px} }
+@media (prefers-reduced-motion:reduce){ .wsbig{animation:none} }
+
 /* tools: feasibility review */
 .cad .frcard{margin-top:0}
 .cad .frtop{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px}
@@ -1746,7 +1812,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "03 Nov 2026 · Prathamesh can drop DBs";
+  var APP_VERSION = "03 Nov 2026 · drop projects";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -1906,7 +1972,7 @@ body.cad[data-sec]{--sec:var(--sel)}
         st.status = "closed"; st.doneAt = today(); st.plan = st.plan || "";
         steps.forEach(function(x){ if(x.n > st.n && x.status === "open"){ x.status = "skipped"; x.byClose = true; x.plan = ""; } });
         text = "Step " + st.k + " — " + said + ". Enquiry closed.";
-        extra = {status:"Dropped"}; closed = true;
+        extra = {status:"Dropped", droppedAt:today(), droppedBy:stepActor(p), dropReason:said + " — enquiry closed", dropFrom:p.status || "In Progress"}; closed = true;
       } else if(st.skipOn && st.skipOn === how){
         st.status = "skipped"; st.doneAt = today();
         text = "Step " + st.k + " — " + said + ", so this step is not needed: " + st.title;
@@ -1928,6 +1994,8 @@ body.cad[data-sec]{--sec:var(--sel)}
     }
     linked.filter(function(t){ return closed || t.pStep === st.k; })
       .forEach(function(t){ saveTask(t, {status:"done", doneAt:now}); });
+    if(closed) (state.allTasks || state.tasks).filter(function(t){ return t.projectId === p.id && t.status !== "done" && !t.pStep; })
+      .forEach(function(t){ removeTask(t); });          /* enquiry closed: the other open tasks close too */
     if(!closed) openPStepTask(p);
   }
   function reopenStep(p, k){
@@ -2381,6 +2449,64 @@ body.cad[data-sec]{--sec:var(--sel)}
     var lg = (p.log||[]).map(function(x){ return Object.assign({}, x); });
     lg.unshift({d:today(), by:by, t:"Project resumed after hold since " + fmtDate(p.holdSince), stage:p.stage||"", status:back});
     saveProject(p, {status:back, resumedAt:today(), resumedBy:by, log:lg.slice(0,40)});
+  }
+  /* drop a live / QVE project: every open task of it is closed (removed from the
+     plans) and the project moves to the Dropped list, where it can be restored */
+  function canDropProject(){ return isLead(state.who) || state.team.some(function(m){ return m.id === state.who; }); }
+  function dropProject(p, reason, by){
+    if(!p || p.status === "Dropped") return 0;
+    by = by || state.who;
+    var open = (state.allTasks || state.tasks).filter(function(t){ return t.projectId === p.id && t.status !== "done"; });
+    open.forEach(function(t){ removeTask(t); });
+    var lg = (p.log||[]).map(function(x){ return Object.assign({}, x); });
+    lg.unshift({d:today(), by:by, t:"Project dropped — " + (reason || "no reason given") + (open.length ? " · " + open.length + " open task" + (open.length === 1 ? "" : "s") + " closed" : ""),
+                stage:p.stage||"", status:"Dropped"});
+    saveProject(p, {status:"Dropped", droppedAt:today(), droppedBy:by, dropReason:reason || "", dropFrom:p.status || "In Progress",
+                    tasksClosed:open.length, log:lg.slice(0,40)});
+    return open.length;
+  }
+  function restoreProject(p, by){
+    if(!p || p.status !== "Dropped") return;
+    by = by || state.who;
+    var back = (p.dropFrom && p.dropFrom !== "Dropped" && p.dropFrom !== "Completed") ? p.dropFrom : "In Progress";
+    var steps = hasSteps(p) ? p.steps.map(function(x){ var y = Object.assign({}, x); if(y.byClose){ y.status = "open"; delete y.byClose; } return y; }) : null;
+    var lg = (p.log||[]).map(function(x){ return Object.assign({}, x); });
+    lg.unshift({d:today(), by:by, t:"Project restored after being dropped on " + fmtDate(p.droppedAt), stage:p.stage||"", status:back});
+    var patch = {status:back, restoredAt:today(), restoredBy:by, droppedAt:"", droppedBy:"", dropReason:"", log:lg.slice(0,40)};
+    if(steps){ planSteps(steps, today()); patch.steps = steps; }
+    saveProject(p, patch);
+    if(hasSteps(p)) openPStepTask(p);
+  }
+  function droppedProjectsCard(kind){
+    var list = state.projects.filter(function(p){ return p.status === "Dropped" && (kind === "qve" ? p.type === "qve" : p.type !== "qve"); })
+      .sort(function(a,b){ return String(b.droppedAt || "").localeCompare(String(a.droppedAt || "")); });
+    if(!list.length) return null;
+    var card = el("div",{class:"card", style:"margin-top:14px"});
+    card.appendChild(el("div",{class:"cardhead"},[
+      el("h3",{},["Dropped " + (kind === "qve" ? "QVE ideas" : "projects")]),
+      el("span",{class:"chip"},[list.length + (list.length === 1 ? " project" : " projects")]),
+      el("p",{class:"eodhint"},["No tasks are given for these. Restore one if the work starts again."])
+    ]));
+    var t = el("table");
+    t.appendChild(el("thead",{},[el("tr",{},[ el("th",{},["Project"]), el("th",{},["Customer"]), el("th",{},["Stage when dropped"]),
+      el("th",{},["Dropped"]), el("th",{},["Reason"]), el("th",{},[""]) ])]));
+    var tb = el("tbody");
+    list.forEach(function(p){
+      /* projects dropped before this list existed: take the date and reason from the update history */
+      var lg = (p.log || []).filter(function(x){ return x.status === "Dropped"; }).pop();
+      var dAt = p.droppedAt || (lg && lg.d) || "", dBy = p.droppedBy || (lg && lg.by) || "", dWhy = p.dropReason || (lg && lg.t) || "";
+      tb.appendChild(el("tr",{class:"clickable sddrop", onclick:function(){ openProject(p.id); }},[
+        el("td",{},[el("div",{class:"pname"},[p.name]), el("div",{class:"psub"},[p.id])]),
+        el("td",{},[p.customer || "—"]),
+        el("td",{},[p.stage || "—"]),
+        el("td",{},[(dAt ? fmtDate(dAt) : "—") + (dBy ? " · " + shortName(dBy) : "")]),
+        el("td",{},[dWhy || "—"]),
+        el("td",{},[ canDropProject() ? el("button",{class:"btn sm", onclick:function(e){ e.stopPropagation(); restoreProject(p); banner(p.name + " restored — back in the active list."); setTimeout(function(){ banner(""); }, 6000); }},["Restore"]) : null ])
+      ]));
+    });
+    t.appendChild(tb);
+    card.appendChild(el("div",{class:"tablewrap"},[t]));
+    return card;
   }
   /* how long a project has been sitting in its current stage */
   function stageSince(p){
@@ -4873,6 +4999,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     if(kind === "qve" && p.type !== "qve") return false;
     if(kind === "live" && f.plant !== "all" && (p.plant||"NMD") !== f.plant) return false;
     if(f.status === "active" && !isActive(p)) return false;
+    if(f.status === "all" && p.status === "Dropped") return false;      /* dropped ones are in their own list below */
     if(f.status !== "active" && f.status !== "all" && p.status !== f.status) return false;
     if(f.owner === "none" && p.owner) return false;
     if(f.owner !== "all" && f.owner !== "none" && p.owner !== f.owner) return false;
@@ -5054,6 +5181,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     customerSections("live").forEach(function(c){ wrap.appendChild(c); });
     var noValue = state.projects.filter(function(p){ return p.type !== "qve" && isActive(p) && !valueKnown(p); });
     if(noValue.length) wrap.appendChild(needsValueCard(noValue));
+    var dLive = droppedProjectsCard("live"); if(dLive) wrap.appendChild(dLive);
     wrap.appendChild(reportCard("live"));
     return wrap;
   }
@@ -5067,6 +5195,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     customerSections("qve").forEach(function(c){ wrap.appendChild(c); });
     var noValue = state.projects.filter(function(p){ return p.type === "qve" && isActive(p) && !valueKnown(p); });
     if(noValue.length) wrap.appendChild(needsValueCard(noValue));
+    var dQve = droppedProjectsCard("qve"); if(dQve) wrap.appendChild(dQve);
     wrap.appendChild(reportCard("qve"));
     return wrap;
   }
@@ -6472,6 +6601,14 @@ body.cad[data-sec]{--sec:var(--sel)}
     var p = projById(id); if(!p) return;
     var body = el("div");
 
+    if(p.status === "Dropped"){
+      body.appendChild(el("div",{class:"dsec sddropbox"},[
+        el("h4",{},["Dropped" + (p.droppedAt ? " on " + fmtDate(p.droppedAt) : "") + (p.droppedBy ? " · " + memberName(p.droppedBy) : "")]),
+        el("p",{class:"muted", style:"font-size:13px;margin:0 0 10px"},[(p.dropReason ? p.dropReason + ". " : "") +
+          "Its open tasks were closed and no new task is given. Restore it to bring it back to the active list."]),
+        canDropProject() ? el("button",{class:"btn primary", onclick:function(){ restoreProject(p); openProject(p.id); }},["Restore project"]) : null
+      ]));
+    }
     if(isOnHold(p)){
       var nHeld = heldTasksOf(p.id).length;
       body.appendChild(el("div",{class:"dsec holdbox"},[
@@ -6520,6 +6657,13 @@ body.cad[data-sec]{--sec:var(--sel)}
           var log = (p.log||[]).map(function(x){ return Object.assign({}, x); }); log.unshift(entry); log = log.slice(0,40);
           var patch = {log:log, nextAction:upNext.value.trim(), nextActionDate:upNextDate.value};
           if(upStage.value) patch.stage = upStage.value;
+          if(upStatus.value === "Dropped" && p.status !== "Dropped"){
+            saveProject(p, {nextAction:patch.nextAction, nextActionDate:patch.nextActionDate});
+            var nClosed = dropProject(p, txt || "Status set to Dropped", upBy.value);
+            closeDrawer(); banner(p.name + " dropped — " + nClosed + " open task" + (nClosed === 1 ? "" : "s") + " closed. It is in the Dropped list.");
+            setTimeout(function(){ banner(""); }, 7000);
+            return;
+          }
           if(upStatus.value) patch.status = upStatus.value;
           var doneStage = (p.type === "qve") ? "8. Implemented" : "10. Completed";
           if(patch.stage === doneStage || patch.status === "Completed"){
@@ -6540,6 +6684,33 @@ body.cad[data-sec]{--sec:var(--sel)}
     ]));
 
     if(hasSteps(p)) body.appendChild(projStepsSection(p));
+
+    /* drop the project */
+    if(p.status !== "Dropped" && p.status !== "Completed" && canDropProject()){
+      var openN = (state.allTasks || state.tasks).filter(function(t){ return t.projectId === p.id && t.status !== "done"; }).length;
+      var dReason = el("input",{type:"text", placeholder:"e.g. Customer cancelled the enquiry / idea not feasible", maxlength:"140"});
+      var dWarn = el("div",{class:"warnline", hidden:true},["Write why the project is dropped."]);
+      var confirmBox = el("div",{hidden:true, style:"display:grid;gap:8px;margin-top:8px"},[
+        el("label",{class:"field"},[el("span",{},["Reason"]), dReason]), dWarn,
+        el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},[
+          el("button",{class:"btn danger", onclick:function(){
+            var r = dReason.value.trim(); if(!r){ dWarn.hidden = false; dReason.focus(); return; }
+            var n = dropProject(p, r); closeDrawer();
+            banner(p.name + " dropped — " + n + " open task" + (n === 1 ? "" : "s") + " closed. It is in the Dropped list.", "Undo",
+              function(){ restoreProject(projById(p.id) || p); banner(""); });
+          }},["Yes, drop this project"]),
+          el("button",{class:"btn ghost", onclick:function(){ confirmBox.hidden = true; }},["Cancel"])
+        ])
+      ]);
+      body.appendChild(el("div",{class:"dsec sddropbox"},[
+        el("h4",{},["Drop this project?"]),
+        el("p",{class:"muted", style:"margin:0 0 8px"},["If the customer cancelled or the " + (p.type === "qve" ? "idea" : "project") + " will not go ahead, drop it. " +
+          (openN ? "Its " + openN + " open task" + (openN === 1 ? " is" : "s are") + " closed at once" : "No task will be given for it") +
+          ", and it moves to the Dropped list at the bottom of the " + (p.type === "qve" ? "QVE" : "Live") + " page, where it can be restored."]),
+        el("button",{class:"btn", onclick:function(){ confirmBox.hidden = false; dReason.focus(); }},["Drop project"]),
+        confirmBox
+      ]));
+    }
 
     /* facts */
     var fOwner = el("select",{onchange:function(){ saveProject(p,{owner:fOwner.value}); }},
@@ -7332,15 +7503,36 @@ body.cad[data-sec]{--sec:var(--sel)}
   function viewTools(){
     var wrap = el("div");
     var tool = TOOLS.filter(function(t){ return t.id === state.tool; })[0];
+    wrap.className = "workshop";
     if(tool){
-      wrap.appendChild(blockHead(tool.name, tool.tag, el("button",{class:"btn sm", type:"button",
-        onclick:function(){ state.tool = null; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"}); }},["← All tools"])));
-      wrap.appendChild(tool.open());
+      var bar = el("div",{class:"wshero slim"},[
+        el("button",{class:"wsback", type:"button", onclick:function(){ state.tool = null; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"}); }},["← Workshop"]),
+        el("div",{class:"wstitle"},[ el("span",{class:"wskick"},["NMD Workshop · " + tool.tag]), el("h2",{},[tool.name]) ])
+      ]);
+      var ic0 = el("span",{class:"wsgear", "aria-hidden":"true"}); ic0.innerHTML = '<svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + tool.icon + '</svg>';
+      bar.insertBefore(ic0, bar.children[1]);
+      wrap.appendChild(bar);
+      wrap.appendChild(el("div",{class:"wsbody"},[tool.open()]));
       return wrap;
     }
-    wrap.appendChild(blockHead("Tools", "Open a tool to use it.", null));
+    var hero = el("div",{class:"wshero"},[
+      el("div",{class:"wstitle"},[
+        el("span",{class:"wskick"},["Special section · Design & Development"]),
+        el("h2",{},["NMD Workshop"]),
+        el("p",{},["The team's own engineering tools — calculators, review forms and the company calendar. Open a tool to use it."])
+      ]),
+      el("div",{class:"wsstats"},[
+        el("div",{},[el("b",{},[String(TOOLS.length)]), el("span",{},["tools"])]),
+        el("div",{},[el("b",{},[String((state.feas || []).length)]), el("span",{},["reviews saved"])]),
+        el("div",{},[el("b",{},[String(Object.keys(HOLIDAYS).filter(function(k){ return k >= today(); }).length)]), el("span",{},["holidays ahead"])])
+      ])
+    ]);
+    var heroGear = el("span",{class:"wsbig", "aria-hidden":"true"});
+    heroGear.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="50" cy="50" r="16"/><path d="M50 8v12M50 80v12M8 50h12M80 50h12M20.3 20.3l8.5 8.5M71.2 71.2l8.5 8.5M20.3 79.7l8.5-8.5M71.2 28.8l8.5-8.5"/><circle cx="50" cy="50" r="30" stroke-dasharray="4 5"/><circle cx="50" cy="50" r="42"/></svg>';
+    hero.appendChild(heroGear);
+    wrap.appendChild(hero);
     var saved = (state.feas || []).length;
-    wrap.appendChild(el("div",{class:"toolgrid"}, TOOLS.map(function(t){
+    wrap.appendChild(el("div",{class:"wsbody"},[ el("div",{class:"toolgrid"}, TOOLS.map(function(t){
       var tile = el("button",{class:"toolapp", type:"button", "aria-label":"Open " + t.name, onclick:function(){
         state.tool = t.id; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"});
       }});
@@ -7352,7 +7544,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       return tile;
     }).concat([ el("div",{class:"toolapp soon", "aria-hidden":"true"},[
       el("span",{class:"toolicon"},["+"]), el("span",{class:"toolname"},["More tools coming"]),
-      el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ])));
+      el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ])) ]));
     if(state.db) frLoadSaved();
     return wrap;
   }
