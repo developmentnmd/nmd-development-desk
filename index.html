@@ -1430,6 +1430,54 @@ button.calcell:hover{border-color:var(--sel)}
 .cad .smbend{fill:var(--hot); stroke:var(--paper); stroke-width:1.5}
 .cad .smlbl{font:600 10px var(--mono, ui-monospace, monospace); fill:var(--ink2)}
 .cad .smnote{font-size:12px; margin:16px 0 0}
+
+/* sheet metal: 3D part mode */
+.cad .smmode{flex-wrap:wrap}
+.cad .smcommon{margin-bottom:16px}
+.cad .smcommon .formgrid{grid-template-columns:repeat(4, minmax(0, 1fr))}
+@media (max-width:900px){ .cad .smcommon .formgrid{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+@media (max-width:520px){ .cad .smcommon .formgrid{grid-template-columns:minmax(0, 1fr)} }
+.cad .smplate input{width:100%}
+.cad .sm3dwrap{position:relative; border:1px solid var(--frame); border-radius:6px; overflow:hidden; touch-action:none; cursor:grab;
+  background:
+    linear-gradient(color-mix(in srgb, var(--sel) 7%, transparent) 1px, transparent 1px) 0 0/18px 18px,
+    linear-gradient(90deg, color-mix(in srgb, var(--sel) 7%, transparent) 1px, transparent 1px) 0 0/18px 18px,
+    var(--paper)}
+.cad .sm3dwrap:active{cursor:grabbing}
+.cad .sm3d{display:block; width:100%; height:auto; user-select:none}
+.cad .smface{fill:hsl(210 28% var(--l)); stroke:hsl(210 30% 32%); stroke-width:.8; stroke-linejoin:round}
+.cad .smface.fl{fill:hsl(208 42% var(--l))}
+.cad .smface.sel{fill:hsl(38 85% var(--l)); stroke:hsl(32 70% 35%)}
+.cad .smedge{cursor:pointer; outline:none}
+.cad .smedge .hit{stroke:transparent; stroke-width:18; stroke-linecap:round}
+.cad .smedge .ln{stroke:var(--sel); stroke-width:2.5; stroke-dasharray:6 4; stroke-linecap:round; opacity:.85}
+.cad .smedge.has .ln{stroke-dasharray:none; opacity:.55}
+.cad .smedge .dot{fill:var(--paper); stroke:var(--sel); stroke-width:2}
+.cad .smedge .dt{font:700 11px var(--mono, ui-monospace, monospace); fill:var(--sel); pointer-events:none}
+.cad .smedge .et{font:600 10.5px var(--mono, ui-monospace, monospace); letter-spacing:.06em; text-transform:uppercase; fill:var(--ink2); pointer-events:none;
+  paint-order:stroke; stroke:var(--paper); stroke-width:3px}
+.cad .smedge:hover .ln, .cad .smedge:focus .ln{stroke-width:4; opacity:1}
+.cad .smedge:hover .dot, .cad .smedge:focus .dot{fill:var(--sel)}
+.cad .smedge:hover .dt, .cad .smedge:focus .dt{fill:#fff}
+.cad .smedge.sel .ln{stroke:var(--hot); stroke-width:4; stroke-dasharray:none; opacity:1}
+.cad .smedge.sel .dot{fill:var(--hot); stroke:var(--hot)}
+.cad .smedge.sel .dt{fill:#1d1300}
+.cad .smedge.sel .et{fill:var(--ink); font-weight:700}
+.cad .smviewbar{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:6px 8px; border-top:1px solid var(--frame-soft, var(--line)); background:var(--paper); cursor:default}
+.cad .smviewbar .muted{font-size:12px}
+.cad .smedit{display:grid; gap:10px; min-width:0}
+.cad .smedgetabs{display:flex; gap:6px; flex-wrap:wrap}
+.cad .smedgetabs .btn.on{background:var(--hot); border-color:var(--hot); color:#1d1300}
+.cad .smseg{display:grid; gap:6px; padding:10px 12px; border:1px solid var(--frame); border-left:3px solid var(--hot); border-radius:4px; background:var(--paper)}
+.cad .smseg .smtag{font:600 11px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.06em; text-transform:uppercase; color:var(--ink2)}
+.cad .smmini{min-width:120px; font-size:12.5px; color:var(--ink2)}
+.cad .smtable tr.sel td{background:color-mix(in srgb, var(--hot) 12%, transparent)}
+.cad .smtable tr.smtot td{font-size:12px; color:var(--ink2)}
+.cad .smflat{display:block; width:100%; height:auto}
+.cad .smblank{fill:color-mix(in srgb, var(--sel) 10%, var(--paper)); stroke:var(--ink); stroke-width:1.6; stroke-linejoin:round}
+.cad .smbl{stroke:var(--hot); stroke-width:1.3; stroke-dasharray:7 4}
+.cad .smdim{stroke:var(--ink2); stroke-width:1}
+.cad .smdt{font:600 11px var(--mono, ui-monospace, monospace); fill:var(--ink)}
 /* tools: app launcher */
 .cad .toolgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px}
 .cad .toolapp{display:grid; justify-items:start; align-content:start; gap:8px; text-align:left; padding:18px 18px 16px; min-height:200px;
@@ -1834,7 +1882,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "03 Nov 2026 · drop button on projects";
+  var APP_VERSION = "03 Nov 2026 · 3D sheet metal blank";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -7163,8 +7211,12 @@ body.cad[data-sec]{--sec:var(--sel)}
             flanges:[50, 30, 50], bends:[{a:90, dir:1}, {a:90, dir:1}]};
   }
   function smLoad(){
-    try { var v = JSON.parse(localStorage.getItem("pmi_dd_sm") || "null"); if(v && v.flanges && v.bends) return v; } catch(e){}
-    return smDefaults();
+    var v = null;
+    try { v = JSON.parse(localStorage.getItem("pmi_dd_sm") || "null"); } catch(e){}
+    if(!(v && v.flanges && v.bends)) v = smDefaults();
+    if(!v.part || !v.part.edges) v.part = smPartDefaults();
+    if(!v.mode) v.mode = "part";
+    return v;
   }
   function smSave(v){ try { localStorage.setItem("pmi_dd_sm", JSON.stringify(v)); } catch(e){} }
   function smAutoK(mat, t, r){
@@ -7211,6 +7263,297 @@ body.cad[data-sec]{--sec:var(--sel)}
     var dots = P.slice(1, -1).map(function(p){ return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.2" class="smbend"/>'; }).join("");
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="smsvg" role="img" aria-label="Bent profile preview">' +
       '<path d="' + path + '" class="smpath"/>' + dots + labels + '</svg>';
+  }
+
+  /* ---------- 3D part: a flat plate with bends picked on its edges ----------
+     The base plate is A (left → right) × B (front → back). Every edge can carry a
+     chain of bends: bend 1 at the plate edge, then a flange of height h, then an
+     optional return bend on that flange, and so on. The blank is
+       X = A + flat(left) + flat(right)      Y = B + flat(front) + flat(back)
+     where flat(edge) = Σ h − Σ 2·setback + Σ BA  (same rule as the profile mode). */
+  var SM_EDGES = [
+    {id:"front", name:"Front", axis:"Y"}, {id:"back", name:"Back", axis:"Y"},
+    {id:"left", name:"Left", axis:"X"}, {id:"right", name:"Right", axis:"X"}
+  ];
+  var SM_DENSITY = {crca:7.85, hrpo:7.85, gi:7.85, ss304:7.93, ss316:7.98, al:2.68, cu:8.9};
+  function smPartDefaults(){
+    return {A:300, B:200, sel:"front", edges:{
+      front:[{h:40, a:90, dir:1}], back:[{h:40, a:90, dir:1}],
+      left:[{h:40, a:90, dir:1}], right:[{h:40, a:90, dir:1}] }};
+  }
+  function smBendRow(v, K, A){
+    var T = +v.t || 0, R = +v.r || 0;
+    A = Math.max(1, Math.min(179, +A || 90));
+    var rad = A * Math.PI / 180, BA = rad * (R + K * T);
+    var SB = (v.dims === "outside" ? (R + T) : R) * Math.tan(rad / 2);
+    return {a:A, ba:BA, sb:SB, bd:2 * SB - BA, c:-(2 * SB) + BA};
+  }
+  function smPartCalc(v){
+    var p = v.part, T = +v.t || 0, R = +v.r || 0;
+    var K = v.kMode === "manual" ? (+v.k || 0) : smAutoK(v.mat, T, R);
+    var edges = {};
+    SM_EDGES.forEach(function(e){
+      var list = p.edges[e.id] || [], rows = list.map(function(s){ return smBendRow(v, K, s.a); });
+      var sumH = list.reduce(function(a, s){ return a + (+s.h || 0); }, 0);
+      var corr = rows.reduce(function(a, r){ return a + r.c; }, 0);
+      /* positions along the flat strip, measured from the outer edge of the blank */
+      var pos = [], straight = [];
+      list.forEach(function(s, i){
+        var st = (+s.h || 0) - rows[i].sb - (rows[i + 1] ? rows[i + 1].sb : 0);
+        straight.push(st);
+      });
+      var run = 0;
+      for(var i = list.length - 1; i >= 0; i--){       /* walk inwards: last flange first */
+        run += straight[i];
+        pos.unshift(run + rows[i].ba / 2);               /* bend centre line */
+        run += rows[i].ba;
+      }
+      edges[e.id] = {list:list, rows:rows, flat:list.length ? sumH + corr : 0, sumH:sumH, corr:corr, centres:pos,
+                     sb1:rows.length ? rows[0].sb : 0};
+    });
+    var X = (+p.A || 0) + edges.left.flat + edges.right.flat;
+    var Y = (+p.B || 0) + edges.front.flat + edges.back.flat;
+    var kg = X * Y * T * (SM_DENSITY[v.mat] || 7.85) / 1e6;
+    return {K:K, T:T, R:R, X:X, Y:Y, kg:kg, edges:edges};
+  }
+  /* --- geometry for the 3D view (radius left out: it is a picture, the numbers come from smPartCalc) --- */
+  function smPartBoxes(v){
+    var p = v.part, A = +p.A || 1, B = +p.B || 1, size = Math.max(A, B);
+    var t = Math.max(+v.t || 1, size * 0.012);
+    var boxes = [{edge:"", c:[[0,0,0],[A,0,0],[A,B,0],[0,B,0],[0,0,t],[A,0,t],[A,B,t],[0,B,t]]}];
+    var has = {}; SM_EDGES.forEach(function(e){ has[e.id] = (p.edges[e.id] || []).length > 0; });
+    SM_EDGES.forEach(function(e){
+      var list = p.edges[e.id] || []; if(!list.length) return;
+      var len = (e.id === "front" || e.id === "back") ? A : B, u0 = 0, u1 = len;
+      if(e.id === "left" || e.id === "right"){ if(has.front) u0 += t * 1.05; if(has.back) u1 -= t * 1.05; }
+      var up = (list[0].dir || 1) > 0, side = up ? 1 : -1;
+      var P = [0, up ? 0 : t], th = 0;
+      list.forEach(function(s){
+        th += (s.dir || 1) * Math.max(1, Math.min(179, +s.a || 90)) * Math.PI / 180;
+        var h = Math.max(0, +s.h || 0), Q = [P[0] + h * Math.cos(th), P[1] + h * Math.sin(th)];
+        var o = [-Math.sin(th) * t * side, Math.cos(th) * t * side];           /* thickness, towards the inside */
+        var prof = [P, Q, [Q[0] + o[0], Q[1] + o[1]], [P[0] + o[0], P[1] + o[1]]];
+        function map(u, n, z){
+          if(e.id === "front") return [u, -n, z];
+          if(e.id === "back") return [u, B + n, z];
+          if(e.id === "left") return [-n, u, z];
+          return [A + n, u, z];
+        }
+        var c = prof.map(function(q){ return map(u0, q[0], q[1]); }).concat(prof.map(function(q){ return map(u1, q[0], q[1]); }));
+        boxes.push({edge:e.id, c:c});
+        P = Q;
+      });
+    });
+    return {boxes:boxes, t:t};
+  }
+  function smProject(pt, view, ctr){
+    var yaw = view.yaw, pit = view.pitch;
+    var x = pt[0] - ctr[0], y = pt[1] - ctr[1], z = pt[2] - ctr[2];
+    var x1 = x * Math.cos(yaw) - y * Math.sin(yaw), y1 = x * Math.sin(yaw) + y * Math.cos(yaw);
+    var y2 = y1 * Math.cos(pit) - z * Math.sin(pit), z2 = y1 * Math.sin(pit) + z * Math.cos(pit);
+    return [x1, -z2, y2];                                 /* screen x, screen y, depth (bigger = farther) */
+  }
+  function smPartSvg(v, view){
+    var g = smPartBoxes(v), p = v.part, A = +p.A || 1, B = +p.B || 1, t = g.t;
+    var all = []; g.boxes.forEach(function(b){ all = all.concat(b.c); });
+    var lo = [0,1,2].map(function(i){ return Math.min.apply(null, all.map(function(q){ return q[i]; })); });
+    var hi = [0,1,2].map(function(i){ return Math.max.apply(null, all.map(function(q){ return q[i]; })); });
+    var ctr = [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2];
+    var faces = [], FI = [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
+    var light = [0.35, -0.55, 0.76];
+    g.boxes.forEach(function(b){
+      var pr = b.c.map(function(q){ return smProject(q, view, ctr); });
+      FI.forEach(function(f){
+        var a = b.c[f[0]], bb = b.c[f[1]], c = b.c[f[2]];
+        var u = [bb[0]-a[0], bb[1]-a[1], bb[2]-a[2]], w = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+        var n = [u[1]*w[2]-u[2]*w[1], u[2]*w[0]-u[0]*w[2], u[0]*w[1]-u[1]*w[0]];
+        var nl = Math.sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]) || 1;
+        var sh = Math.abs((n[0]*light[0] + n[1]*light[1] + n[2]*light[2]) / nl);
+        faces.push({pts:f.map(function(i){ return pr[i]; }), d:f.reduce(function(s, i){ return s + pr[i][2]; }, 0) / 4, sh:sh, edge:b.edge});
+      });
+    });
+    faces.sort(function(a, b){ return b.d - a.d; });
+    var xs = [], ys = []; faces.forEach(function(f){ f.pts.forEach(function(q){ xs.push(q[0]); ys.push(q[1]); }); });
+    var W = 460, H = 320, pad = 34;
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var sc = Math.min((W - 2 * pad) / Math.max(maxX - minX, 1), (H - 2 * pad) / Math.max(maxY - minY, 1));
+    var ox = W / 2 - (minX + maxX) / 2 * sc, oy = H / 2 - (minY + maxY) / 2 * sc;
+    function S(q){ return [(ox + q[0] * sc).toFixed(1), (oy + q[1] * sc).toFixed(1)]; }
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="sm3d" role="img" aria-label="3D view of the bent part. Click a plate edge to add or edit its bends.">';
+    faces.forEach(function(f){
+      var L = Math.round(48 + f.sh * 30), sel = f.edge && f.edge === p.sel;
+      out += '<polygon points="' + f.pts.map(function(q){ return S(q).join(","); }).join(" ") + '" class="smface' + (f.edge ? " fl" : "") + (sel ? " sel" : "") +
+             '" style="--l:' + L + '%"/>';
+    });
+    /* clickable plate edges on top of everything */
+    var E = {front:[[0,0,t],[A,0,t]], back:[[A,B,t],[0,B,t]], left:[[0,B,t],[0,0,t]], right:[[A,0,t],[A,B,t]]};
+    SM_EDGES.forEach(function(e){
+      var a = S(smProject(E[e.id][0], view, ctr)), b = S(smProject(E[e.id][1], view, ctr));
+      var mx = (+a[0] + +b[0]) / 2, my = (+a[1] + +b[1]) / 2, n = (p.edges[e.id] || []).length, sel = p.sel === e.id;
+      out += '<g class="smedge' + (sel ? " sel" : "") + (n ? " has" : "") + '" data-edge="' + e.id + '" tabindex="0" role="button" aria-label="' + e.name + ' edge — ' + (n ? n + " bend" + (n === 1 ? "" : "s") : "no bend") + '">' +
+        '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" class="hit"/>' +
+        '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" class="ln"/>' +
+        '<circle cx="' + mx.toFixed(1) + '" cy="' + my.toFixed(1) + '" r="11" class="dot"/>' +
+        '<text x="' + mx.toFixed(1) + '" y="' + (my + 4).toFixed(1) + '" text-anchor="middle" class="dt">' + (n ? n : "+") + '</text>' +
+        '<text x="' + mx.toFixed(1) + '" y="' + (my - 16).toFixed(1) + '" text-anchor="middle" class="et">' + e.name + '</text></g>';
+    });
+    return out + '</svg>';
+  }
+  /* --- flat blank drawing with bend lines and overall sizes --- */
+  function smFlatSvg(v, r){
+    var p = v.part, A = +p.A || 0, B = +p.B || 0, E = r.edges;
+    var X = r.X, Y = r.Y; if(!(X > 0 && Y > 0)) return "";
+    var W = 460, H = 300, pad = 46;
+    var sc = Math.min((W - 2 * pad) / X, (H - 2 * pad) / Y);
+    var ox = (W - X * sc) / 2, oy = (H - Y * sc) / 2;
+    var L = E.left.flat, F = E.front.flat;
+    /* base straight area */
+    var bx0 = L + E.left.sb1 * (E.left.list.length ? 1 : 0), bx1 = L + A - E.right.sb1 * (E.right.list.length ? 1 : 0);
+    var by0 = F + E.front.sb1 * (E.front.list.length ? 1 : 0), by1 = F + B - E.back.sb1 * (E.back.list.length ? 1 : 0);
+    function px(x){ return (ox + x * sc).toFixed(1); } function py(y){ return (oy + (Y - y) * sc).toFixed(1); }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="smflat" role="img" aria-label="Flat blank ' + X.toFixed(1) + ' by ' + Y.toFixed(1) + ' mm">';
+    /* outline: plate + 4 flange strips, corners cut */
+    var x0 = 0, x1 = X, y0 = 0, y1 = Y;
+    var lx = E.left.list.length ? bx0 : 0, rx = E.right.list.length ? bx1 : X, fy = E.front.list.length ? by0 : 0, byy = E.back.list.length ? by1 : Y;
+    var pts = [];
+    function P(x, y){ pts.push(px(x) + "," + py(y)); }
+    /* walk round clockwise starting bottom-left of the front strip */
+    P(lx, y0); P(rx, y0); P(rx, fy); P(x1, fy); P(x1, byy); P(rx, byy); P(rx, y1); P(lx, y1); P(lx, byy); P(x0, byy); P(x0, fy); P(lx, fy);
+    s += '<polygon points="' + pts.join(" ") + '" class="smblank"/>';
+    /* bend centre lines */
+    function vline(x, ya, yb){ s += '<line x1="' + px(x) + '" y1="' + py(ya) + '" x2="' + px(x) + '" y2="' + py(yb) + '" class="smbl"/>'; }
+    function hline(y, xa, xb){ s += '<line x1="' + px(xa) + '" y1="' + py(y) + '" x2="' + px(xb) + '" y2="' + py(y) + '" class="smbl"/>'; }
+    E.left.centres.forEach(function(c){ vline(c, fy, byy); });
+    E.right.centres.forEach(function(c){ vline(X - c, fy, byy); });
+    E.front.centres.forEach(function(c){ hline(c, lx, rx); });
+    E.back.centres.forEach(function(c){ hline(Y - c, lx, rx); });
+    /* overall dimensions */
+    var dy = (+py(0) + 22).toFixed(1), dx = (+px(0) - 22).toFixed(1);
+    s += '<line x1="' + px(0) + '" y1="' + dy + '" x2="' + px(X) + '" y2="' + dy + '" class="smdim"/>' +
+         '<text x="' + ((+px(0) + +px(X)) / 2).toFixed(1) + '" y="' + (+dy + 14) + '" text-anchor="middle" class="smdt">X = ' + X.toFixed(2) + '</text>' +
+         '<line x1="' + dx + '" y1="' + py(0) + '" x2="' + dx + '" y2="' + py(Y) + '" class="smdim"/>' +
+         '<text transform="translate(' + (+dx - 8) + ' ' + ((+py(0) + +py(Y)) / 2).toFixed(1) + ') rotate(-90)" text-anchor="middle" class="smdt">Y = ' + Y.toFixed(2) + '</text>';
+    s += '<text x="' + px(X / 2) + '" y="' + py(Y / 2) + '" text-anchor="middle" class="smlbl">' + A + ' × ' + B + ' plate</text>';
+    return s + '</svg>';
+  }
+  function smPartPanel(v, rerender){
+    var p = v.part, wrap = el("div",{class:"smpart"});
+    state.smView = state.smView || {yaw:-0.62, pitch:0.9};
+    var view3d = el("div",{class:"sm3dwrap"});
+    var editor = el("div",{class:"smedit"});
+    var out = el("div",{class:"smout"});
+    function num(val, on, attrs){
+      var i = el("input", Object.assign({type:"number", step:"any", min:"0", value:String(val), inputmode:"decimal"}, attrs || {}));
+      i.addEventListener("input", function(){ on(i.value); smSave(v); draw3d(); drawOut(); });
+      return i;
+    }
+    function draw3d(){
+      view3d.innerHTML = smPartSvg(v, state.smView);
+      Array.prototype.forEach.call(view3d.querySelectorAll(".smedge"), function(g){
+        function pick(){ p.sel = g.getAttribute("data-edge"); smSave(v); draw3d(); drawEditor(); }
+        g.addEventListener("click", function(ev){ ev.stopPropagation(); pick(); });
+        g.addEventListener("keydown", function(ev){ if(ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); pick(); } });
+      });
+      view3d.appendChild(el("div",{class:"smviewbar"},[
+        el("span",{class:"muted"},["Drag to turn · click an edge to bend it"]),
+        el("div",{class:"spacer", style:"flex:1"}),
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.smView = {yaw:-0.62, pitch:0.9}; draw3d(); }},["3D"]),
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.smView = {yaw:0, pitch:Math.PI / 2}; draw3d(); }},["Top"]),
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.smView = {yaw:0, pitch:0.0001}; draw3d(); }},["Front"]),
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.smView = {yaw:-Math.PI / 2, pitch:0.0001}; draw3d(); }},["Side"])
+      ]));
+    }
+    /* drag to rotate */
+    var drag = null;
+    view3d.addEventListener("pointerdown", function(e){
+      if(e.target.closest && (e.target.closest(".smedge") || e.target.closest(".smviewbar"))) return;
+      drag = {x:e.clientX, y:e.clientY, yaw:state.smView.yaw, pitch:state.smView.pitch};
+      try { view3d.setPointerCapture(e.pointerId); } catch(er){}
+    });
+    view3d.addEventListener("pointermove", function(e){
+      if(!drag) return;
+      state.smView = {yaw:drag.yaw + (e.clientX - drag.x) * 0.01, pitch:Math.max(0.0001, Math.min(Math.PI / 2, drag.pitch + (e.clientY - drag.y) * 0.008))};
+      var svg = smPartSvg(v, state.smView), bar = view3d.querySelector(".smviewbar");
+      var old = view3d.querySelector("svg"); var tmp = document.createElement("div"); tmp.innerHTML = svg;
+      view3d.replaceChild(tmp.firstChild, old);
+    });
+    function endDrag(){ if(drag){ drag = null; draw3d(); } }
+    view3d.addEventListener("pointerup", endDrag); view3d.addEventListener("pointercancel", endDrag);
+
+    function drawEditor(){
+      editor.innerHTML = "";
+      var e = SM_EDGES.filter(function(x){ return x.id === p.sel; })[0] || SM_EDGES[0];
+      var list = p.edges[e.id] = p.edges[e.id] || [];
+      editor.appendChild(el("div",{class:"smedgetabs", role:"tablist"}, SM_EDGES.map(function(x){
+        var n = (p.edges[x.id] || []).length;
+        return el("button",{type:"button", role:"tab", "aria-selected":x.id === e.id ? "true" : "false", class:"btn sm" + (x.id === e.id ? " on" : ""),
+          onclick:function(){ p.sel = x.id; smSave(v); draw3d(); drawEditor(); }},[x.name + (n ? " · " + n : "")]);
+      })));
+      editor.appendChild(el("h4",{class:"smh"},[e.name + " edge — " + (list.length ? list.length + " bend" + (list.length === 1 ? "" : "s") : "flat (no bend)")]));
+      list.forEach(function(s, i){
+        var dir = el("select",{"aria-label":"Direction", onchange:function(){ s.dir = +dir.value; smSave(v); draw3d(); drawOut(); }},[
+          el("option",{value:"1", selected:s.dir !== -1 ? "selected" : null},["up ↑"]), el("option",{value:"-1", selected:s.dir === -1 ? "selected" : null},["down ↓"]) ]);
+        editor.appendChild(el("div",{class:"smseg"},[
+          el("span",{class:"smtag"},[i === 0 ? "Bend 1 at plate edge" : "Bend " + (i + 1) + " on flange " + i]),
+          el("div",{class:"smrow"},[
+            el("label",{class:"smmini"},["Angle"]), num(s.a, function(x){ s.a = +x; }, {min:"1", max:"179", "aria-label":"Bend angle"}), el("span",{class:"smunit"},["°"]), dir ]),
+          el("div",{class:"smrow"},[
+            el("label",{class:"smmini"},["Flange " + (i + 1) + " height"]), num(s.h, function(x){ s.h = +x; }, {"aria-label":"Flange height in mm"}), el("span",{class:"smunit"},["mm"]) ])
+        ]));
+      });
+      editor.appendChild(el("div",{class:"smrow smadd"},[
+        el("button",{class:"btn sm primary", type:"button", onclick:function(){
+          list.push({h:list.length ? 15 : 40, a:90, dir:list.length ? (list[list.length - 1].dir || 1) : 1});
+          smSave(v); draw3d(); drawEditor(); drawOut(); }},[list.length ? "+ Add bend on this flange" : "+ Add bend on this edge"]),
+        list.length ? el("button",{class:"btn sm ghost", type:"button", onclick:function(){ list.pop(); smSave(v); draw3d(); drawEditor(); drawOut(); }},["− Remove last bend"]) : null,
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ v.part = smPartDefaults(); smSave(v); rerender(); }},["Reset part"])
+      ]));
+    }
+    function drawOut(){
+      out.innerHTML = "";
+      var r = smPartCalc(v), bad = !(r.T > 0) || !(+p.A > 0) || !(+p.B > 0);
+      var txt = r.X.toFixed(2) + " × " + r.Y.toFixed(2);
+      out.appendChild(el("div",{class:"smresult"},[
+        el("span",{class:"smlab"},["Blank size (X × Y)"]),
+        el("b",{},[bad ? "—" : txt]), el("span",{class:"smunit"},["mm"]),
+        el("button",{class:"btn sm", type:"button", title:"Copy the blank size", onclick:function(){
+          try { navigator.clipboard.writeText(txt + " mm").then(function(){ banner("Copied " + txt + " mm"); setTimeout(function(){ banner(""); }, 2500); }, function(){}); } catch(e){}
+        }},["Copy"])
+      ]));
+      out.appendChild(el("p",{class:"smsub"},[
+        "X along Left–Right, Y along Front–Back · K = " + r.K.toFixed(3) + (v.kMode === "auto" ? " (auto)" : " (manual)") +
+        " · blank weight ≈ " + (bad ? "—" : r.kg.toFixed(3) + " kg") ]));
+      var rows = [];
+      SM_EDGES.forEach(function(e){
+        var E = r.edges[e.id];
+        E.rows.forEach(function(x, i){
+          rows.push(el("tr",{class:p.sel === e.id ? "sel" : ""},[ el("td",{},[e.name + " " + (i + 1)]),
+            el("td",{class:"n"},[(+E.list[i].h || 0) + ""]), el("td",{class:"n"},[x.a + "°"]),
+            el("td",{class:"n"},[x.ba.toFixed(3)]), el("td",{class:"n"},[x.bd.toFixed(3)]),
+            el("td",{class:"n"},[E.centres[i].toFixed(2)]) ]));
+        });
+      });
+      var flatRow = el("tr",{class:"smtot"},[ el("td",{colspan:"6"},[
+        SM_EDGES.map(function(e){ var E = r.edges[e.id]; return e.name + " " + (E.list.length ? E.flat.toFixed(2) : "0"); }).join(" · ") + " mm added to the plate" ]) ]);
+      out.appendChild(el("div",{class:"tablewrap"},[ el("table",{class:"smtable"},[
+        el("thead",{},[el("tr",{},[ el("th",{},["Bend"]), el("th",{class:"n"},["Flange"]), el("th",{class:"n"},["Angle"]),
+          el("th",{class:"n", title:"Bend allowance"},["BA"]), el("th",{class:"n", title:"Bend deduction"},["BD"]),
+          el("th",{class:"n", title:"Distance of the bend line from the blank edge on that side"},["Bend line from edge"]) ])]),
+        el("tbody",{}, rows.length ? rows.concat([flatRow]) : [el("tr",{},[el("td",{colspan:"6", class:"muted"},["No bends yet — click an edge of the plate."])])]) ]) ]));
+      var fl = el("div",{class:"smpreview"}); fl.innerHTML = smFlatSvg(v, r);
+      out.appendChild(el("h4",{class:"smh"},["Flat blank (bend lines dashed)"]));
+      out.appendChild(fl);
+    }
+    var plate = el("div",{class:"formgrid smplate"},[
+      el("div",{class:"field"},[ el("label",{},["Plate length A — left to right (mm)"]), num(p.A, function(x){ p.A = +x; }) ]),
+      el("div",{class:"field"},[ el("label",{},["Plate width B — front to back (mm)"]), num(p.B, function(x){ p.B = +x; }) ])
+    ]);
+    wrap.appendChild(el("div",{class:"smgrid"},[
+      el("div",{class:"sminputs"},[ plate, view3d, editor ]),
+      out
+    ]));
+    draw3d(); drawEditor(); drawOut();
+    return {node:wrap, refresh:function(){ draw3d(); drawOut(); }};
   }
 
   /* ---------- Tool 2: Feasibility review — new enquiry (Distribution Box) ----------
@@ -7422,10 +7765,17 @@ body.cad[data-sec]{--sec:var(--sel)}
   function sheetMetalCard(){
     var v = smLoad();
     var card = el("div",{class:"card smcard"});
-    card.appendChild(el("div",{class:"cardhead"},[ el("h3",{},["Sheet metal blank length"]),
-      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Flat (developed) length of a bent part from the flange sizes, bend radius, thickness and material."]) ]));
+    card.appendChild(el("div",{class:"cardhead"},[ el("h3",{},["Sheet metal blank size"]),
+      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Flat (developed) blank of a bent part from the plate size, the bends on each edge, radius, thickness and material."]),
+      el("div",{class:"spacer", style:"flex:1"}),
+      el("div",{class:"frseg smmode", role:"tablist", "aria-label":"Calculator mode"},[
+        el("button",{type:"button", role:"tab", "aria-selected":v.mode === "part" ? "true" : "false", class:"btn sm" + (v.mode === "part" ? " on" : ""),
+          onclick:function(){ v.mode = "part"; smSave(v); render(); }},["3D part — pick edges"]),
+        el("button",{type:"button", role:"tab", "aria-selected":v.mode !== "part" ? "true" : "false", class:"btn sm" + (v.mode !== "part" ? " on" : ""),
+          onclick:function(){ v.mode = "profile"; smSave(v); render(); }},["Single profile"]) ]) ]));
     var body = el("div",{class:"cardbody smbody"});
     card.appendChild(body);
+    var partApi = null;
 
     function num(val, on, attrs){
       var i = el("input", Object.assign({type:"number", step:"any", min:"0", value:String(val), inputmode:"decimal"}, attrs || {}));
@@ -7438,6 +7788,11 @@ body.cad[data-sec]{--sec:var(--sel)}
 
     function update(){
       smSave(v);
+      if(partApi){
+        partApi.refresh();
+        kBox.querySelector(".smkauto") && (kBox.querySelector(".smkauto").textContent = "auto: " + smAutoK(v.mat, +v.t, +v.r).toFixed(3));
+        return;
+      }
       var r = smCalc(v);
       out.innerHTML = "";
       var bad = !(r.T > 0) || v.flanges.some(function(x){ return !(+x > 0); });
@@ -7504,26 +7859,32 @@ body.cad[data-sec]{--sec:var(--sel)}
     kBox.appendChild(el("label",{},["K-factor"]));
     kBox.appendChild(el("div",{class:"smrow"},[ kMode, kIn, el("span",{class:"smkauto muted"},[""]) ]));
 
-    body.appendChild(el("div",{class:"smgrid"},[
-      el("div",{class:"sminputs"},[
-        el("div",{class:"formgrid"},[
+    var commons = el("div",{class:"formgrid"},[
           el("div",{class:"field"},[ el("label",{},["Material"]), mat ]),
           el("div",{class:"field"},[ el("label",{},["Thickness T (mm)"]), num(v.t, function(x){ v.t = +x; }) ]),
           el("div",{class:"field"},[ el("label",{},["Inside bend radius R (mm)"]), el("div",{class:"smrow"},[ rIn,
             el("button",{class:"btn sm ghost", type:"button", title:"Set the radius equal to the thickness", onclick:function(){ v.r = +v.t; rIn.value = String(v.r); update(); }},["R = T"]) ]) ]),
           el("div",{class:"field"},[ el("label",{},["Flange sizes are"]), dims ])
+        ]);
+    if(v.mode === "part"){
+      body.appendChild(el("div",{class:"sminputs smcommon"},[ commons, kBox ]));
+      partApi = smPartPanel(v, function(){ render(); });
+      body.appendChild(partApi.node);
+    } else {
+      body.appendChild(el("div",{class:"smgrid"},[
+        el("div",{class:"sminputs"},[ commons, kBox,
+          el("h4",{class:"smh"},["Flanges and bends (in order along the part)"]),
+          bendsBox
         ]),
-        kBox,
-        el("h4",{class:"smh"},["Flanges and bends (in order along the part)"]),
-        bendsBox
-      ]),
-      out
-    ]));
+        out
+      ]));
+    }
     body.appendChild(el("p",{class:"muted smnote"},[
       "Bend allowance BA = π·A/180·(R + K·T). With outside sizes, each bend takes off the bend deduction (2·(R+T)·tan(A/2) − BA); " +
       "with inside sizes, each bend takes off 2·R·tan(A/2) and adds BA. A = angle bent through (90° for an L). " +
       "Check the first part on the press brake and use \"Type my own\" K-factor if your tooling gives a different result."]));
-    drawBends(); update();
+    if(!partApi) drawBends();
+    update();
     return card;
   }
   /* the Tools tab: every tool is an app tile; open one to use it */
@@ -7531,7 +7892,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     {id:"cal", name:"Company calendar", desc:"Company paid leaves (holidays) and weekly offs. No tasks are given on these days.",
      tag:"Calendar", open:function(){ return calendarCard(function(){ render(); }); },
      icon:'<rect x="5" y="8" width="30" height="27" rx="3"/><path d="M5 16h30M13 4v8M27 4v8"/><path d="M12 23h4M20 23h4M28 23h0M12 29h4M20 29h4"/>'},
-    {id:"blank", name:"Sheet metal blank length", desc:"Flat length of a bent part from flanges, bend radius, thickness and material.",
+    {id:"blank", name:"Sheet metal blank size", desc:"3D plate — click an edge to bend it — and get the exact flat blank size, bend lines and weight.",
      tag:"Calculator", open:sheetMetalCard,
      icon:'<path d="M5 30V12a4 4 0 0 1 4-4h22a4 4 0 0 1 4 4v18"/><path d="M5 30h30"/><path d="M11 24h18" stroke-dasharray="3 3"/><path d="M11 8v-3M29 8v-3M11 5h18"/>'},
     {id:"feas", name:"Feasibility review", desc:"New enquiry (Distribution Box) — fill the 18 check points, save for the team and print.",
