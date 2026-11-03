@@ -1011,6 +1011,70 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 
 /* measure readouts */
 .cad .tiles{gap:14px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
+
+/* dropped special DBs */
+.sddropbox{border-top:1px dashed color-mix(in srgb, var(--crit) 45%, transparent)}
+.sddropbox h4{color:var(--crit)}
+tr.sddrop td{color:var(--ink2)}
+tr.sddrop .pname{text-decoration:line-through}
+.btn.danger{background:var(--crit); color:#fff; border-color:var(--crit)}
+.warnline{color:var(--crit); font-size:12.5px; font-weight:600}
+
+/* long project names in a task line never push the page wider */
+.taskmain{min-width:0}
+.tmeta .chip{max-width:100%; overflow:hidden; text-overflow:ellipsis}
+/* end of day inside Today's Work */
+.eodline{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin-top:7px; min-width:0}
+.eodline .eodlab{font-size:12px; color:var(--ink2)}
+.eodline .eodok{font-size:12px; font-weight:600; color:var(--good)}
+.eodsel{max-width:100%; min-width:0; width:auto; font-size:12.5px; padding:4px 8px}
+.eodsel.need{border-color:color-mix(in srgb, var(--hot, #e8a33d) 70%, var(--line)); background:color-mix(in srgb, var(--hot, #e8a33d) 8%, var(--paper))}
+.tick.on{background:var(--good) !important; border-color:var(--good) !important; color:#fff}
+.task.staged .tt{text-decoration:line-through; text-decoration-color:color-mix(in srgb, var(--good) 70%, transparent)}
+.eodpanel{display:grid; gap:10px; padding:16px; margin:12px; border:1.5px solid var(--sel); border-radius:8px;
+  background:color-mix(in srgb, var(--sel) 5%, var(--paper)); min-width:0}
+.eodpanel .eodhead{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
+.eodpanel h3{margin:0; font-size:15px}
+.eodpanel .eodcounts{display:flex; flex-wrap:wrap; gap:6px}
+.eodpanel .eodhint{margin:0; font-size:12.5px; color:var(--ink2)}
+.eodpanel textarea{width:100%; box-sizing:border-box}
+.eodpanel .eodwarn{margin:0; color:var(--crit); font-weight:600; font-size:13px}
+.eodpanel .eodbtns{display:flex; flex-wrap:wrap; gap:8px}
+.eodpanel .eodsubmit{font-size:14px; padding:10px 20px}
+@media (max-width:640px){ .eodpanel{margin:10px 6px; padding:12px} }
+/* company calendar */
+.calcard{display:grid; gap:12px; min-width:0; padding:14px}
+.calnav{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.calnav b{font-size:16px; min-width:140px; text-align:center}
+.calgrid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
+.calhd{font:600 11px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); text-align:center; padding:4px 0}
+.calcell{min-height:58px; min-width:0; border:1px solid var(--frame-soft, var(--line)); border-radius:6px; background:var(--paper, var(--card));
+  padding:5px 6px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; font:inherit; color:inherit; text-align:left; overflow:hidden}
+button.calcell{cursor:pointer}
+button.calcell:hover{border-color:var(--sel)}
+.calcell.blank{border:0; background:none}
+.calcell .cdn{font-weight:700; font-size:13px}
+.calcell .cdl{font-size:10.5px; line-height:1.2; overflow-wrap:anywhere}
+.calcell.is-off{background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--crit) 7%, var(--paper, #fff)) 0 6px, var(--paper, #fff) 6px 12px)}
+.calcell.is-off .cdl{color:var(--crit); font-weight:600}
+.calcell.is-hol{background:color-mix(in srgb, var(--hot, #e8a33d) 22%, var(--paper, #fff)); border-color:color-mix(in srgb, var(--hot, #e8a33d) 60%, transparent)}
+.calcell.is-hol .cdl{font-weight:700}
+.calcell.is-today{box-shadow:inset 0 3px 0 var(--sel)}
+.calcell.is-today .cdn{color:var(--sel)}
+.calcell.is-pick{outline:2px solid var(--sel); outline-offset:1px}
+.callegend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink2)}
+.callegend span{display:inline-flex; gap:6px; align-items:center}
+.callegend .lg{width:14px; height:14px; border-radius:3px; display:inline-block; border:1px solid var(--frame-soft, var(--line))}
+.callegend .lg.hol{background:color-mix(in srgb, var(--hot, #e8a33d) 35%, var(--paper, #fff))}
+.callegend .lg.off{background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--crit) 25%, var(--paper, #fff)) 0 3px, var(--paper, #fff) 3px 6px)}
+.callegend .lg.today{box-shadow:inset 0 3px 0 var(--sel)}
+.calform{display:grid; gap:8px; padding:12px; border:1px solid var(--sel); border-radius:8px; background:color-mix(in srgb, var(--sel) 6%, var(--paper, #fff))}
+.calup h4{margin:0 0 6px; font-size:13px; letter-spacing:.06em; text-transform:uppercase}
+.calup ul{margin:0 0 6px; padding-left:18px; display:grid; gap:3px}
+.calup .muted{margin:4px 0 0; font-size:12.5px; color:var(--ink2)}
+.cad .wday.is-off .wc{white-space:normal}
+@media (max-width:640px){ .calcell{min-height:46px; padding:3px} .calcell .cdl{font-size:9.5px} }
 /* work week strip: Sunday → Saturday, Saturday is the weekly off */
 .cad .weekstrip{margin-top:14px; background:var(--paper); border:1px solid var(--frame); border-radius:4px; box-shadow:var(--shadow)}
 .cad .weekstrip .wshead{display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:10px 14px 8px; border-bottom:1px solid var(--frame-soft)}
@@ -1308,6 +1372,111 @@ body[data-sec="team"] .vcube-lbl::after{content:"Left view"}
 .cad .btn.up{border-color:var(--hot); color:var(--hot-ink); background:linear-gradient(180deg, color-mix(in srgb, var(--hot) 55%, #fff), var(--hot))}
 .cad .mytasks{box-shadow:inset 4px 0 0 var(--sel), var(--shadow)}
 .cad .btn.resume{margin-left:6px; padding:2px 8px; font-size:11.5px}
+/* tools: sheet metal calculator */
+.cad .smgrid{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:22px; align-items:start}
+@media (max-width:900px){ .cad .smgrid{grid-template-columns:minmax(0,1fr)} }
+.cad .sminputs{display:grid; gap:14px; min-width:0}
+.cad .sminputs .formgrid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+@media (max-width:520px){ .cad .sminputs .formgrid{grid-template-columns:minmax(0, 1fr)} }
+.cad .sminputs .formgrid select, .cad .sminputs .formgrid input{width:100%}
+.cad .sminputs .formgrid .smrow input{width:auto; flex:1 1 90px}
+.cad .smh{margin:4px 0 0; font:600 11px/1.3 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink3)}
+.cad .smbends{display:grid; gap:6px}
+.cad .smrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0}
+.cad .smrow input[type=number]{width:110px}
+.cad .smrow select{width:auto}
+.cad .smtag{min-width:72px; font:600 11.5px/1.2 var(--mono, ui-monospace, monospace); color:var(--ink2)}
+.cad .smbendrow{padding-left:18px; border-left:2px solid color-mix(in srgb, var(--sel) 40%, transparent); margin-left:6px}
+.cad .smbendrow .smtag{color:var(--sel)}
+.cad .smunit{font-size:12px; color:var(--ink3)}
+.cad .smadd{margin-top:6px}
+.cad .smout{display:grid; gap:10px; min-width:0}
+.cad .smresult{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:14px 16px; border:1px solid var(--frame); border-radius:4px;
+  background:color-mix(in srgb, var(--sel) 7%, var(--paper)); box-shadow:inset 4px 0 0 var(--sel)}
+.cad .smresult .smlab{font:600 11px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); width:100%}
+.cad .smresult b{font-family:var(--cond); font-size:40px; line-height:1; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
+.cad .smresult .btn{margin-left:auto}
+.cad .smsub{margin:0; font-size:12.5px; color:var(--ink2)}
+.cad table.smtable{min-width:0; width:100%}
+.cad .smout .tablewrap{overflow-x:auto; max-width:100%}
+.cad .smgrid > *{min-width:0}
+@media (max-width:520px){ .cad .smtable td, .cad .smtable th{padding:6px 5px; font-size:11.5px} }
+.cad .smtable td, .cad .smtable th{font-variant-numeric:tabular-nums; padding:7px 9px; font-size:12.5px; white-space:nowrap}
+.cad .smpreview{border:1px solid var(--frame); border-radius:4px; background:var(--paper); padding:6px}
+.cad .smsvg{width:100%; height:auto; display:block}
+.cad .smpath{fill:none; stroke:var(--sel); stroke-width:3; stroke-linejoin:round; stroke-linecap:round}
+.cad .smbend{fill:var(--hot); stroke:var(--paper); stroke-width:1.5}
+.cad .smlbl{font:600 10px var(--mono, ui-monospace, monospace); fill:var(--ink2)}
+.cad .smnote{font-size:12px; margin:16px 0 0}
+/* tools: app launcher */
+.cad .toolgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px}
+.cad .toolapp{display:grid; justify-items:start; align-content:start; gap:8px; text-align:left; padding:18px 18px 16px; min-height:200px;
+  border:1px solid var(--frame); border-radius:6px; background:var(--paper); color:var(--ink); cursor:pointer; font:inherit;
+  box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease}
+.cad .toolapp:hover, .cad .toolapp:focus-visible{border-color:var(--sel); transform:translateY(-2px); box-shadow:var(--lift), inset 0 3px 0 var(--sel)}
+.cad .toolapp:focus-visible{outline:2px solid var(--sel); outline-offset:2px}
+.cad .toolicon{display:grid; place-items:center; width:58px; height:58px; clip-path:var(--gear); color:#fff; font:600 28px/1 var(--cond);
+  background:linear-gradient(140deg, color-mix(in srgb, var(--sel) 70%, #fff), var(--sel))}
+.cad .toolname{font-family:var(--cond); font-size:17px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; margin-top:4px}
+.cad .tooldesc{font-size:13px; color:var(--ink2); line-height:1.4}
+.cad .tooltag{margin-top:auto; font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--sel);
+  border:1px solid color-mix(in srgb, var(--sel) 35%, transparent); border-radius:3px; padding:3px 7px}
+.cad .toolapp.soon{cursor:default; border-style:dashed; box-shadow:none; background:transparent}
+.cad .toolapp.soon:hover{transform:none; border-color:var(--frame); box-shadow:none}
+.cad .toolapp.soon .toolicon{background:var(--surface); color:var(--ink3)}
+@media (prefers-reduced-motion:reduce){ .cad .toolapp{transition:none} .cad .toolapp:hover{transform:none} }
+/* tools: feasibility review */
+.cad .frcard{margin-top:0}
+.cad .frtop{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px}
+.cad .frtop > select{flex:1 1 280px; width:auto; min-width:0; max-width:100%}
+.cad .frfmtin{display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.cad .frfmtin label{font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink3)}
+.cad .frfmtin input{width:120px}
+.cad .frhead{grid-template-columns:repeat(auto-fit, minmax(220px, 1fr))}
+.cad .frseg{display:flex; gap:4px; flex-wrap:wrap}
+.cad .frseg .btn.on{background:var(--sel); border-color:var(--sel); color:#fff}
+.cad .frseg .btn.on.no{background:var(--crit); border-color:var(--crit)}
+.cad .frchecks{margin-top:16px; border:1px solid var(--frame); border-radius:4px; overflow:hidden}
+.cad .frsechd{padding:7px 12px; background:color-mix(in srgb, var(--sel) 12%, var(--paper)); font:600 11.5px/1.3 var(--mono, ui-monospace, monospace); letter-spacing:.06em; color:var(--ink)}
+.cad .frrow{display:grid; grid-template-columns:34px minmax(0, 1.25fr) auto minmax(0, 1fr); gap:10px; align-items:center; padding:7px 12px; border-top:1px solid var(--frame-soft)}
+.cad .frrow .frn{font:600 12px var(--mono, ui-monospace, monospace); color:var(--ink3); text-align:center}
+.cad .frrow .frq{font-size:13px}
+.cad .frrow input{min-width:0}
+@media (max-width:760px){ .cad .frrow{grid-template-columns:28px minmax(0, 1fr)} .cad .frrow .frseg, .cad .frrow input{grid-column:2} }
+.cad .frconcl, .cad .frsign, .cad .frsaved{margin-top:16px; display:grid; gap:8px}
+.cad .frconcl h4, .cad .frsign h4, .cad .frsaved h4{margin:0; font:600 11px/1.3 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink3)}
+.cad .frsgrow{display:grid; grid-template-columns:minmax(150px, 220px) minmax(0, 1fr) 170px; gap:8px; align-items:center}
+.cad .frsgrow span{font-size:13px; font-weight:500}
+@media (max-width:640px){ .cad .frsgrow{grid-template-columns:minmax(0, 1fr)} }
+.cad .fractions{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:18px; padding-top:12px; border-top:1px solid var(--frame-soft)}
+#printArea{display:none}
+@media print{
+  @page{size:A4 portrait; margin:10mm}
+  body.printing > *:not(#printArea){display:none !important}
+  body.printing{background:#fff !important; padding:0 !important}
+  body.printing #printArea{display:block}
+  #printArea, #printArea *{-webkit-print-color-adjust:exact; print-color-adjust:exact; color:#000}
+  .frp{font:10.5px/1.25 Calibri, "Segoe UI", Arial, sans-serif; color:#000}
+  .frp .frt{width:100%; border-collapse:collapse; table-layout:fixed; margin:0}
+  .frp .frt + .frt{margin-top:-1px}
+  .frp .frt td, .frp .frt th{border:1px solid #000; padding:3px 5px; vertical-align:middle; text-align:left; font-weight:400; height:21px; word-wrap:break-word;
+    font-family:Calibri, "Segoe UI", Arial, sans-serif; font-size:10.5px; text-transform:none; letter-spacing:0; background:#fff; white-space:normal; position:static}
+  .frp .frt th.frl{font-family:Cambria, Georgia, serif; font-weight:700; color:#000; font-size:10.5px}
+  .frp .frt .frlogo{height:40px; border-right:0 !important}
+  .frp .frt .frlogoimg{display:inline-block; width:92px; height:32px; vertical-align:middle; margin-right:10px; background-size:contain; background-repeat:no-repeat}
+  .frp .frt .frco{font:700 15px Cambria, Georgia, serif; color:#1f3864 !important; vertical-align:middle}
+  .frp .frt .frfmt{font-size:9px; width:26%}
+  .frp .frt .frband{background:#1f4e79 !important; color:#fff !important; text-align:center !important; font:700 11.5px Cambria, Georgia, serif}
+  .frp .frt .frhd th, .frp .frt .frhd2 th{background:#1f4e79 !important; color:#fff !important; text-align:center; font-family:Cambria, Georgia, serif; font-weight:700}
+  .frp .frt .frhd2 th{background:#fff !important; color:#000 !important}
+  .frp .frt .frsec td{background:#dce6f1 !important; font:700 10px Cambria, Georgia, serif; height:15px}
+  .frp .frt .frq td{height:24px}
+  .frp .frt .c{text-align:center !important}
+  .frp .frt .frsoft{background:#dce6f1 !important}
+  .frp .frt .frtall{height:48px; vertical-align:top}
+  .frp .frt .frconc{font-size:10.5px}
+  .frp .frt .frsg td{height:24px}
+}
 .cad td.pendq{font-weight:700; color:var(--ink)}
 .cad .ownerpick{display:flex; align-items:center; gap:6px; min-width:0}
 .cad .taskpicks{display:grid; gap:4px; margin-top:6px}
@@ -1510,6 +1679,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     <button role="tab" data-tab="customers" aria-selected="false"><span class="ti"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><circle cx="10" cy="10" r="2.6"/><circle cx="10" cy="4.9" r=".8"/><circle cx="10" cy="15.1" r=".8"/><circle cx="4.9" cy="10" r=".8"/><circle cx="15.1" cy="10" r=".8"/></svg></span>Customers</button>
     <button role="tab" data-tab="team" aria-selected="false"><span class="ti"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="4.4"/><circle cx="10" cy="10" r="1.6"/><path d="M10 2.4v2.8M10 14.8v2.8M2.4 10h2.8M14.8 10h2.8M4.6 4.6l2 2M13.4 13.4l2 2M4.6 15.4l2-2M13.4 6.6l2-2"/></svg></span>Team</button>
     <button role="tab" data-tab="value" aria-selected="false"><span class="ti"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 13.6L13.6 2.8l3.6 3.6L6.4 17.2z"/><path d="M6 12.8l1.4 1.4M8.1 10.7l2 2M10.2 8.6l1.4 1.4M12.3 6.5l2 2"/></svg></span>Value</button>
+    <button role="tab" data-tab="tools" aria-selected="false"><span class="ti"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="2.5" width="13" height="15" rx="1.5"/><path d="M6.5 5.5h7v3h-7z"/><path d="M7 11.5h.01M10 11.5h.01M13 11.5h.01M7 14.5h.01M10 14.5h.01M13 14.5h.01"/></svg></span>Tools</button>
   </nav>
   <div class="tlabel">Properties</div>
   <dl class="props">
@@ -1576,7 +1746,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "28 Oct 2026 · task with from project list";
+  var APP_VERSION = "03 Nov 2026 · Prathamesh can drop DBs";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -2130,22 +2300,29 @@ body.cad[data-sec]{--sec:var(--sel)}
   function parseISO(s){ if(!s) return null; var p = s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
   /* ---------- weekly off: Saturday. No task is ever dated on it ---------- */
   var OFF_DAYS = [6];                                   /* 0 = Sun … 6 = Sat */
-  function isOffDay(s){ var d = parseISO(String(s || "").slice(0,10)); return !!d && OFF_DAYS.indexOf(d.getDay()) >= 0; }
+  /* company paid leaves (holidays), marked in the calendar by Kiran Pawar / Manish Teli:
+     {"YYYY-MM-DD": "name"} — treated exactly like the weekly off */
+  var HOLIDAYS = {};
+  var HOLIDAY_EDITORS = ["kiran", "head"];
+  function offDate(d){ return OFF_DAYS.indexOf(d.getDay()) >= 0 || !!HOLIDAYS[iso(d)]; }
+  function holidayName(s){ return HOLIDAYS[String(s || "").slice(0,10)] || ""; }
+  function isOffDay(s){ var d = parseISO(String(s || "").slice(0,10)); return !!d && offDate(d); }
+  function offLabel(s){ var h = holidayName(s); return h ? "Company holiday — " + h : "Weekly off (Saturday)"; }
   function workDay(s){                                  /* the day itself, or the next working day */
     var d = parseISO(String(s || "").slice(0,10)) || new Date();
-    for(var g = 0; g < 7 && OFF_DAYS.indexOf(d.getDay()) >= 0; g++) d.setDate(d.getDate() + 1);
+    for(var g = 0; g < 60 && offDate(d); g++) d.setDate(d.getDate() + 1);
     return iso(d);
   }
   function workToday(){ return workDay(today()); }
   function addWork(s, n){                               /* n working days after s (Saturdays skipped) */
     var d = parseISO(workDay(s)); n = Math.ceil(+n || 0);
-    while(n > 0){ d.setDate(d.getDate() + 1); if(OFF_DAYS.indexOf(d.getDay()) < 0) n--; }
+    while(n > 0){ d.setDate(d.getDate() + 1); if(!offDate(d)) n--; }
     return iso(d);
   }
   function workDiff(a, b){                              /* a - b counted in working days */
     var x = parseISO(a), y = parseISO(b); if(!x || !y) return null;
     var sign = x >= y ? 1 : -1, lo = sign > 0 ? y : x, hi = sign > 0 ? x : y, n = 0, d = new Date(lo);
-    while(d < hi){ d.setDate(d.getDate() + 1); if(OFF_DAYS.indexOf(d.getDay()) < 0) n++; }
+    while(d < hi){ d.setDate(d.getDate() + 1); if(!offDate(d)) n++; }
     return sign * n;
   }
   function dayDiff(a,b){ // a - b in days
@@ -2501,7 +2678,7 @@ body.cad[data-sec]{--sec:var(--sel)}
   function restoreView(id){
     var v = (state.views || {})[id];
     if(!v) return;
-    if(["today","projects","customers","team","value"].indexOf(v.tab) >= 0){
+    if(["today","projects","customers","team","value","tools"].indexOf(v.tab) >= 0){
       state.tab = v.tab; lsSet("pmi_dd_tab", state.tab);
     }
     if(["live","qve","special"].indexOf(v.sub) >= 0){
@@ -2788,7 +2965,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       state.sub = state.tab; state.tab = "projects";
       lsSet("pmi_dd_tab","projects"); lsSet("pmi_dd_sub", state.sub);
     }
-    if(["today","projects","customers","team","value"].indexOf(state.tab) < 0) state.tab = "today";
+    if(["today","projects","customers","team","value","tools"].indexOf(state.tab) < 0) state.tab = "today";
     paintWho();
     buildTabs();
     applyTheme();
@@ -2989,6 +3166,14 @@ body.cad[data-sec]{--sec:var(--sel)}
       state.leave = (snap.exists && snap.data() && snap.data().people) ? Object.assign({}, snap.data().people) : {};
       render(); keepBalanced();
     }, function(){});
+    db.doc("config/holidays").onSnapshot(function(snap){
+      var d = (snap.exists && snap.data() && snap.data().days) ? snap.data().days : {};
+      var before = JSON.stringify(HOLIDAYS);
+      HOLIDAYS = Object.assign({}, d);
+      var first = !state.holLoaded; state.holLoaded = true;
+      if(!first && before !== JSON.stringify(HOLIDAYS)){ state.offFixed = false; rollForward(); }
+      render(); if(first) maybeBuildDailyPlan();
+    }, function(){ state.holLoaded = true; maybeBuildDailyPlan(); });
     db.doc("config/views").onSnapshot(function(snap){
       if(snap.exists && snap.data()) state.views = Object.assign({}, (snap.data().views) || {});
     }, function(){});
@@ -3016,6 +3201,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     var tabs = $("#tabs");
     Array.prototype.forEach.call(tabs.children, function(b){
       b.onclick = function(){
+        if(b.dataset.tab === "tools") state.tool = null;
         state.tab = b.dataset.tab; lsSet("pmi_dd_tab", state.tab); saveView(); state.enterAnim = true;
         Array.prototype.forEach.call(tabs.children, function(x){ x.setAttribute("aria-selected", x===b ? "true":"false"); });
         window.scrollTo({top:0, behavior:"instant"});
@@ -3131,6 +3317,7 @@ body.cad[data-sec]{--sec:var(--sel)}
             createdAt:new Date().toISOString(), note:""};
   }
   function openStepTask(sd){
+    if(isDropped(sd)) return null;
     var step = currentStep(sd);
     if(!step) return null;
     var already = state.tasks.filter(function(t){
@@ -3147,7 +3334,7 @@ body.cad[data-sec]{--sec:var(--sel)}
   /* a finished special-DB task moves that DB to its next step */
   function sdStepDone(t){
     var sd = sdById(t.sdId);
-    if(!sd || !taskOfThisOrder(sd, t)) return;
+    if(!sd || isDropped(sd) || !taskOfThisOrder(sd, t)) return;
     var steps = (sd.steps || []).map(function(x){ return Object.assign({}, x); });
     var found = false;
     steps.forEach(function(x){
@@ -3397,9 +3584,9 @@ body.cad[data-sec]{--sec:var(--sel)}
     return made;
   }
   function maybeBuildDailyPlan(){
-    if(state.planRan || !state.db || !state.projects.length || !state.canWrite) return;
+    if(state.planRan || !state.db || !state.projects.length || !state.canWrite || !state.holLoaded) return;
     state.planRan = true;
-    if(isOffDay(today())){ rollForward(); return; }       /* weekly off: no plan, no new tasks */
+    if(isOffDay(today())){ rollForward(); return; }       /* weekly off / company holiday: no plan, no new tasks */
     var ref = state.db.doc("plans/" + today());
     ref.get().then(function(sn){
       if(sn.exists) return null;
@@ -3433,6 +3620,166 @@ body.cad[data-sec]{--sec:var(--sel)}
   }
   function checkinOf(person, date){
     return state.checkins.filter(function(c){ return c.person === person && c.date === date; })[0];
+  }
+  /* closing the day: one update per task, done / not-finished reason, project log, check-in.
+     rows: [{task, done, note, why, ask, ans, posted}] */
+  function submitEod(person, rows, summaryText){
+    var touched = 0, stamp = new Date().toISOString();
+    function withUpdate(t, entry){
+      /* one entry per task per day: a second submit the same day replaces it */
+      var list = (t.updates || []).filter(function(x){ return x.d !== today(); }).map(function(x){ return Object.assign({}, x); });
+      list.unshift(Object.assign({d:today(), at:stamp, by:person}, entry));
+      return list.slice(0, 40);
+    }
+    rows.forEach(function(r){
+      var n = String(r.note || "").trim();
+      r.task.updates = withUpdate(r.task, r.done ? {t:n, s:"done"} : {t:n, s:"pending", r:r.why});
+      saveTask(r.task, {updates:r.task.updates});
+      if(r.done && r.ask){
+        /* ticking a question step means it was answered; a "Yes" that needs
+           work keeps the task open under its new title */
+        var pa = projById(r.task.projectId);
+        if(n) saveTask(r.task, {note:n});
+        if(pa) completeStep(pa, r.ask.k, r.ans);
+        touched++;
+      }
+      else if(r.done){ saveTask(r.task, {status:"done", doneAt:new Date().toISOString(), note:n, miss:null}); touched++; }
+      else {
+        var misses = (r.task.misses||[]).map(function(x){ return Object.assign({}, x); });
+        misses.unshift({d:today(), reason:r.why, note:n, by:person});
+        saveTask(r.task, {note:n, miss:{d:today(), reason:r.why, note:n, by:person}, misses:misses.slice(0,20)});
+        var pp = projById(r.task.projectId);
+        if(pp && r.why === HOLD_REASON) putOnHold(pp, person, n);
+        else if(pp){
+          var lg = (pp.log||[]).map(function(x){ return Object.assign({}, x); });
+          lg.unshift({d:today(), by:person, t:"Not finished — " + r.why + (n ? " · " + n : ""), stage:pp.stage||"", status:pp.status||""});
+          saveProject(pp, {log:lg.slice(0,40)});
+        }
+      }
+      if(n && r.done && n !== r.posted){
+        var p = projById(r.task.projectId);
+        if(p){
+          var log = (p.log||[]).map(function(x){ return Object.assign({}, x); });
+          log.unshift({d:today(), by:person, t:n, stage:p.stage||"", status:p.status||""});
+          saveProject(p, {log:log.slice(0,40)});
+        }
+      }
+    });
+    state.histFor = null;
+    saveCheckin({id:person + "-" + today(), person:person, date:today(), summary:String(summaryText || "").trim(),
+                 closed:touched, pending:rows.length - touched, submittedAt:new Date().toISOString()});
+    return touched;
+  }
+  /* ---------- end of day inside Today's Work ----------
+     Ticks, reasons and Yes/No answers are kept here (and in this browser) until
+     the person presses "Submit end of day" at the bottom of the list. */
+  function eodKey(person){ return "pmi_dd_eod_" + person + "_" + today(); }
+  function eodStage(person){
+    state.eodStage = state.eodStage || {};
+    var k = eodKey(person);
+    if(!state.eodStage[k]){
+      var v = null;
+      try { v = JSON.parse(localStorage.getItem(k) || "null"); } catch(e){}
+      state.eodStage[k] = (v && typeof v === "object" && v.items) ? v : {items:{}, summary:""};
+    }
+    return state.eodStage[k];
+  }
+  function eodItem(t){
+    var st = eodStage(t.assignee);
+    if(!st.items[t.id]) st.items[t.id] = {done:false, why:(t.miss && t.miss.reason) || "", ans:""};
+    return st.items[t.id];
+  }
+  function keepEodStage(person){
+    try {
+      localStorage.setItem(eodKey(person), JSON.stringify(eodStage(person)));
+      for(var i = localStorage.length - 1; i >= 0; i--){            /* old days are not needed */
+        var k = localStorage.key(i);
+        if(k && k.indexOf("pmi_dd_eod_") === 0 && k.slice(-10) !== today()) localStorage.removeItem(k);
+      }
+    } catch(e){}
+  }
+  function clearEodStage(person){
+    if(state.eodStage) delete state.eodStage[eodKey(person)];
+    try { localStorage.removeItem(eodKey(person)); } catch(e){}
+  }
+  function canTickInline(t){ return t.status !== "done" && t.assignee === state.who; }
+  /* the reason / Yes-No line under one of my own open tasks */
+  function eodLine(t){
+    var it = eodItem(t), ask = pendingAsk(t);
+    var line = el("div",{class:"eodline" + (it.done ? " is-done" : "")});
+    if(it.done){
+      line.appendChild(el("span",{class:"eodok"},["✓ Done today — closes when you submit end of day"]));
+      if(ask){
+        var ans = el("select",{class:"eodsel" + (!it.ans ? " need" : ""), "aria-label":ask.q, onchange:function(){
+          it.ans = ans.value; keepEodStage(t.assignee); render(); }},[
+          el("option",{value:""},[ask.q + " — pick Yes or No"]),
+          el("option",{value:"yes", selected:it.ans === "yes" ? "selected" : null},["Yes"]),
+          el("option",{value:"no", selected:it.ans === "no" ? "selected" : null},["No"])
+        ]);
+        line.appendChild(ans);
+      }
+    } else {
+      var why = el("select",{class:"eodsel" + (!it.why ? " need" : ""), "aria-label":"Reason if not finished today", onchange:function(){
+        it.why = why.value; keepEodStage(t.assignee); render(); }},
+        [el("option",{value:""},["Not finished? Pick the reason"])].concat(
+          REASONS.map(function(r){ return el("option",{value:r, selected:it.why === r ? "selected" : null},[r]); })));
+      line.appendChild(el("span",{class:"eodlab"},["If not finished today:"]));
+      line.appendChild(why);
+    }
+    return line;
+  }
+  /* the panel at the bottom of today's tasks */
+  function eodPanel(person){
+    var open = state.tasks.filter(function(t){ return t.assignee === person && t.status !== "done"; });
+    var doneToday = state.tasks.filter(function(t){ return t.assignee === person && t.status === "done" && (t.doneAt||"").slice(0,10) === today(); });
+    var st = eodStage(person), c = checkinOf(person, today());
+    var items = open.map(function(t){ return {t:t, it:eodItem(t), ask:pendingAsk(t)}; });
+    var ticked = items.filter(function(x){ return x.it.done; });
+    var needWhy = items.filter(function(x){ return !x.it.done && !x.it.why; });
+    var needAns = items.filter(function(x){ return x.it.done && x.ask && !x.it.ans; });
+    var summary = el("textarea",{placeholder:"Day summary — problems, help needed, plan for tomorrow", rows:"2"});
+    summary.value = st.summary || (c && c.summary) || "";
+    summary.addEventListener("input", function(){ st.summary = summary.value; keepEodStage(person); });
+    var warn = el("p",{class:"eodwarn", hidden:"hidden"});
+    function jump(x){
+      var row = document.querySelector('.task[data-tid="' + x.t.id + '"] .eodsel');
+      if(row){ row.scrollIntoView({block:"center", behavior:"smooth"}); try { row.focus(); } catch(e){} }
+    }
+    var btn = el("button",{class:"btn primary eodsubmit", type:"button", onclick:function(){
+      if(needAns.length){
+        warn.textContent = "Please answer the Yes / No question on the " + needAns.length + " ticked step" + (needAns.length === 1 ? "" : "s") + ".";
+        warn.hidden = false; jump(needAns[0]); return;
+      }
+      if(needWhy.length){
+        warn.textContent = "Please give the reason for the " + needWhy.length + " task" + (needWhy.length === 1 ? "" : "s") + " not finished today.";
+        warn.hidden = false; jump(needWhy[0]); return;
+      }
+      var n = submitEod(person, items.map(function(x){
+        var posted = todayNote(x.t);
+        return {task:x.t, done:x.it.done, note:posted, why:x.it.why, ask:x.ask, ans:x.it.ans, posted:posted};
+      }), summary.value);
+      clearEodStage(person);
+      banner("End of day submitted — " + n + " closed, " + (items.length - n) + " carried to the next working day.");
+      setTimeout(function(){ banner(""); }, 7000);
+      render();
+    }},[c ? "Submit end of day again" : "Submit end of day"]);
+    return el("div",{class:"eodpanel", id:"eodPanel"},[
+      el("div",{class:"eodhead"},[
+        el("h3",{},["End of day" + (isLead(state.who) && person === state.who ? " — my own tasks" : "")]),
+        el("div",{class:"eodcounts"},[
+          el("span",{class:"chip today"},[ticked.length + " ticked done"]),
+          el("span",{class:"chip" + (needWhy.length ? " over" : " plain")},[needWhy.length ? needWhy.length + " need a reason" : "every open task has a status"]),
+          needAns.length ? el("span",{class:"chip over"},[needAns.length + " need Yes / No"]) : null,
+          doneToday.length ? el("span",{class:"chip plain"},[doneToday.length + " already finished today"]) : null,
+          c ? el("span",{class:"chip today", title:c.summary || ""},["submitted " + new Date(c.submittedAt || Date.now()).toLocaleTimeString("en-IN", {hour:"2-digit", minute:"2-digit"})]) : null
+        ])
+      ]),
+      el("p",{class:"eodhint"},["Tick each task you finished in the list above. For anything not finished, pick the reason under it. " +
+        "Then press Submit end of day — ticks are saved only when you submit."]),
+      summary, warn,
+      el("div",{class:"eodbtns"},[ btn,
+        isLead(state.who) ? el("button",{class:"btn ghost", type:"button", onclick:function(){ openEod((state.team[0]||{}).id); }},["Close a team member's day"]) : null ])
+    ]);
   }
   function openEod(forId){
     if(typeof forId !== "string") forId = "";
@@ -3512,50 +3859,10 @@ body.cad[data-sec]{--sec:var(--sel)}
           return;
         }
         warn.hidden = true;
-        var touched = 0, stamp = new Date().toISOString();
-        function withUpdate(t, entry){
-          /* one entry per task per day: a second submit the same day replaces it */
-          var list = (t.updates || []).filter(function(x){ return x.d !== today(); }).map(function(x){ return Object.assign({}, x); });
-          list.unshift(Object.assign({d:today(), at:stamp, by:person}, entry));
-          return list.slice(0, 40);
-        }
-        rows.forEach(function(r){
-          var n = r.note.value.trim();
-          r.task.updates = withUpdate(r.task, r.cb.checked ? {t:n, s:"done"} : {t:n, s:"pending", r:r.why.value});
-          saveTask(r.task, {updates:r.task.updates});
-          if(r.cb.checked && r.ask){
-            /* ticking a question step means it was answered; a "Yes" that needs
-               work keeps the task open under its new title */
-            var pa = projById(r.task.projectId);
-            if(n) saveTask(r.task, {note:n});
-            if(pa) completeStep(pa, r.ask.k, r.ans.value);
-            touched++;
-          }
-          else if(r.cb.checked){ saveTask(r.task, {status:"done", doneAt:new Date().toISOString(), note:n, miss:null}); touched++; }
-          else {
-            var misses = (r.task.misses||[]).map(function(x){ return Object.assign({}, x); });
-            misses.unshift({d:today(), reason:r.why.value, note:n, by:person});
-            saveTask(r.task, {note:n, miss:{d:today(), reason:r.why.value, note:n, by:person}, misses:misses.slice(0,20)});
-            var pp = projById(r.task.projectId);
-            if(pp && r.why.value === HOLD_REASON) putOnHold(pp, person, n);
-            else if(pp){
-              var lg = (pp.log||[]).map(function(x){ return Object.assign({}, x); });
-              lg.unshift({d:today(), by:person, t:"Not finished — " + r.why.value + (n ? " · " + n : ""), stage:pp.stage||"", status:pp.status||""});
-              saveProject(pp, {log:lg.slice(0,40)});
-            }
-          }
-          if(n && r.cb.checked && n !== r.posted){
-            var p = projById(r.task.projectId);
-            if(p){
-              var log = (p.log||[]).map(function(x){ return Object.assign({}, x); });
-              log.unshift({d:today(), by:person, t:n, stage:p.stage||"", status:p.status||""});
-              saveProject(p, {log:log.slice(0,40)});
-            }
-          }
-        });
-        state.histFor = null;
-        saveCheckin({id:person + "-" + today(), person:person, date:today(), summary:summary.value.trim(),
-                     closed:touched, pending:rows.length - touched, submittedAt:new Date().toISOString()});
+        submitEod(person, rows.map(function(r){
+          return {task:r.task, done:r.cb.checked, note:r.note.value, why:r.why.value, ask:r.ask, ans:r.ans ? r.ans.value : "", posted:r.posted};
+        }), summary.value);
+        clearEodStage(person);
         closeDrawer();
       }},["Submit end of day"])
     ]);
@@ -3634,7 +3941,11 @@ body.cad[data-sec]{--sec:var(--sel)}
           return el("span",{class:"chip " + (c ? "today" : "nv"), title:c ? (c.summary || "submitted") : "not submitted yet"},
             [m.name.split(" ")[0] + (c ? " ✓" : " —")]);
         })),
-        el("button",{class:"btn sm primary", onclick:openEod},["Submit end of day"])
+        el("button",{class:"btn sm primary", onclick:function(){
+          var pn = document.getElementById("eodPanel");
+          if(pn && !isLead(state.who)){ pn.scrollIntoView({block:"start", behavior:"smooth"}); return; }
+          openEod();
+        }},[isLead(state.who) ? "Close a day" : "Submit end of day ↓"])
       ])
     ]);
     return strip;
@@ -3763,6 +4074,91 @@ body.cad[data-sec]{--sec:var(--sel)}
     });
   }
 
+
+  /* ---------- company calendar: Saturdays + company paid leaves ---------- */
+  function canMarkHolidays(){ return HOLIDAY_EDITORS.indexOf(state.who) >= 0; }
+  function saveHolidays(days){
+    HOLIDAYS = days; state.offFixed = false;
+    if(state.db) state.db.doc("config/holidays").set({days:days, by:state.who, at:new Date().toISOString()}).catch(onWriteErr);
+    rollForward(); render();
+  }
+  function calendarCard(redraw){
+    var t0 = today();
+    if(!state.calMonth) state.calMonth = t0.slice(0,7);
+    var mk = state.calMonth, y = +mk.slice(0,4), m = +mk.slice(5,7) - 1;
+    var editor = canMarkHolidays();
+    var card = el("div",{class:"card calcard"});
+    function go(n){ var d = new Date(y, m + n, 1); state.calMonth = iso(d).slice(0,7); state.calPick = ""; redraw(); }
+    card.appendChild(el("div",{class:"calnav"},[
+      el("button",{class:"btn sm ghost", type:"button", "aria-label":"Previous month", onclick:function(){ go(-1); }},["‹"]),
+      el("b",{},[monthName(mk)]),
+      el("button",{class:"btn sm ghost", type:"button", "aria-label":"Next month", onclick:function(){ go(1); }},["›"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.calMonth = t0.slice(0,7); redraw(); }},["This month"])
+    ]));
+    var grid = el("div",{class:"calgrid"});
+    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(n){ grid.appendChild(el("div",{class:"calhd"},[n])); });
+    var first = new Date(y, m, 1), days = new Date(y, m + 1, 0).getDate();
+    for(var b = 0; b < first.getDay(); b++) grid.appendChild(el("div",{class:"calcell blank"}));
+    for(var dn = 1; dn <= days; dn++){
+      (function(ds){
+        var d = parseISO(ds), hol = holidayName(ds), sat = OFF_DAYS.indexOf(d.getDay()) >= 0;
+        var cls = "calcell" + (ds === t0 ? " is-today" : "") + (hol ? " is-hol" : (sat ? " is-off" : "")) + (state.calPick === ds ? " is-pick" : "");
+        var cell = el(editor ? "button" : "div", {class:cls, type: editor ? "button" : null,
+          title: hol ? "Company holiday — " + hol : (sat ? "Weekly off" : (editor ? "Click to mark as a company holiday" : "Working day")),
+          onclick: editor ? function(){ state.calPick = state.calPick === ds ? "" : ds; redraw(); } : null},[
+          el("span",{class:"cdn"},[String(d.getDate())]),
+          hol ? el("span",{class:"cdl"},[hol]) : (sat ? el("span",{class:"cdl"},["Weekly off"]) : null)
+        ]);
+        grid.appendChild(cell);
+      })(mk + "-" + pad(dn));
+    }
+    card.appendChild(grid);
+    card.appendChild(el("div",{class:"callegend"},[
+      el("span",{},[el("i",{class:"lg hol"}), "Company holiday (paid leave)"]),
+      el("span",{},[el("i",{class:"lg off"}), "Saturday — weekly off"]),
+      el("span",{},[el("i",{class:"lg today"}), "Today"])
+    ]));
+    /* mark / unmark */
+    if(editor && state.calPick){
+      var ds = state.calPick, cur = holidayName(ds);
+      var fName = el("input",{type:"text", value:cur, placeholder:"e.g. Diwali (Laxmi Pujan)", maxlength:"60"});
+      var box = el("div",{class:"calform"},[
+        el("b",{},[fmtDate(ds) + (isOffDay(ds) && !cur ? " is already the weekly off" : "")]),
+        el("label",{class:"field"},[el("span",{},["Holiday name"]), fName]),
+        el("div",{class:"row", style:"display:flex;gap:8px;flex-wrap:wrap"},[
+          el("button",{class:"btn primary sm", type:"button", onclick:function(){
+            var nm = fName.value.trim(); if(!nm){ fName.focus(); return; }
+            var d2 = Object.assign({}, HOLIDAYS); d2[ds] = nm; state.calPick = ""; saveHolidays(d2); redraw();
+            banner(fmtDate(ds) + " marked as company holiday. Tasks due that day move to the next working day.");
+          }},[cur ? "Save name" : "Mark as company holiday"]),
+          cur ? el("button",{class:"btn sm", type:"button", onclick:function(){
+            var d2 = Object.assign({}, HOLIDAYS); delete d2[ds]; state.calPick = ""; saveHolidays(d2); redraw();
+          }},["Remove holiday"]) : null,
+          el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.calPick = ""; redraw(); }},["Cancel"])
+        ])
+      ]);
+      card.appendChild(box);
+      setTimeout(function(){ try { fName.focus(); } catch(e){} }, 30);
+    }
+    /* list of the holidays still to come */
+    var up = Object.keys(HOLIDAYS).filter(function(k){ return k >= t0; }).sort();
+    card.appendChild(el("div",{class:"calup"},[
+      el("h4",{},["Coming company holidays"]),
+      up.length ? el("ul",{}, up.map(function(k){
+        return el("li",{},[el("b",{},[fmtDate(k) + " · " + ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][parseISO(k).getDay()]]), " — " + HOLIDAYS[k]]);
+      })) : el("p",{class:"muted"},["None marked yet."]),
+      el("p",{class:"muted"},[ editor
+        ? "Click a date to mark or remove a company holiday. No task is planned or due on a holiday; open work moves to the next working day."
+        : "Only Kiran Pawar and Manish Teli can mark company holidays. No task is planned or due on a holiday."])
+    ]));
+    return card;
+  }
+  function openCalendar(){
+    state.drawer = "calendar";
+    function draw(){ drawer("Company calendar", "Paid company leaves and weekly offs", calendarCard(draw)); }
+    draw();
+  }
+
   /* ---------- shared pieces ---------- */
   /* this week, Sunday to Saturday, with the open tasks due each day */
   function weekStrip(open, lead){
@@ -3771,17 +4167,18 @@ body.cad[data-sec]{--sec:var(--sel)}
     for(var i = 0; i < 7; i++){
       var ds = iso(d), off = isOffDay(ds), n = open.filter(function(t){ return t.date === ds; }).length;
       cells.push(el("div",{class:"wday" + (ds === t0 ? " is-today" : "") + (off ? " is-off" : ""),
-        title: off ? "Weekly off — no tasks are planned on Saturday" : n + " open task" + (n === 1 ? "" : "s") + " due"},[
+        title: off ? offLabel(ds) + " — no tasks are planned on this day" : n + " open task" + (n === 1 ? "" : "s") + " due"},[
         el("span",{class:"wn"},[names[d.getDay()] + (ds === t0 ? " · today" : "")]),
         el("span",{class:"wd"},[fmtDate(ds).replace(/ \d\d$/, "")]),
-        el("span",{class:"wc"},[off ? "WEEKLY OFF" : (n ? n + " due" : (ds < t0 ? "—" : "free"))])
+        el("span",{class:"wc"},[off ? (holidayName(ds) ? "HOLIDAY · " + holidayName(ds) : "WEEKLY OFF") : (n ? n + " due" : (ds < t0 ? "—" : "free"))])
       ]));
       d.setDate(d.getDate() + 1);
     }
     return el("div",{class:"weekstrip"},[
       el("div",{class:"wshead"},[ el("h3",{},["Work week"]),
         el("span",{},["Sunday to Friday are working days · ", el("b",{style:"color:var(--crit)"},["Saturday is the weekly off"]),
-          " — no task is planned or due on it" + (lead ? " (team)" : "")]) ]),
+          " — no task is planned or due on it" + (lead ? " (team)" : "") + ". Company holidays are off days too."]),
+        el("button",{class:"btn sm ghost", type:"button", style:"margin-left:auto", onclick:function(){ openCalendar(); }},["Company calendar"]) ]),
       el("div",{class:"weekdays"}, cells)
     ]);
   }
@@ -3864,9 +4261,9 @@ body.cad[data-sec]{--sec:var(--sel)}
     planCard.appendChild(el("div",{class:"cardhead"},[
       el("h3",{},[isLead(who) ? "Team plan for today" : shortName(who) + "'s plan for today"]),
       el("p",{class:"eodhint"},[ isOffDay(today())
-        ? el("b",{},["Saturday — weekly off. No tasks are planned today; open work moves to the next working day. "]) : null,
-        "Made automatically each morning from the priority list (Saturday off). Write updates and tick tasks done in ",
-        el("b",{},["Submit end of day"]), "."]),
+        ? el("b",{},[(holidayName(today()) ? "Company holiday — " + holidayName(today()) : "Saturday — weekly off") + ". No tasks are planned today; open work moves to the next working day. "]) : null,
+        "Made automatically each morning from the priority list (Saturday and company holidays off). Tick your tasks here as you finish them, pick the reason for anything not finished, then press ",
+        el("b",{},["Submit end of day"]), " at the bottom."]),
       el("div",{class:"spacer", style:"flex:1"}),
       el("button",{class:"btn sm" + (isLead(who) ? " primary" : ""), onclick:function(){ if(isLead(who)) openAssignForm(); else openTaskForm(); }},
         [isLead(who) ? "+ Give a task" : "+ Add task"])
@@ -3891,6 +4288,13 @@ body.cad[data-sec]{--sec:var(--sel)}
           ]));
           rows.forEach(function(t){ planCard.appendChild(taskRow(t)); });
         });
+    }
+    var hasOwn = state.tasks.some(function(t){ return t.assignee === who && t.status !== "done"; }) || !!checkinOf(who, today());
+    if(state.team.some(function(m){ return m.id === who; }) || (isLead(who) && hasOwn)){
+      if(!isOffDay(today())) planCard.appendChild(eodPanel(who));
+    } else if(isLead(who)){
+      planCard.appendChild(el("div",{class:"eodpanel"},[ el("div",{class:"eodbtns"},[
+        el("button",{class:"btn ghost", type:"button", onclick:function(){ openEod((state.team[0]||{}).id); }},["Close a team member's day"]) ]) ]));
     }
     wrap.appendChild(el("section",{class:"block"},[planCard]));
 
@@ -4081,12 +4485,19 @@ body.cad[data-sec]{--sec:var(--sel)}
     var p = projById(t.projectId);
     var row = el("div",{class:"task" + (t.status === "done" ? " done" : (p && /^P[123]$/.test(p._band||"") ? " b-" + p._band : "")) +
                          (isUnseenForMe(t) ? " is-new" : ""), "data-tid":t.id});
-    /* tasks are ticked off only in Submit end of day */
-    row.appendChild(t.status === "done"
+    /* my own open tasks are ticked here; they close when I submit end of day */
+    var inl = canTickInline(t) && !isOffDay(today()) ? eodItem(t) : null;
+    if(inl && inl.done) row.className += " staged";
+    row.appendChild(inl
+      ? el("button",{class:"tick" + (inl.done ? " on" : ""), "aria-pressed":inl.done ? "true" : "false",
+          "aria-label": inl.done ? "Untick — not done today" : "Tick — done today",
+          title: inl.done ? "Ticked done — click to untick. Saved when you submit end of day." : "Tick when finished today",
+          onclick:function(){ inl.done = !inl.done; keepEodStage(t.assignee); render(); }},[inl.done ? "✓" : ""])
+      : t.status === "done"
       ? el("button",{class:"tick", "aria-label":"Reopen this task", title:"Finished — click to reopen",
           onclick:function(){ state.reopen = (state.reopen === t.id) ? null : t.id; render(); }},["✓"])
-      : el("span",{class:"tick ro", role:"img", "aria-label":"Open — close it in Submit end of day",
-          title:"Open — tick it done in Submit end of day"},[""]));
+      : el("span",{class:"tick ro", role:"img", "aria-label":"Open — " + shortName(t.assignee) + " ticks it in their end of day",
+          title:"Open — " + shortName(t.assignee) + " ticks it in Today's Work (or close their day from End of day)"},[""]));
     if(p) row.appendChild(ring(projPct(p), 26, hasSteps(p)
       ? projStepPct(p) + "% of the process steps done"
       : (p.stage||"stage not set") + " — " + stagePct(p) + "% of the stages done"));
@@ -4117,7 +4528,7 @@ body.cad[data-sec]{--sec:var(--sel)}
             ["held up: " + t.miss.reason + ((t.misses&&t.misses.length>1) ? " ×" + t.misses.length : "")])
         : null
     ]);
-    row.appendChild(el("div",{class:"taskmain"},[ el("div",{class:"tt"},[t.title]), meta, lastUpdateBlock(t) ]));
+    row.appendChild(el("div",{class:"taskmain"},[ el("div",{class:"tt"},[t.title]), meta, lastUpdateBlock(t), inl ? eodLine(t) : null ]));
     var askSt = (state.askFor === t.id) ? pendingAsk(t) : null;
     if(askSt && p){
       row.appendChild(el("div",{class:"taskact"},[
@@ -4236,10 +4647,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       return b;
     }));
     var fTitle = el("input",{type:"text", id:"asgTitle", placeholder:"e.g. Prepare the costing for the new ONT DB enquiry"});
-    var fProject = el("select",{id:"asgProject"}, [el("option",{value:""},["General task — not tied to a project"])].concat(
-      state.projects.filter(isActive).sort(function(a,b){ return bandRank(a) - bandRank(b); }).map(function(p){
-        return el("option",{value:p.id},[p.id + " · " + p.customer + " · " + p.name]);
-      })));
+    var fProject = el("select",{id:"asgProject"}, taskTargetOptions());
     if(preProject) fProject.value = preProject;
     var fStart = el("input",{type:"date", id:"asgStart", value:workToday()});
     var fDays = el("input",{type:"number", id:"asgDays", min:"1", max:"365", value:"1"});
@@ -4290,9 +4698,9 @@ body.cad[data-sec]{--sec:var(--sel)}
         if(!fTitle.value.trim()){ warn.textContent = "Write what the task is."; warn.hidden = false; fTitle.focus(); return; }
         var start = workDay(fStart.value || today()), due = workDay(fDue.value || start);
         who.forEach(function(id){
-          saveTask({id:uid("T"), projectId:fProject.value, title:fTitle.value.trim(), assignee:id,
+          saveTask(Object.assign({id:uid("T"), title:fTitle.value.trim(), assignee:id,
                     date:due, firstDate:due, plannedDate:due, startDate:start, status:"open",
-                    createdAt:new Date().toISOString(), note:fNote.value.trim(), assignedBy:state.who});
+                    createdAt:new Date().toISOString(), note:fNote.value.trim(), assignedBy:state.who}, taskTargetFields(fProject.value)));
         });
         closeDrawer();
         banner("Task given to " + who.map(function(id){ return memberName(id); }).join(", ") +
@@ -4395,11 +4803,26 @@ body.cad[data-sec]{--sec:var(--sel)}
       seen.length ? el("div",{class:"dsec"},[ el("h4",{},["Seen earlier"]), el("div",{class:"card"}, seen.map(function(t){ return item(t, false); })) ]) : null
     ]));
   }
+  /* project drop-down for new tasks: projects, then the special DBs of the current order */
+  function taskTargetOptions(){
+    var opts = [el("option",{value:""},["General task — not tied to a project"])];
+    var pr = state.projects.filter(isActive).sort(function(a,b){ return bandRank(a) - bandRank(b); });
+    if(pr.length) opts.push(el("optgroup",{label:"Projects"}, pr.map(function(p){ return el("option",{value:p.id},[p.id + " · " + p.customer + " · " + p.name]); })));
+    var sds = sdOfMonth(sdMonth()).slice().sort(function(a,b){ return a.sdCode.localeCompare(b.sdCode); });
+    if(sds.length) opts.push(el("optgroup",{label:"Special DBs — " + monthName(sdMonth())}, sds.map(function(sd){
+      return el("option",{value:"SD:" + sd.id},["Special DB · " + sd.sdCode + (sd.desc ? " · " + sd.desc : "")]); })));
+    return opts;
+  }
+  /* turn the drop-down value into the task's link fields */
+  function taskTargetFields(val){
+    if(String(val).indexOf("SD:") === 0){
+      var sd = sdById(val.slice(3));
+      return sd ? {projectId:"", sdId:sd.id, sdCode:sd.sdCode} : {projectId:""};
+    }
+    return {projectId:val || ""};
+  }
   function openTaskForm(preProject){
-    var fProject = el("select",{}, [el("option",{value:""},["General task — not tied to a project"])].concat(
-      state.projects.filter(isActive).sort(function(a,b){return bandRank(a)-bandRank(b);}).map(function(p){
-        return el("option",{value:p.id},[p.id + " · " + p.customer + " · " + p.name]);
-      })));
+    var fProject = el("select",{}, taskTargetOptions());
     if(preProject) fProject.value = preProject;
     var fTitle = el("input",{type:"text", placeholder:"e.g. Finish fixture 2D drawing"});
     var fWho = el("select",{}, state.team.map(function(m){ return el("option",{value:m.id},[m.name]); }));
@@ -4420,9 +4843,9 @@ body.cad[data-sec]{--sec:var(--sel)}
       ]),
       el("button",{class:"btn primary", onclick:function(){
         if(!fTitle.value.trim()){ fTitle.focus(); return; }
-        saveTask({id:uid("T"), projectId:fProject.value, title:fTitle.value.trim(), assignee:fWho.value,
+        saveTask(Object.assign({id:uid("T"), title:fTitle.value.trim(), assignee:fWho.value,
                   date:workDay(fDate.value || today()), firstDate:workDay(fDate.value || today()), status:"open",
-                  createdAt:new Date().toISOString(), note:""});
+                  createdAt:new Date().toISOString(), note:""}, taskTargetFields(fProject.value)));
         closeDrawer();
       }},["Save task"])
     ]));
@@ -4661,14 +5084,27 @@ body.cad[data-sec]{--sec:var(--sel)}
   /* ---------- SPECIAL DBs ---------- */
   function canUpload(){ return state.who === "atharva" || isLead(state.who); }
   /* one entry per SD code — if the same code is stored twice, show the one with more work done */
+  function isDropped(sd){ return !!sd && sd.status === "dropped"; }
+  function sdDroppedOfMonth(m){ return state.sdbs.filter(function(x){ return x.month === m && isDropped(x); }); }
+  function canDropSd(){ return canUpload() || state.who === "prathamesh"; }
+  /* order cancelled: the DB leaves the list and its open tasks are removed (kept in a Dropped list, can be restored) */
+  function dropSd(sd, reason){
+    (state.allTasks || state.tasks).filter(function(t){ return t.sdId === sd.id && t.status !== "done"; })
+      .forEach(function(t){ removeTask(t); });
+    saveSd(sd, {status:"dropped", droppedAt:today(), droppedBy:state.who, dropReason:reason || "Order cancelled"});
+  }
+  function restoreSd(sd){
+    saveSd(sd, {status:"", droppedAt:"", droppedBy:"", dropReason:"", restoredAt:today(), restoredBy:state.who});
+    openStepTask(sd);
+  }
   function sdOfMonth(m){
     var best = {};
     state.sdbs.forEach(function(x){
-      if(x.month !== m) return;
+      if(x.month !== m || isDropped(x)) return;
       var k = sdKey(x.sdCode), b = best[k];
       if(!b || sdProgress(x) > sdProgress(b) || (sdProgress(x) === sdProgress(b) && String(x.startedAt || x.createdAt || "") > String(b.startedAt || b.createdAt || ""))) best[k] = x;
     });
-    return state.sdbs.filter(function(x){ return x.month === m && best[sdKey(x.sdCode)] === x; });
+    return state.sdbs.filter(function(x){ return x.month === m && !isDropped(x) && best[sdKey(x.sdCode)] === x; });
   }
   function orderOfMonth(m){ return state.sdorders.filter(function(x){ return x.id === m; })[0]; }
 
@@ -4778,7 +5214,8 @@ body.cad[data-sec]{--sec:var(--sel)}
     wrap.appendChild(blockHead("Special DBs — Legrand customised",
       "Monthly schedule by SD code. New DBs go through full development; repeat DBs need the file updated.", nav));
 
-    if(!order || !list.length){
+    var dropped = sdDroppedOfMonth(m);
+    if(!order || (!list.length && !dropped.length)){
       wrap.appendChild(el("div",{class:"card"},[
         el("div",{class:"cardbody", style:"text-align:center;padding:34px 16px"},[
           el("h3",{style:"font-size:17px;margin-bottom:6px"},["Please upload this month's order file"]),
@@ -4802,7 +5239,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       tile("Waiting for customer data", String(dataPending.length), "CAD / GAD / BOM not available", dataPending.length ? "alert" : ""),
       tile("Pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0).toLocaleString("en-IN"),
            "total across " + list.length + " DBs · " + openTasks.length + " open tasks", ""),
-      tile("Completed", String(finished.length), "all steps ticked", "")
+      tile("Completed", String(finished.length), "all steps ticked" + (dropped.length ? " · " + dropped.length + " dropped" : ""), "")
     ]));
 
     wrap.appendChild(el("div",{class:"card", style:"margin-top:14px"},[
@@ -4815,7 +5252,7 @@ body.cad[data-sec]{--sec:var(--sel)}
           state.sdOnlyPending = !state.sdOnlyPending; render();
         }},[state.sdOnlyPending ? "Showing open DBs only" : "Show open DBs only"]),
         el("button",{class:"btn sm", onclick:function(){
-          exportSdArchive(sdOfMonth(m), "NMD_Special_DB_Report_" + m + "_" + today() + ".xlsx").then(function(ok){
+          exportSdArchive(sdOfMonth(m).concat(sdDroppedOfMonth(m)), "NMD_Special_DB_Report_" + m + "_" + today() + ".xlsx").then(function(ok){
             if(!ok) banner("The Excel report could not be saved. Allow the download and try again.");
           });
         }},["Export report to Excel"]),
@@ -4872,6 +5309,32 @@ body.cad[data-sec]{--sec:var(--sel)}
       card.appendChild(el("div",{class:"tablewrap"},[t]));
       wrap.appendChild(card);
     });
+    if(dropped.length){
+      var dc = el("div",{class:"card", style:"margin-top:14px"});
+      dc.appendChild(el("div",{class:"cardhead"},[
+        el("h3",{},["Dropped DBs — order cancelled"]),
+        el("span",{class:"chip"},[dropped.length + " DB" + (dropped.length === 1 ? "" : "s")]),
+        el("p",{class:"eodhint"},["No tasks are given for these. Restore one if the order comes back."])
+      ]));
+      var dt = el("table");
+      dt.appendChild(el("thead",{},[el("tr",{},[ el("th",{},["SD code"]), el("th",{},["Description"]), el("th",{class:"n"},["Order qty"]),
+        el("th",{},["Steps done"]), el("th",{},["Dropped"]), el("th",{},["Reason"]), el("th",{},[""]) ])]));
+      var dtb = el("tbody");
+      dropped.sort(function(a,b){ return a.sdCode.localeCompare(b.sdCode); }).forEach(function(sd){
+        dtb.appendChild(el("tr",{class:"clickable sddrop", onclick:function(){ openSd(sd.id); }},[
+          el("td",{},[el("div",{class:"pname"},[sd.sdCode])]),
+          el("td",{},[el("div",{style:"font-size:12.5px"},[sd.desc || "—"])]),
+          el("td",{class:"n"},[sd.orderQty ? sd.orderQty.toLocaleString("en-IN") : "—"]),
+          el("td",{},[(sd.steps||[]).filter(function(x){ return x.status === "done"; }).length + " of " + (sd.steps||[]).length]),
+          el("td",{},[fmtDate(sd.droppedAt) + " · " + shortName(sd.droppedBy)]),
+          el("td",{},[sd.dropReason || "Order cancelled"]),
+          el("td",{},[ canDropSd() ? el("button",{class:"btn sm", onclick:function(e){ e.stopPropagation(); restoreSd(sd); banner(sd.sdCode + " restored — its current step is back in the task list."); }},["Restore"]) : null ])
+        ]));
+      });
+      dt.appendChild(dtb);
+      dc.appendChild(el("div",{class:"tablewrap"},[dt]));
+      wrap.appendChild(dc);
+    }
     var sch = sdScheduleCard(m);
     if(sch) wrap.appendChild(sch);
     return wrap;
@@ -5166,7 +5629,8 @@ body.cad[data-sec]{--sec:var(--sel)}
     }
     var doneSteps = 0, allSteps = 0;
     list.forEach(function(sd){ (sd.steps || []).forEach(function(st){ allSteps++; if(st.status === "done") doneSteps++; }); });
-    var finished = list.filter(function(x){ return sdProgress(x) === 100; });
+    var finished = list.filter(function(x){ return sdProgress(x) === 100 && !isDropped(x); });
+    var droppedN = list.filter(isDropped).length;
 
     /* 1. summary */
     var byPerson = {};
@@ -5183,7 +5647,8 @@ body.cad[data-sec]{--sec:var(--sel)}
       ["  New DBs (full development)", list.filter(function(x){ return x.kind === "new"; }).length],
       ["  Repeat DBs (file update)", list.filter(function(x){ return x.kind !== "new"; }).length],
       ["DBs completed (all steps done)", finished.length],
-      ["DBs still open", list.length - finished.length],
+      ["DBs still open", list.length - finished.length - droppedN],
+      ["DBs dropped (order cancelled)", droppedN],
       ["Total order qty", list.reduce(function(a, x){ return a + (+x.orderQty || 0); }, 0)],
       ["Total pending qty", list.reduce(function(a, x){ return a + (+x.pendingQty || 0); }, 0)],
       ["Tasks (steps) done", doneSteps + " of " + allSteps], [],
@@ -5203,7 +5668,8 @@ body.cad[data-sec]{--sec:var(--sel)}
       dbs.push([i + 1, sd.sdCode, sd.desc || "", sd.kind === "new" ? "New" : "Repeat", sd.critical ? "Critical" : "",
                 (sd.poNos || []).join(", "), +sd.orderQty || 0, +sd.pendingQty || 0, sd.lines || 1,
                 sd.cad || "", sd.gad || "", sd.bom || "", sd.sfgCode || "", miss.length ? miss.join(", ") + " pending" : "Complete",
-                D(sd.startDate || sd.createdAt), done.length, st.length, cur ? "In progress" : "Completed",
+                D(sd.startDate || sd.createdAt), done.length, st.length,
+                isDropped(sd) ? "Dropped — order cancelled " + D(sd.droppedAt) + " by " + memberName(sd.droppedBy) + (sd.dropReason ? " (" + sd.dropReason + ")" : "") : (cur ? "In progress" : "Completed"),
                 cur ? "" : D(done.length ? done[done.length - 1].doneAt : ""),
                 cur ? cur.title.replace(" — " + sd.sdCode, "") : "", cur ? memberName(cur.who) : "", sd.remarks || ""]);
     });
@@ -5274,7 +5740,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       o.prev = before ? before.month : "";
       if(before && o.kind === "new"){ o.kind = "repeat"; o.wasNew = true; }
       var old = prevByKey[sdKey(i.sdCode)];
-      o.carry = !!(old && sdProgress(old) < 100);         /* still in progress: keeps its steps */
+      o.carry = !!(old && sdProgress(old) < 100 && !isDropped(old));         /* still in progress: keeps its steps */
       if(o.carry){ o.kind = old.kind; o.prev = ""; o.wasNew = false; }
       return o;
     });
@@ -5558,7 +6024,41 @@ body.cad[data-sec]{--sec:var(--sel)}
         return el("li",{}, updLine(u).concat([u.task ? el("span",{class:"muted", style:"font-size:11.5px"},["— " + u.task]) : null])); }))
     ]));
 
-    drawer(sd.sdCode, (sd.desc || "") + " · " + monthName(sd.month), body);
+    /* order cancelled → drop the DB */
+    if(canDropSd()){
+      if(isDropped(sd)){
+        body.insertBefore(el("div",{class:"dsec sddropbox"},[
+          el("h4",{},["Dropped — order cancelled"]),
+          el("p",{class:"muted", style:"margin:0 0 8px"},["Dropped on " + fmtDate(sd.droppedAt) + " by " + memberName(sd.droppedBy) + " · " + (sd.dropReason || "Order cancelled") + ". No tasks are given for this DB."]),
+          el("button",{class:"btn primary", onclick:function(){ restoreSd(sd); closeDrawer(); banner(sd.sdCode + " restored — its current step is back in the task list."); }},["Restore this DB"])
+        ]), body.firstChild);
+      } else {
+        var openN = (state.allTasks || state.tasks).filter(function(t){ return t.sdId === sd.id && t.status !== "done"; }).length;
+        var dReason = el("input",{type:"text", placeholder:"e.g. Legrand cancelled PO 4500123456", maxlength:"120"});
+        var dWarn = el("div",{class:"warnline", hidden:true},["Write why the order was cancelled."]);
+        var confirmBox = el("div",{hidden:true, style:"display:grid;gap:8px;margin-top:8px"},[
+          el("label",{class:"field"},[el("span",{},["Reason"]), dReason]), dWarn,
+          el("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},[
+            el("button",{class:"btn danger", onclick:function(){
+              var r = dReason.value.trim(); if(!r){ dWarn.hidden = false; dReason.focus(); return; }
+              dropSd(sd, r); closeDrawer();
+              banner(sd.sdCode + " dropped (order cancelled). " + (openN ? openN + " open task" + (openN === 1 ? "" : "s") + " removed." : ""), "Undo", function(){ restoreSd(sdById(sd.id) || sd); banner(""); });
+            }},["Yes, drop " + sd.sdCode]),
+            el("button",{class:"btn ghost", onclick:function(){ confirmBox.hidden = true; }},["Cancel"])
+          ])
+        ]);
+        body.appendChild(el("div",{class:"dsec sddropbox"},[
+          el("h4",{},["Order cancelled?"]),
+          el("p",{class:"muted", style:"margin:0 0 8px"},["Drop this DB if Legrand cancelled the order. It leaves the list, " +
+            (openN ? "its " + openN + " open task" + (openN === 1 ? " is" : "s are") + " removed" : "no task is given for it") +
+            ", and it stays in the Dropped list (and the Excel report) where it can be restored."]),
+          el("button",{class:"btn", onclick:function(){ confirmBox.hidden = false; dReason.focus(); }},["Drop this DB (order cancelled)"]),
+          confirmBox
+        ]));
+      }
+    }
+
+    drawer(sd.sdCode + (isDropped(sd) ? " · dropped" : ""), (sd.desc || "") + " · " + monthName(sd.month), body);
   }
 
   /* ---------- LIVE / QVE MONTHLY REPORT ---------- */
@@ -6430,6 +6930,432 @@ body.cad[data-sec]{--sec:var(--sel)}
   }
 
   /* ---------- VALUE ---------- */
+
+  /* ---------- Tools tab ---------- */
+  /* Sheet metal blank length (flat pattern) for a bent part.
+     Blank = flanges + bend allowances, where for every bend
+       BA  = π × A / 180 × (R + K × T)                       (length of the neutral line in the bend)
+       OSSB = (R + T) × tan(A / 2)   (outside dims)   ISSB = R × tan(A / 2)   (inside dims)
+     With outside dimensions: blank = Σ flanges − Σ (2 × OSSB − BA)   (bend deduction)
+     With inside dimensions:  blank = Σ flanges − Σ (2 × ISSB) + Σ BA
+     K-factor (neutral line position / T) is taken from DIN 6935 for the R / T ratio,
+     with a small correction for the material, or typed in by hand. */
+  var SM_MATERIALS = [
+    {id:"crca", name:"CRCA / Mild steel", dk:0},
+    {id:"hrpo", name:"HRPO", dk:0},
+    {id:"gi", name:"GI / GP (galvanised)", dk:0},
+    {id:"ss304", name:"Stainless steel 304", dk:0.02},
+    {id:"ss316", name:"Stainless steel 316", dk:0.02},
+    {id:"al", name:"Aluminium (5052 / 1100)", dk:-0.02},
+    {id:"cu", name:"Copper / Brass", dk:-0.02}
+  ];
+  function smDefaults(){
+    return {mat:"crca", t:1.6, r:1.6, dims:"outside", kMode:"auto", k:0.33,
+            flanges:[50, 30, 50], bends:[{a:90, dir:1}, {a:90, dir:1}]};
+  }
+  function smLoad(){
+    try { var v = JSON.parse(localStorage.getItem("pmi_dd_sm") || "null"); if(v && v.flanges && v.bends) return v; } catch(e){}
+    return smDefaults();
+  }
+  function smSave(v){ try { localStorage.setItem("pmi_dd_sm", JSON.stringify(v)); } catch(e){} }
+  function smAutoK(mat, t, r){
+    var ratio = t > 0 ? r / t : 1;
+    var k = ratio >= 5 ? 1 : (ratio <= 0.1 ? 0.15 : 0.65 + 0.5 * Math.log10(ratio));   /* DIN 6935 correction factor */
+    var m = SM_MATERIALS.filter(function(x){ return x.id === mat; })[0] || SM_MATERIALS[0];
+    return Math.max(0.2, Math.min(0.5, k / 2 + m.dk));
+  }
+  function smCalc(v){
+    var T = +v.t || 0, R = +v.r || 0;
+    var K = v.kMode === "manual" ? (+v.k || 0) : smAutoK(v.mat, T, R);
+    var rows = [], sumF = v.flanges.reduce(function(a, x){ return a + (+x || 0); }, 0), corr = 0;
+    v.bends.forEach(function(b, i){
+      var A = Math.max(1, Math.min(179, +b.a || 90)), rad = A * Math.PI / 180;
+      var BA = rad * (R + K * T);
+      var SB = (v.dims === "outside" ? (R + T) : R) * Math.tan(rad / 2);
+      var c = v.dims === "outside" ? -(2 * SB - BA) : -(2 * SB) + BA;
+      corr += c;
+      rows.push({n:i + 1, a:A, ba:BA, sb:SB, bd:2 * SB - BA, c:c});
+    });
+    return {T:T, R:R, K:K, sumF:sumF, corr:corr, blank:sumF + corr, rows:rows};
+  }
+  function smProfileSvg(v, res){
+    /* draw the bent part along its centre line, scaled to fit */
+    var pts = [[0, 0]], ang = 0, x = 0, y = 0;
+    v.flanges.forEach(function(L, i){
+      L = Math.max(0, +L || 0);
+      x += L * Math.cos(ang); y += L * Math.sin(ang); pts.push([x, y]);
+      var b = v.bends[i]; if(b) ang += (b.dir || 1) * (Math.max(1, Math.min(179, +b.a || 90))) * Math.PI / 180;
+    });
+    var xs = pts.map(function(p){ return p[0]; }), ys = pts.map(function(p){ return p[1]; });
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var w = Math.max(maxX - minX, 1), h = Math.max(maxY - minY, 1), W = 300, H = 170, pad = 22;
+    var sc = Math.min((W - 2 * pad) / w, (H - 2 * pad) / h);
+    var P = pts.map(function(p){ return [(pad + (p[0] - minX) * sc + ((W - 2 * pad) - w * sc) / 2).toFixed(1),
+                                         (H - pad - (p[1] - minY) * sc - ((H - 2 * pad) - h * sc) / 2).toFixed(1)]; });
+    var path = P.map(function(p, i){ return (i ? "L" : "M") + p[0] + " " + p[1]; }).join(" ");
+    var labels = v.flanges.map(function(L, i){
+      var a = P[i], b = P[i + 1]; if(!b) return "";
+      var dx = b[0] - a[0], dy = b[1] - a[1], len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var nx = dy / len * 11, ny = -dx / len * 11;               /* label sits beside the line */
+      return '<text x="' + ((+a[0] + +b[0]) / 2 + nx).toFixed(1) + '" y="' + ((+a[1] + +b[1]) / 2 + ny + 3).toFixed(1) + '" text-anchor="middle" class="smlbl">' + (+L || 0) + '</text>';
+    }).join("");
+    var dots = P.slice(1, -1).map(function(p){ return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.2" class="smbend"/>'; }).join("");
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="smsvg" role="img" aria-label="Bent profile preview">' +
+      '<path d="' + path + '" class="smpath"/>' + dots + labels + '</svg>';
+  }
+
+  /* ---------- Tool 2: Feasibility review — new enquiry (Distribution Box) ----------
+     Filled on screen, saved for the team (collection "feas"), printed on one A4
+     page in the company format. */
+  var FR_SECTIONS = [
+    ["A. DRAWING & TECHNICAL", ["GA drawing / BOM received and clearly understood?",
+      "IP protection required? (IP42 / IP54 / IP65 – specify)",
+      "Sheet material, thickness & grade specified? (CRCA / GI / SS)",
+      "Surface finish / powder coat shade (RAL) specified?",
+      "Any non-standard or special items in BOM?",
+      "Any query / technical discussion needed with customer?"]],
+    ["B. MANUFACTURING", ["CNC punching & bending feasible in-house?",
+      "Fabrication & welding feasible?",
+      "Powder coating feasible in-house?",
+      "Assembly / wiring manpower available?",
+      "New tooling, fixture or machine required?",
+      "Any outsourced process? (specify process, supplier, lead time)"]],
+    ["C. MATERIAL & QUALITY", ["Raw material & bought-out items available (or equivalent OK)?",
+      "Testing requirement can be met? (IP test, HV, insulation etc.)",
+      "Customer inspection / quality documents required?"]],
+    ["D. COMMERCIAL & DELIVERY", ["Delivery lead time achievable with current capacity?",
+      "Packing & transport requirement clear? (export packing if any)",
+      "Any capital investment or major risk involved?"]]
+  ];
+  var FR_DEPTS = ["Sales / Marketing", "Design", "Production", "Quality", "Purchase"];
+  var FR_HEAD = [["enq","Enquiry No. / Date"],["cust","Customer Name"],["prod","Product Name"],["dwg","Drawing No. / Rev"],
+                 ["size","Enclosure Size (H x W x D)"],["qty","Sample Qty / Order Qty"],["deliv","Expected Delivery Date"]];
+  function frBlank(){
+    var o = {id:"", formatNo:"", revDate:"", enq:"", cust:"", prod:"", dwg:"", size:"", qty:"", deliv:"", orderType:"",
+             ans:{}, rem:{}, concl:"", concRem:"", sign:{}, approved:""};
+    return o;
+  }
+  function frLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_fr") || "null"); if(v && v.ans) return v; } catch(e){} return frBlank(); }
+  function frSave(v){ try { localStorage.setItem("pmi_dd_fr", JSON.stringify(v)); } catch(e){} }
+  function frEsc(t){ return String(t == null ? "" : t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function frDate(sv){ if(!sv) return ""; var p = String(sv).split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : sv; }
+
+  /* the printed page — same layout as the company form */
+  function frPrintHtml(v){
+    var box = function(on){ return on ? "&#9745;" : "&#9744;"; };
+    var cell = function(k){ var x = v[k] || ""; return frEsc(k === "deliv" ? frDate(x) : x); };
+    var h = '<div class="frp">' +
+      '<table class="frt"><tr><td class="frlogo" colspan="3"><span class="nmdlogo frlogoimg"></span><span class="frco">Nasik Metaldust Pvt. Ltd.</span></td>' +
+      '<td class="frfmt">Format No.:<br>Rev / Date:</td></tr>' +
+      '<tr><td class="frband" colspan="4">FEASIBILITY REVIEW – NEW ENQUIRY (Distribution Box)</td></tr>' +
+      '<tr><th class="frl">Enquiry No. / Date</th><td>' + cell("enq") + '</td><th class="frl">Customer Name</th><td>' + cell("cust") + '</td></tr>' +
+      '<tr><th class="frl">Product Name</th><td>' + cell("prod") + '</td><th class="frl">Drawing No. / Rev</th><td>' + cell("dwg") + '</td></tr>' +
+      '<tr><th class="frl">Enclosure Size (H x W x D)</th><td>' + cell("size") + '</td><th class="frl">Sample Qty / Order Qty</th><td>' + cell("qty") + '</td></tr>' +
+      '<tr><th class="frl">Expected Delivery Date</th><td>' + cell("deliv") + '</td><th class="frl">Order Type</th><td>' +
+        box(v.orderType === "Domestic") + ' Domestic &nbsp; ' + box(v.orderType === "Export") + ' Export</td></tr></table>' +
+      '<table class="frt frcheck"><colgroup><col style="width:6%"><col style="width:48%"><col style="width:11%"><col style="width:35%"></colgroup>' +
+      '<tr class="frhd"><th>Sr.</th><th>Check Point</th><th>Yes / No /<br>NA</th><th>Remarks / Details</th></tr>';
+    var n = 0;
+    FR_SECTIONS.forEach(function(sec){
+      h += '<tr class="frsec"><td colspan="4">' + frEsc(sec[0]) + '</td></tr>';
+      sec[1].forEach(function(q){
+        n++;
+        h += '<tr class="frq"><td class="c">' + n + '</td><td>' + frEsc(q) + '</td><td class="c"><b>' + frEsc(v.ans[n] || "") + '</b></td><td>' + frEsc(v.rem[n] || "") + '</td></tr>';
+      });
+    });
+    h += '</table><table class="frt"><colgroup><col style="width:34%"><col style="width:66%"></colgroup>' +
+      '<tr><th class="frl frsoft">CONCLUSION (tick one)</th><td class="c frconc">' +
+        box(v.concl === "Feasible") + ' <b>Feasible</b> &nbsp;&nbsp; ' + box(v.concl === "Feasible with changes") + ' <b>Feasible with changes</b> &nbsp;&nbsp; ' +
+        box(v.concl === "Not Feasible") + ' <b>Not Feasible</b></td></tr>' +
+      '<tr><th class="frl frsoft frtall">Remarks / Changes / Reason:</th><td class="frtall">' + frEsc(v.concRem).replace(/\n/g, "<br>") + '</td></tr></table>' +
+      '<table class="frt"><colgroup><col style="width:34%"><col style="width:20%"><col style="width:11%"><col style="width:35%"></colgroup>' +
+      '<tr><td class="frband" colspan="4">SIGN-OFF (CFT)</td></tr>' +
+      '<tr class="frhd2"><th>Department</th><th>Name</th><th>Date</th><th>Signature</th></tr>';
+    FR_DEPTS.forEach(function(d){
+      var sg = v.sign[d] || {};
+      h += '<tr class="frsg"><td>' + frEsc(d) + '</td><td>' + frEsc(sg.name || "") + '</td><td class="c">' + frEsc(frDate(sg.date || "")) + '</td><td></td></tr>';
+    });
+    h += '<tr><th class="frl" colspan="2">Approved by (Plant Head / MD): ' + frEsc(v.approved) + '</th><td colspan="2"></td></tr></table></div>';
+    return h;
+  }
+  function frPrint(v){
+    var area = document.getElementById("printArea");
+    if(!area){ area = document.createElement("div"); area.id = "printArea"; document.body.appendChild(area); }
+    area.innerHTML = frPrintHtml(v);
+    document.body.classList.add("printing");
+    var done = function(){ document.body.classList.remove("printing"); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    setTimeout(function(){
+      try { window.print(); } catch(e){}
+      setTimeout(done, 1500);
+    }, 60);
+  }
+  function frStore(v){
+    var id = v.id || ("FR-" + Date.now().toString(36));
+    var doc = Object.assign({}, v, {id:id, savedBy:state.who, savedAt:new Date().toISOString()});
+    v.id = id; frSave(v);
+    state.feas = (state.feas || []).filter(function(x){ return x.id !== id; }).concat([doc]);
+    if(state.db) state.db.doc("feas/" + id).set(doc).catch(onWriteErr);
+    banner("Feasibility review saved" + (v.cust ? " — " + v.cust : "") + ".");
+    setTimeout(function(){ banner(""); }, 4000);
+    render();
+  }
+  function frLoadSaved(){
+    if(state.feasLoaded || !state.db) return;
+    state.feasLoaded = true;
+    state.db.collection("feas").get().then(function(snap){
+      state.feas = snap.docs.map(function(d){ var o = Object.assign({}, d.data() || {}); o.id = d.id; return o; });
+      if(state.tab === "tools") render();
+    }).catch(function(){});
+  }
+  function feasibilityCard(){
+    frLoadSaved();
+    var v = frLoad();
+    var card = el("div",{class:"card frcard"});
+    card.appendChild(el("div",{class:"cardhead"},[ el("h3",{},["Feasibility review — new enquiry"]),
+      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Distribution Box · fill it here, save it for the team and print it in the company format."]),
+      el("div",{class:"spacer", style:"flex:1"}),
+      el("button",{class:"btn sm primary", type:"button", onclick:function(){ frPrint(frLoad()); }},["Print form"]) ]));
+    var body = el("div",{class:"cardbody frbody"});
+    card.appendChild(body);
+    function inp(key, type, ph){
+      var i = el("input",{type:type || "text", value:v[key] || "", placeholder:ph || ""});
+      i.addEventListener("input", function(){ v[key] = i.value; frSave(v); });
+      return i;
+    }
+    /* fill from a project */
+    var projSel = el("select",{onchange:function(){
+      var p = projById(projSel.value); if(!p) return;
+      v.cust = p.customer || ""; v.prod = p.name || ""; frSave(v); render();
+    }},[el("option",{value:""},["Fill customer and product from a project…"])].concat(
+      state.projects.filter(isActive).sort(function(a, b){ return (a.customer + a.name).localeCompare(b.customer + b.name); })
+        .map(function(p){ return el("option",{value:p.id},[p.customer + " · " + p.name]); })));
+    var custList = el("datalist",{id:"frCustList"}, state.customers.map(function(c){ return el("option",{value:c.name}); }));
+    var head = el("div",{class:"formgrid frhead"});
+    FR_HEAD.forEach(function(f){
+      var i = inp(f[0], f[0] === "deliv" ? "date" : "text");
+      if(f[0] === "cust") i.setAttribute("list", "frCustList");
+      head.appendChild(el("div",{class:"field"},[ el("label",{},[f[1]]), i ]));
+    });
+    var ot = el("div",{class:"frseg"}, ["Domestic","Export"].map(function(o){
+      return el("button",{type:"button", class:"btn sm" + (v.orderType === o ? " on" : ""), onclick:function(){ v.orderType = v.orderType === o ? "" : o; frSave(v); render(); }},[o]);
+    }));
+    head.appendChild(el("div",{class:"field"},[ el("label",{},["Order Type"]), ot ]));
+    body.appendChild(el("div",{class:"frtop"},[ projSel, custList ]));
+    body.appendChild(head);
+    /* check points */
+    var n = 0, tbl = el("div",{class:"frchecks"});
+    FR_SECTIONS.forEach(function(sec){
+      tbl.appendChild(el("div",{class:"frsechd"},[sec[0]]));
+      sec[1].forEach(function(q){
+        n++; var k = n;
+        var rem = el("input",{type:"text", value:v.rem[k] || "", placeholder:"Remarks / details"});
+        rem.addEventListener("input", function(){ v.rem[k] = rem.value; frSave(v); });
+        tbl.appendChild(el("div",{class:"frrow"},[
+          el("span",{class:"frn"},[String(k)]), el("span",{class:"frq"},[q]),
+          el("div",{class:"frseg"}, ["Yes","No","NA"].map(function(o){
+            return el("button",{type:"button", class:"btn sm" + (v.ans[k] === o ? " on" + (o === "No" ? " no" : "") : ""),
+              onclick:function(){ v.ans[k] = v.ans[k] === o ? "" : o; frSave(v); render(); }},[o]); })),
+          rem ]));
+      });
+    });
+    body.appendChild(tbl);
+    var answered = Object.keys(v.ans).filter(function(k){ return v.ans[k]; }).length;
+    /* conclusion */
+    var cr = el("textarea",{placeholder:"Remarks / changes / reason"}); cr.value = v.concRem || "";
+    cr.addEventListener("input", function(){ v.concRem = cr.value; frSave(v); });
+    body.appendChild(el("div",{class:"frconcl"},[
+      el("h4",{},["Conclusion"]),
+      el("div",{class:"frseg"}, ["Feasible","Feasible with changes","Not Feasible"].map(function(o){
+        return el("button",{type:"button", class:"btn" + (v.concl === o ? " on" + (o === "Not Feasible" ? " no" : "") : ""), onclick:function(){ v.concl = v.concl === o ? "" : o; frSave(v); render(); }},[o]); })),
+      cr ]));
+    /* sign-off */
+    var sg = el("div",{class:"frsign"},[ el("h4",{},["Sign-off (CFT)"]) ]);
+    FR_DEPTS.forEach(function(d){
+      var o = v.sign[d] || (v.sign[d] = {});
+      var nm = el("input",{type:"text", value:o.name || "", placeholder:"Name"}); nm.addEventListener("input", function(){ o.name = nm.value; frSave(v); });
+      var dt = el("input",{type:"date", value:o.date || ""}); dt.addEventListener("input", function(){ o.date = dt.value; frSave(v); });
+      sg.appendChild(el("div",{class:"frsgrow"},[ el("span",{},[d]), nm, dt ]));
+    });
+    sg.appendChild(el("div",{class:"frsgrow"},[ el("span",{},["Approved by (Plant Head / MD)"]), inp("approved", "text", "Name") ]));
+    body.appendChild(sg);
+    body.appendChild(el("div",{class:"fractions"},[
+      el("span",{class:"muted", style:"font-size:12.5px"},[answered + " of 18 check points answered" + (v.id ? " · saved form" : " · new form")]),
+      el("div",{class:"spacer", style:"flex:1"}),
+      el("button",{class:"btn ghost", type:"button", onclick:function(){ frSave(frBlank()); render(); }},["New / clear form"]),
+      el("button",{class:"btn", type:"button", onclick:function(){ frStore(v); }},["Save for the team"]),
+      el("button",{class:"btn primary", type:"button", onclick:function(){ frPrint(v); }},["Print form"]) ]));
+    body.appendChild(el("p",{class:"muted", style:"font-size:12px;margin:8px 0 0"},[
+      "Print opens your browser's print window — choose your printer, or \"Save as PDF\". Signatures are left blank for signing by hand."]));
+    /* saved forms */
+    var saved = (state.feas || []).slice().sort(function(a, b){ return String(b.savedAt).localeCompare(String(a.savedAt)); });
+    if(saved.length){
+      body.appendChild(el("div",{class:"frsaved"},[ el("h4",{},["Saved reviews"]),
+        el("div",{class:"card"}, saved.slice(0, 30).map(function(f){
+          return el("div",{class:"task"},[
+            el("div",{class:"taskmain"},[ el("div",{class:"tt"},[(f.cust || "—") + " · " + (f.prod || "—")]),
+              el("div",{class:"tmeta"},[ f.enq ? el("span",{class:"chip"},[f.enq]) : null,
+                f.concl ? el("span",{class:"chip " + (f.concl === "Not Feasible" ? "over" : (f.concl === "Feasible" ? "today" : "p2"))},[f.concl]) : null,
+                el("span",{class:"chip plain"},[memberName(f.savedBy) + " · " + fmtDate(String(f.savedAt || "").slice(0, 10))]) ]) ]),
+            el("div",{class:"taskact"},[
+              el("button",{class:"btn sm", type:"button", onclick:function(){ frSave(JSON.parse(JSON.stringify(f))); render(); window.scrollTo({top:0}); }},["Open"]),
+              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ frPrint(f); }},["Print"]),
+              el("button",{class:"btn sm ghost", type:"button", title:"Delete this saved review", onclick:function(){
+                if(state.frDel !== f.id){ state.frDel = f.id; render(); return; }
+                state.frDel = null; state.feas = state.feas.filter(function(x){ return x.id !== f.id; });
+                if(state.db) state.db.doc("feas/" + f.id).delete().catch(onWriteErr); render();
+              }},[state.frDel === f.id ? "Click again to delete" : "✕"]) ])
+          ]);
+        })) ]));
+    }
+    return card;
+  }
+  function sheetMetalCard(){
+    var v = smLoad();
+    var card = el("div",{class:"card smcard"});
+    card.appendChild(el("div",{class:"cardhead"},[ el("h3",{},["Sheet metal blank length"]),
+      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Flat (developed) length of a bent part from the flange sizes, bend radius, thickness and material."]) ]));
+    var body = el("div",{class:"cardbody smbody"});
+    card.appendChild(body);
+
+    function num(val, on, attrs){
+      var i = el("input", Object.assign({type:"number", step:"any", min:"0", value:String(val), inputmode:"decimal"}, attrs || {}));
+      i.addEventListener("input", function(){ on(i.value); update(); });
+      return i;
+    }
+    var out = el("div",{class:"smout"});
+    var bendsBox = el("div",{class:"smbends"});
+    var kBox = el("div",{class:"field"});
+
+    function update(){
+      smSave(v);
+      var r = smCalc(v);
+      out.innerHTML = "";
+      var bad = !(r.T > 0) || v.flanges.some(function(x){ return !(+x > 0); });
+      out.appendChild(el("div",{class:"smresult"},[
+        el("span",{class:"smlab"},["Blank length"]),
+        el("b",{},[bad ? "—" : r.blank.toFixed(2)]), el("span",{class:"smunit"},["mm"]),
+        el("button",{class:"btn sm", type:"button", title:"Copy the blank length", onclick:function(){
+          var txt = r.blank.toFixed(2);
+          try { navigator.clipboard.writeText(txt).then(function(){ banner("Copied " + txt + " mm"); setTimeout(function(){ banner(""); }, 2500); }, function(){}); } catch(e){}
+        }},["Copy"])
+      ]));
+      out.appendChild(el("p",{class:"smsub"},[
+        "Flanges " + r.sumF.toFixed(2) + " mm " + (r.corr < 0 ? "− " : "+ ") + Math.abs(r.corr).toFixed(2) + " mm for " + r.rows.length + " bend" + (r.rows.length === 1 ? "" : "s") +
+        " · K = " + r.K.toFixed(3) + (v.kMode === "auto" ? " (auto)" : " (manual)") + " · R/T = " + (r.T > 0 ? (r.R / r.T).toFixed(2) : "—")]));
+      var tb = el("tbody", {}, r.rows.map(function(x){
+        return el("tr",{},[ el("td",{},["Bend " + x.n]), el("td",{class:"n"},[x.a + "°"]),
+          el("td",{class:"n"},[x.ba.toFixed(3)]), el("td",{class:"n"},[x.sb.toFixed(3)]),
+          el("td",{class:"n"},[x.bd.toFixed(3)]), el("td",{class:"n"},[(x.c >= 0 ? "+" : "") + x.c.toFixed(3)]) ]);
+      }));
+      out.appendChild(el("div",{class:"tablewrap"},[ el("table",{class:"smtable"},[
+        el("thead",{},[el("tr",{},[ el("th",{},["Bend"]), el("th",{class:"n"},["Angle"]), el("th",{class:"n", title:"Bend allowance"},["BA"]),
+          el("th",{class:"n", title:v.dims === "outside" ? "Outside setback" : "Inside setback"},[v.dims === "outside" ? "OSSB" : "ISSB"]),
+          el("th",{class:"n", title:"Bend deduction"},["BD"]), el("th",{class:"n", title:"How much this bend changes the blank"},["± blank"]) ])]), tb ]) ]));
+      var pv = el("div",{class:"smpreview"}); pv.innerHTML = smProfileSvg(v, r);
+      out.appendChild(pv);
+      kBox.querySelector(".smkauto") && (kBox.querySelector(".smkauto").textContent = "auto: " + smAutoK(v.mat, +v.t, +v.r).toFixed(3));
+    }
+    function drawBends(){
+      bendsBox.innerHTML = "";
+      v.flanges.forEach(function(L, i){
+        bendsBox.appendChild(el("div",{class:"smrow"},[
+          el("span",{class:"smtag"},["Flange " + (i + 1)]),
+          num(L, function(x){ v.flanges[i] = +x; }, {"aria-label":"Flange " + (i + 1) + " length in mm"}),
+          el("span",{class:"smunit"},["mm"])
+        ]));
+        var b = v.bends[i];
+        if(b){
+          var dir = el("select",{"aria-label":"Bend " + (i + 1) + " direction", onchange:function(){ b.dir = +dir.value; update(); }},[
+            el("option",{value:"1", selected:b.dir !== -1 ? "selected" : null},["up ↑"]), el("option",{value:"-1", selected:b.dir === -1 ? "selected" : null},["down ↓"]) ]);
+          bendsBox.appendChild(el("div",{class:"smrow smbendrow"},[
+            el("span",{class:"smtag"},["Bend " + (i + 1)]),
+            num(b.a, function(x){ b.a = +x; }, {min:"1", max:"179", "aria-label":"Bend " + (i + 1) + " angle in degrees"}),
+            el("span",{class:"smunit"},["°"]), dir
+          ]));
+        }
+      });
+      bendsBox.appendChild(el("div",{class:"smrow smadd"},[
+        el("button",{class:"btn sm", type:"button", onclick:function(){ v.bends.push({a:90, dir:1}); v.flanges.push(25); drawBends(); update(); }},["+ Add bend"]),
+        v.bends.length ? el("button",{class:"btn sm ghost", type:"button", onclick:function(){ v.bends.pop(); v.flanges.pop(); drawBends(); update(); }},["− Remove last bend"]) : null,
+        el("button",{class:"btn sm ghost", type:"button", onclick:function(){ smSave(smDefaults()); render(); }},["Reset"])
+      ]));
+    }
+    var mat = el("select",{onchange:function(){ v.mat = mat.value; update(); }},
+      SM_MATERIALS.map(function(m){ return el("option",{value:m.id, selected:m.id === v.mat ? "selected" : null},[m.name]); }));
+    var dims = el("select",{onchange:function(){ v.dims = dims.value; update(); }},[
+      el("option",{value:"outside", selected:v.dims === "outside" ? "selected" : null},["Outside dimensions (over the bends)"]),
+      el("option",{value:"inside", selected:v.dims === "inside" ? "selected" : null},["Inside dimensions"]) ]);
+    var rIn = num(v.r, function(x){ v.r = +x; });
+    var kMode = el("select",{onchange:function(){ v.kMode = kMode.value; kIn.disabled = v.kMode !== "manual"; update(); }},[
+      el("option",{value:"auto", selected:v.kMode !== "manual" ? "selected" : null},["Auto (DIN 6935 + material)"]),
+      el("option",{value:"manual", selected:v.kMode === "manual" ? "selected" : null},["Type my own"]) ]);
+    var kIn = num(v.k, function(x){ v.k = +x; }, {min:"0", max:"0.5", step:"0.01"});
+    kIn.disabled = v.kMode !== "manual";
+    kBox.appendChild(el("label",{},["K-factor"]));
+    kBox.appendChild(el("div",{class:"smrow"},[ kMode, kIn, el("span",{class:"smkauto muted"},[""]) ]));
+
+    body.appendChild(el("div",{class:"smgrid"},[
+      el("div",{class:"sminputs"},[
+        el("div",{class:"formgrid"},[
+          el("div",{class:"field"},[ el("label",{},["Material"]), mat ]),
+          el("div",{class:"field"},[ el("label",{},["Thickness T (mm)"]), num(v.t, function(x){ v.t = +x; }) ]),
+          el("div",{class:"field"},[ el("label",{},["Inside bend radius R (mm)"]), el("div",{class:"smrow"},[ rIn,
+            el("button",{class:"btn sm ghost", type:"button", title:"Set the radius equal to the thickness", onclick:function(){ v.r = +v.t; rIn.value = String(v.r); update(); }},["R = T"]) ]) ]),
+          el("div",{class:"field"},[ el("label",{},["Flange sizes are"]), dims ])
+        ]),
+        kBox,
+        el("h4",{class:"smh"},["Flanges and bends (in order along the part)"]),
+        bendsBox
+      ]),
+      out
+    ]));
+    body.appendChild(el("p",{class:"muted smnote"},[
+      "Bend allowance BA = π·A/180·(R + K·T). With outside sizes, each bend takes off the bend deduction (2·(R+T)·tan(A/2) − BA); " +
+      "with inside sizes, each bend takes off 2·R·tan(A/2) and adds BA. A = angle bent through (90° for an L). " +
+      "Check the first part on the press brake and use \"Type my own\" K-factor if your tooling gives a different result."]));
+    drawBends(); update();
+    return card;
+  }
+  /* the Tools tab: every tool is an app tile; open one to use it */
+  var TOOLS = [
+    {id:"cal", name:"Company calendar", desc:"Company paid leaves (holidays) and weekly offs. No tasks are given on these days.",
+     tag:"Calendar", open:function(){ return calendarCard(function(){ render(); }); },
+     icon:'<rect x="5" y="8" width="30" height="27" rx="3"/><path d="M5 16h30M13 4v8M27 4v8"/><path d="M12 23h4M20 23h4M28 23h0M12 29h4M20 29h4"/>'},
+    {id:"blank", name:"Sheet metal blank length", desc:"Flat length of a bent part from flanges, bend radius, thickness and material.",
+     tag:"Calculator", open:sheetMetalCard,
+     icon:'<path d="M5 30V12a4 4 0 0 1 4-4h22a4 4 0 0 1 4 4v18"/><path d="M5 30h30"/><path d="M11 24h18" stroke-dasharray="3 3"/><path d="M11 8v-3M29 8v-3M11 5h18"/>'},
+    {id:"feas", name:"Feasibility review", desc:"New enquiry (Distribution Box) — fill the 18 check points, save for the team and print.",
+     tag:"Form · Print", open:feasibilityCard,
+     icon:'<rect x="8" y="5" width="24" height="31" rx="2.5"/><path d="M14 5v-1h12v1"/><path d="M13 14l2 2 3-4M13 22l2 2 3-4M13 30l2 2 3-4"/><path d="M21 14h6M21 22h6M21 30h6"/>'}
+  ];
+  function viewTools(){
+    var wrap = el("div");
+    var tool = TOOLS.filter(function(t){ return t.id === state.tool; })[0];
+    if(tool){
+      wrap.appendChild(blockHead(tool.name, tool.tag, el("button",{class:"btn sm", type:"button",
+        onclick:function(){ state.tool = null; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"}); }},["← All tools"])));
+      wrap.appendChild(tool.open());
+      return wrap;
+    }
+    wrap.appendChild(blockHead("Tools", "Open a tool to use it.", null));
+    var saved = (state.feas || []).length;
+    wrap.appendChild(el("div",{class:"toolgrid"}, TOOLS.map(function(t){
+      var tile = el("button",{class:"toolapp", type:"button", "aria-label":"Open " + t.name, onclick:function(){
+        state.tool = t.id; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"});
+      }});
+      var ic = el("span",{class:"toolicon"}); ic.innerHTML = '<svg viewBox="0 0 40 40" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + t.icon + '</svg>';
+      tile.appendChild(ic);
+      tile.appendChild(el("span",{class:"toolname"},[t.name]));
+      tile.appendChild(el("span",{class:"tooldesc"},[t.desc]));
+      tile.appendChild(el("span",{class:"tooltag"},[t.tag + (t.id === "feas" && saved ? " · " + saved + " saved" : "")]));
+      return tile;
+    }).concat([ el("div",{class:"toolapp soon", "aria-hidden":"true"},[
+      el("span",{class:"toolicon"},["+"]), el("span",{class:"toolname"},["More tools coming"]),
+      el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ])));
+    if(state.db) frLoadSaved();
+    return wrap;
+  }
   function viewValue(){
     var wrap = el("div");
     var mk = shiftMonth(state.monthOffset);
@@ -6687,8 +7613,8 @@ body.cad[data-sec]{--sec:var(--sel)}
   }
 
   /* ---------- CAD workspace chrome: path bar, title block, status bar ---------- */
-  var CAD_TABS = ["today","projects","customers","team","value"];
-  var CAD_NAMES = {today:"Today's Work", projects:"Projects", customers:"Customers", team:"Team", value:"Value"};
+  var CAD_TABS = ["today","projects","customers","team","value","tools"];
+  var CAD_NAMES = {today:"Today's Work", projects:"Projects", customers:"Customers", team:"Team", value:"Value", tools:"Tools"};
   var CAD_SUBS = {live:"Live Projects", qve:"QVE Projects", special:"Special DBs"};
   var cadXY = {x:0, y:0};
   function cadSvgProj(){
@@ -6705,7 +7631,7 @@ body.cad[data-sec]{--sec:var(--sel)}
         sbc.appendChild(el("span",{},[state.pinFor ? "Enter the PIN for " : "Select your name to sign in",
           state.pinFor ? el("b",{},[memberName(state.pinFor)]) : null]));
         sbc.appendChild(el("span",{class:"sp"}));
-        sbc.appendChild(el("span",{},["Sheet ", el("b",{},["0 / 5"])]));
+        sbc.appendChild(el("span",{},["Sheet ", el("b",{},["0 / " + CAD_TABS.length])]));
         sbc.appendChild(el("span",{},["Version ", el("b",{},[APP_VERSION])]));
         sbc.appendChild(el("span",{},["MMGS"]));
         sbc.appendChild(el("span",{},["Grid ", el("b",{},["ON"])]));
@@ -6806,6 +7732,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     else if(state.tab === "customers") v.appendChild(viewCustomers());
     else if(state.tab === "team") v.appendChild(viewTeam());
     else if(state.tab === "value") v.appendChild(viewValue());
+    else if(state.tab === "tools") v.appendChild(viewTools());
     else v.appendChild(viewToday());
     v.appendChild(statusLine());
     if(state.enterAnim && state.ready){ state.enterAnim = false; playEnter(v); }
