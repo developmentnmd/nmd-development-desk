@@ -1464,6 +1464,74 @@ button.calcell:hover{border-color:var(--sel)}
 .cad .smbl{stroke:var(--hot); stroke-width:1.3; stroke-dasharray:7 4}
 .cad .smdim{stroke:var(--ink2); stroke-width:1}
 .cad .smdt{font:600 11px var(--mono, ui-monospace, monospace); fill:var(--ink)}
+
+/* DB costing tool */
+.cofindbox{display:grid; gap:8px; padding:12px; border:1px solid color-mix(in srgb, var(--sel) 35%, var(--line)); border-radius:8px;
+  background:color-mix(in srgb, var(--sel) 5%, var(--paper)); min-width:0}
+.cofindbox h4{margin:0}
+.cofind{max-height:360px; overflow:auto; min-width:0}
+.cofind .cotable td{padding:5px 6px}
+.cocodecell{font-family:var(--mono, ui-monospace, monospace); white-space:nowrap}
+.cocard .cobody{display:grid; gap:14px; min-width:0}
+.cocard .cohead{grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:800px){ .cocard .cohead{grid-template-columns:repeat(2, minmax(0,1fr))} .cocard .cowide{grid-column:1 / -1} }
+.cocard .cohead input{width:100%}
+.costrip{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px}
+@media (max-width:700px){ .costrip{grid-template-columns:repeat(2, minmax(0,1fr))} }
+.costrip > div{display:grid; gap:2px; padding:10px 12px; border:1px solid var(--frame, var(--line)); border-radius:6px; background:var(--paper); min-width:0}
+.costrip span:first-child{font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--ink2)}
+.costrip span:last-child{font-family:var(--mono, ui-monospace, monospace); font-size:18px; font-weight:600; color:var(--ink); overflow-wrap:anywhere}
+.costrip .net{background:color-mix(in srgb, #92D050 22%, var(--paper)); border-color:color-mix(in srgb, #5a9a1e 55%, transparent)}
+.costrip .net span:last-child{font-size:22px}
+.cotabs{display:flex; gap:0; flex-wrap:wrap; border-bottom:2px solid var(--frame, var(--line))}
+.cotab{font:600 13px/1 inherit; padding:9px 16px; border:1px solid var(--frame, var(--line)); border-bottom:0; border-radius:6px 6px 0 0; margin-right:-1px; margin-bottom:-2px;
+  background:var(--surface, transparent); color:var(--ink2); cursor:pointer}
+.cotab.on{background:var(--paper); color:var(--ink); border-color:var(--frame, var(--line)); box-shadow:inset 0 3px 0 #2e7d32; border-bottom:2px solid var(--paper)}
+.copane{display:grid; gap:12px; min-width:0}
+.cotable{width:100%; border-collapse:collapse; font-size:12.5px}
+.cotable th{font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.05em; text-transform:uppercase; text-align:left; padding:7px 6px;
+  background:color-mix(in srgb, #FFC000 26%, var(--paper)); border-bottom:1px solid var(--frame, var(--line)); white-space:nowrap}
+.cotable td{padding:4px 6px; border-bottom:1px solid var(--frame-soft, var(--line)); vertical-align:middle}
+.cotable .n{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.cotable tr.tot td, .cotable tr.tot{font-weight:700; background:color-mix(in srgb, #FFC000 14%, var(--paper))}
+.cotable tr.net td{font-weight:700; font-size:14px; background:color-mix(in srgb, #92D050 26%, var(--paper))}
+.cotable input{font-size:12.5px; padding:4px 6px}
+.cotable .coin{width:84px; text-align:right; background:color-mix(in srgb, #FABF8F 22%, var(--paper))}
+.cotable .coin.sm{width:60px}
+.cotable .coin.need{border-color:var(--crit); background:color-mix(in srgb, var(--crit) 8%, var(--paper))}
+.cotable .coname{width:180px}
+.cotable .cocode{width:110px; font-family:var(--mono, ui-monospace, monospace)}
+.cotable .coasm{width:120px}
+.cotable .coinfo{min-width:220px}
+.cosum td:first-child{font-weight:600}
+.copct{width:70px; text-align:right}
+.copctw{display:inline-flex; gap:4px; align-items:center}
+.corates{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px; padding:10px 0 4px}
+.corates input{width:100%; background:color-mix(in srgb, #92D050 16%, var(--paper))}
+.codetails summary{cursor:pointer; font-weight:600; font-size:13px; padding:6px 0}
+.coacts{display:flex; gap:8px; flex-wrap:wrap; align-items:center; min-width:0}
+.copaste textarea{width:100%; min-height:70px; margin:6px 0}
+.copaste{flex:1 1 300px}
+.codue{padding:10px 12px; border-radius:6px; border:1px solid color-mix(in srgb, var(--hot, #e8a33d) 60%, transparent);
+  background:color-mix(in srgb, var(--hot, #e8a33d) 12%, var(--paper)); font-size:13px; display:flex; gap:6px 10px; flex-wrap:wrap; align-items:center}
+.cmhead{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+.cmstat{display:grid; gap:2px; padding:8px 14px; border:1px solid var(--frame, var(--line)); border-radius:6px; min-width:110px}
+.cmstat b{font-family:var(--mono, ui-monospace, monospace); font-size:20px}
+.cmstat span{font-size:11px; color:var(--ink2); text-transform:uppercase; letter-spacing:.05em}
+.cmstat.due{border-color:var(--hot, #e8a33d); background:color-mix(in srgb, var(--hot, #e8a33d) 12%, var(--paper))}
+.comaster{display:grid; gap:14px; min-width:0}
+.cmupd{display:grid; gap:8px; padding:12px; border:1px dashed var(--frame, var(--line)); border-radius:8px}
+.cmupd h4, .cmhist h4{margin:0}
+.cmupd p{margin:0; font-size:12.5px}
+.cmfile{max-width:100%}
+.cmprev{display:grid; gap:6px; padding:10px; border-radius:6px; background:var(--surface, transparent); font-size:13px}
+.cmprev p, .cmprev ul{margin:0}
+.cmadd{display:flex; gap:6px; flex-wrap:wrap; padding:8px 0}
+.cmadd input{flex:1 1 130px; min-width:0}
+.cmsearch{flex:1 1 280px; min-width:0}
+.cmnr{font-size:12.5px; display:inline-flex; gap:6px; align-items:center}
+.cmhist ul{margin:6px 0 0; padding-left:18px; font-size:12.5px}
+.tooltag.due{color:var(--crit) !important; border-color:color-mix(in srgb, var(--crit) 45%, transparent) !important}
 /* tools: app launcher */
 .cad .toolgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px}
 .cad .toolapp{display:grid; justify-items:start; align-content:start; gap:8px; text-align:left; padding:18px 18px 16px; min-height:200px;
@@ -1868,7 +1936,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "03 Nov 2026 · 3D sheet metal blank";
+  var APP_VERSION = "04 Nov 2026 · costing: find items";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -7873,6 +7941,767 @@ body.cad[data-sec]{--sec:var(--sel)}
     update();
     return card;
   }
+  /* ---------- Tool 4: DB costing (same layout as the company costing workbook) ----------
+     Sheets: Summary · Fabrication · B.O.M · TCS MASTER BOM.
+     The user only types the data; every figure is worked out here with the same
+     formulas as the workbook, and "Download Excel" writes the workbook with the
+     formulas in it. The master BOM (item list + landed rate) is shared by the
+     team, kept in Firestore in chunks, and can be updated from an Excel file. */
+  var CM_CHUNK = 300;
+  var CO_RATES = [
+    ["crca", "CRCA Sheet", 73.5, "per kg"],
+    ["gasket", "PU gasket", 17.3, "per mtr"],
+    ["p7035", "Powder Cost 7035", 0, "per kg"],
+    ["p9003", "Powder Cost - 9003", 282, "per kg"],
+    ["pcLab", "Powder Coating Labour Rate", 65, "per sq. m"],
+    ["plating", "Plating Labour Rate", 37.23, "per kg"],
+    ["cov7035", "Powder Coverage - 7035", 0, "sq m. / kg"],
+    ["cov9016", "Powder Coverage - 9016", 6.04, "sq m. / kg"],
+    ["scrap", "Scrap Rate", 37, "per kg"],
+    ["fab", "Fabrication Rate", 18, "Per Kg."],
+    ["fab12", "Fabrication Rate above 1.2", 15, "Per Kg."]
+  ];
+  var CO_ASM = ["Box Assembly", "Door Assembly", "Frame Assembly", "Packaging"];
+  function coDefaults(){
+    var r = {}; CO_RATES.forEach(function(x){ r[x[0]] = x[2]; });
+    return {id:"", sd:"", desc:"", date:today(), qty:"", rates:r, gasketM:0, ohpRm:0.06, ohp:0.07, disc:0.0105, assembly:100,
+            fab:[{d:"BOX", L:"", W:"", T:1.2, q:1, coat:true}], bom:[]};
+  }
+  /* the SD10299 costing from the workbook, as a worked example */
+  function coExample(){
+    var c = coDefaults();
+    c.sd = "SD10299"; c.desc = "CJU DB 1.2MM D2672106 0"; c.qty = 466;
+    c.fab = [["BOX",643.2,340.2],["TOP SIDE PLATE",448,98],["BOTTOM SIDE PLATE",448,98],["TOP SIDE PLATE PART",398,64],["FRAME",539.6,401.6],
+      ["DOOR (Perforated)",470.5,313],["BRACKET PART 1",170,52],["BRACKET PART 2",283,174],["BRACKET PART 3",101,55],["GI BKT SMALL SD9477",84,40,1,false],
+      ["TATA MOD SWITCH SKT",178,15,2],["GI BKT BIG",121,60,1,false]].map(function(x){ return {d:x[0], L:x[1], W:x[2], T:1.2, q:x[3] || 1, coat:x[4] !== false}; });
+    c.bom = [["Box Assembly","PI00230",3],["Box Assembly","PI00248",4],["Box Assembly","PI00250",4],["Box Assembly","PI00261",4],["Box Assembly","PI00259",2],
+      ["Box Assembly","PI00257",3],["Box Assembly","PI00256",3],["Box Assembly","PI00288",15],["Box Assembly","PI00289",16],["Box Assembly","PI00378",2],
+      ["Box Assembly","PI00614",2],["Box Assembly","PI00721",0.0941],["Door Assembly","PI00249",1],["Door Assembly","PI00283",2],["Door Assembly","PI00270",1],
+      ["Door Assembly","PI00251",2],["Door Assembly","PI00377",1],["Door Assembly","PM00305",1],["Door Assembly","SF00028",1],["Door Assembly","PI00150",1],
+      ["Door Assembly","PI00149",1],["Door Assembly","PI00247",1],["Frame Assembly","PI00448",3],["Frame Assembly","PI00290",4],["Packaging","PM00296",6],
+      ["Packaging","PI00374",1],["Packaging","PM00227",1.4],["Packaging","PM00248",0.0181],["Packaging","PM00336",1],["","RM00069",0.2533]]
+      .map(function(x){ return {asm:x[0], code:x[1], q:x[2]}; });
+    return c;
+  }
+  function coLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_co") || "null"); if(v && v.fab && v.bom && v.rates) return v; } catch(e){} return coExample(); }
+  function coSave(v){ try { localStorage.setItem("pmi_dd_co", JSON.stringify(v)); } catch(e){} }
+
+  /* ----- master BOM ----- */
+  function cmMap(){
+    if(state.cmMapFor !== state.cm) {
+      var m = {}; (state.cm || []).forEach(function(x, i){ m[String(x.c).toUpperCase()] = i; });
+      state.cmIndex = m; state.cmMapFor = state.cm;
+    }
+    return state.cmIndex;
+  }
+  function cmItem(code){ var i = cmMap()[String(code || "").trim().toUpperCase()]; return i == null ? null : state.cm[i]; }
+  /* an ERP code typed in place of the item code is turned into the item code */
+  function cmByErp(erp){
+    var k = String(erp || "").trim().toUpperCase(); if(!k) return null;
+    return (state.cm || []).filter(function(x){ return String(x.e || "").trim().toUpperCase() === k; })[0] || null;
+  }
+  /* search the master: every word must appear in code, description or ERP code */
+  function cmSearch(q, max){
+    var words = String(q || "").toLowerCase().split(/\s+/).filter(Boolean); if(!words.length) return [];
+    var out = [];
+    (state.cm || []).some(function(x){
+      var hay = (x.c + " " + x.d + " " + (x.e || "") + " " + (x.t || "")).toLowerCase();
+      if(words.every(function(w){ return hay.indexOf(w) >= 0; })) out.push(x);
+      return out.length >= (max || 30);
+    });
+    return out;
+  }
+  function cmLoad(force){
+    if(!state.db || (state.cmLoading && !force) || (state.cmLoaded && !force)) return;
+    state.cmLoading = true;
+    state.db.collection("costmaster").get().then(function(snap){
+      var meta = {}, chunks = [];
+      snap.docs.forEach(function(d){
+        var x = d.data() || {};
+        if(d.id === "meta") meta = x;
+        else if(/^c\d+$/.test(d.id)) chunks[+d.id.slice(1)] = x.i || [];
+      });
+      var all = []; chunks.forEach(function(c){ if(c) all = all.concat(c); });
+      state.cm = all; state.cmMeta = meta; state.cmLoaded = true; state.cmLoading = false; state.cmMetaChunks = chunks.length;
+      if(state.tab === "tools") render();
+    }).catch(function(){ state.cmLoading = false; state.cmLoaded = true; state.cm = state.cm || []; if(state.tab === "tools") render(); });
+  }
+  function cmWriteAll(items, metaPatch){
+    state.cm = items; state.cmMapFor = null;
+    var meta = Object.assign({}, state.cmMeta || {}, metaPatch || {}, {count:items.length, chunks:Math.ceil(items.length / CM_CHUNK)});
+    state.cmMeta = meta;
+    if(!state.db) return Promise.resolve();
+    var jobs = [], n = Math.ceil(items.length / CM_CHUNK), oldN = (state.cmMetaChunks || 0);
+    for(var i = 0; i < n; i++) jobs.push(state.db.doc("costmaster/c" + i).set({i:items.slice(i * CM_CHUNK, (i + 1) * CM_CHUNK)}));
+    for(var j = n; j < Math.max(oldN, n + 3); j++) jobs.push(state.db.doc("costmaster/c" + j).delete().catch(function(){}));
+    jobs.push(state.db.doc("costmaster/meta").set(meta));
+    state.cmMetaChunks = n;
+    return Promise.all(jobs).catch(onWriteErr);
+  }
+  function cmSetRate(code, rate){
+    var i = cmMap()[String(code).toUpperCase()];
+    if(i == null) return;
+    var it = Object.assign({}, state.cm[i], {r:+rate || 0, rb:state.who, ra:today()});
+    state.cm = state.cm.slice(); state.cm[i] = it; state.cmMapFor = null;
+    if(state.db){
+      var k = Math.floor(i / CM_CHUNK);
+      state.db.doc("costmaster/c" + k).set({i:state.cm.slice(k * CM_CHUNK, (k + 1) * CM_CHUNK)}).catch(onWriteErr);
+    }
+  }
+  function cmAddItem(it){
+    var items = (state.cm || []).concat([Object.assign({r:0}, it, {rb:state.who, ra:today()})]);
+    cmWriteAll(items, {});
+  }
+  function cmDaysOld(){
+    var at = state.cmMeta && state.cmMeta.updatedAt; if(!at) return null;
+    return Math.max(0, Math.round((Date.now() - new Date(at).getTime()) / 86400000));
+  }
+  function cmDue(){
+    if(!state.cmLoaded) return false;
+    if(!(state.cm || []).length) return true;
+    var d = cmDaysOld(), every = +(state.cmMeta && state.cmMeta.every) || 30;
+    return d == null || d >= every;
+  }
+  /* read a workbook: the item list (sheet with "Item Code") and, if there, the
+     landed rates (old master: ERP Code + Landed Cost / Rate) */
+  function cmParseWorkbook(buf){
+    var wb = XLSX.read(buf, {type:"array"});
+    function norm(v){ return String(v == null ? "" : v).replace(/ /g, " ").trim().toLowerCase(); }
+    var items = null, itemsScore = -1, itemsSheet = "", rateByErp = {}, rateSheet = "";
+    wb.SheetNames.forEach(function(name){
+      var rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, blankrows:false, defval:""});
+      for(var h = 0; h < Math.min(rows.length, 15); h++){
+        var hd = rows[h].map(norm);
+        var iCode = hd.indexOf("item code");
+        if(iCode >= 0){
+          var col = function(names){ for(var k = 0; k < names.length; k++){ var j = hd.indexOf(names[k]); if(j >= 0) return j; } return -1; };
+          var cD = col(["item description","description","component description"]), cE = col(["erp code","erp"]), cT = col(["item type","type"]),
+              cS = col(["site"]), cH = col(["hsn code","hsn"]), cR = col(["rate","landed cost","rate (landed ₹)","landed rate"]);
+          var list = [];
+          rows.slice(h + 1).forEach(function(r){
+            var c = String(r[iCode] == null ? "" : r[iCode]).trim(); if(!c) return;
+            var rate = cR >= 0 ? parseFloat(r[cR]) : NaN;
+            list.push({c:c, d:cD >= 0 ? String(r[cD]).trim() : "", e:cE >= 0 ? String(r[cE]).trim() : "", t:cT >= 0 ? String(r[cT]).trim() : "",
+                        s:cS >= 0 ? String(r[cS]).trim() : "", h:cH >= 0 ? String(r[cH]).trim() : "", r:isFinite(rate) ? rate : null});
+          });
+          /* the master is the biggest item list (a costing's own B.O.M sheet also has "Item Code") */
+          var score = list.length + (/master/i.test(name) ? 100000 : 0);
+          if(!items || score > itemsScore){ items = list; itemsScore = score; itemsSheet = name; }
+          return;
+        }
+        var iErp = hd.indexOf("erp code"), iLand = hd.indexOf("landed cost"), iRate = hd.indexOf("rate");
+        if(iErp >= 0 && (iLand >= 0 || iRate >= 0) && hd.indexOf("item code") < 0){
+          rateSheet = name;
+          rows.slice(h + 1).forEach(function(r){
+            var e = String(r[iErp] == null ? "" : r[iErp]).trim().toUpperCase(); if(!e || rateByErp[e] != null) return;
+            var v = parseFloat(iLand >= 0 ? r[iLand] : NaN); if(!isFinite(v)) v = parseFloat(iRate >= 0 ? r[iRate] : NaN);
+            if(isFinite(v)) rateByErp[e] = v;
+          });
+          return;
+        }
+      }
+    });
+    if(!items) return null;
+    items.forEach(function(it){ if(it.r == null && it.e && rateByErp[it.e.toUpperCase()] != null) it.r = rateByErp[it.e.toUpperCase()]; });
+    return {items:items, sheet:itemsSheet, rateSheet:rateSheet, rates:Object.keys(rateByErp).length};
+  }
+  function cmMerge(incoming){
+    var old = state.cm || [], map = {}, out = old.map(function(x){ return Object.assign({}, x); });
+    out.forEach(function(x, i){ map[String(x.c).toUpperCase()] = i; });
+    var added = [], changed = 0, rated = 0, seen = {};
+    incoming.forEach(function(n){
+      var k = n.c.toUpperCase(); if(seen[k]) return; seen[k] = true;
+      var i = map[k];
+      if(i == null){ out.push({c:n.c, d:n.d, e:n.e, t:n.t, s:n.s, h:n.h, r:n.r == null ? 0 : n.r, rb:n.r == null ? "" : state.who, ra:n.r == null ? "" : today()}); added.push(n); return; }
+      var x = out[i], ch = false;
+      ["d","e","t","s","h"].forEach(function(f){ if(n[f] && n[f] !== x[f]){ x[f] = n[f]; ch = true; } });
+      if(n.r != null && +n.r !== +x.r){ x.r = +n.r; x.rb = state.who; x.ra = today(); rated++; ch = true; }
+      if(ch) changed++;
+    });
+    return {items:out, added:added, changed:changed, rated:rated};
+  }
+  function cmDownload(){
+    var rows = [["Item Code","Item Description","ERP CODE","Item Type","Site","HSN Code","Rate","Rate set by","Rate date"]];
+    (state.cm || []).forEach(function(x){ rows.push([x.c, x.d, x.e, x.t, x.s, x.h, +x.r || 0, x.rb ? memberName(x.rb) : "", x.ra || ""]); });
+    var wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [17,73,24,17,9,13,10,18,12].map(function(w){ return {wch:w}; });
+    ws["!autofilter"] = {ref:"A1:I" + rows.length};
+    XLSX.utils.book_append_sheet(wb, ws, "TCS MASTER BOM");
+    var buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
+    claude.use("downloads").then(function(d){ if(d) d.save({filename:"NMD_Master_BOM_" + today() + ".xlsx", data:buf}); });
+  }
+
+  /* ----- the costing maths (same formulas as the workbook) ----- */
+  function coCalc(c){
+    var R = c.rates, n = function(x){ return +x || 0; };
+    var rows = c.fab.map(function(f){
+      var L = n(f.L), W = n(f.W), T = n(f.T), q = n(f.q);
+      var I = L * W * T * q * 0.00786 / 1000, J = I * 0.1 + I, K = I * 0.02 + (J - I), Ls = K * n(R.scrap), M = J - K;
+      var N = J * n(R.crca) - Ls, O = J * (T >= 1.2 ? n(R.fab12) : n(R.fab)), P = N + O;
+      var Q = L * W * q * 2 / 1000000;
+      var Rp = f.coat === false || !n(R.cov9016) ? 0 : Q * n(R.p9003) / n(R.cov9016);
+      var Tl = f.coat === false ? 0 : Q * n(R.pcLab), U = Tl + Rp, V = P + U;
+      return {I:I, J:J, K:K, L:Ls, M:M, N:N, O:O, P:P, Q:Q, R:Rp, T:Tl, U:U, V:V};
+    });
+    var sum = function(k){ return rows.reduce(function(a, r){ return a + r[k]; }, 0); };
+    var tot = {}; ["I","J","K","L","M","N","O","P","Q","R","T","U","V"].forEach(function(k){ tot[k] = sum(k); });
+    var bom = c.bom.map(function(b){
+      var it = cmItem(b.code), rate = it ? (+it.r || 0) : 0;
+      return {it:it, rate:rate, amt:rate * n(b.q), missing:!it, noRate:!!it && !(+it.r > 0)};
+    });
+    var bo = bom.reduce(function(a, b){ return a + b.amt; }, 0);
+    var S = {C:tot.N, D:tot.R, E:bo, F:n(c.gasketM) * n(R.gasket)};
+    S.G = S.C + S.D + S.E + S.F; S.H = tot.O; S.I = tot.T; S.J = n(c.assembly); S.K = S.H + S.I + S.J;
+    S.L = n(c.ohpRm) * S.G; S.M = S.K * n(c.ohp); S.N = S.G + S.K + S.M + S.L; S.O = S.N * n(c.disc); S.P = S.N - S.O;
+    return {rows:rows, tot:tot, bom:bom, S:S, powderKg:n(R.p9003) ? tot.R / n(R.p9003) : 0};
+  }
+
+  /* ----- Excel export with formulas (ExcelJS, loaded only when needed) ----- */
+  function coLoadExcelJs(){
+    if(window.ExcelJS) return Promise.resolve(window.ExcelJS);
+    if(coLoadExcelJs.p) return coLoadExcelJs.p;
+    coLoadExcelJs.p = new Promise(function(ok, bad){
+      var s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
+      s.onload = function(){ window.ExcelJS ? ok(window.ExcelJS) : bad(new Error("ExcelJS missing")); };
+      s.onerror = function(){ coLoadExcelJs.p = null; bad(new Error("Could not load the Excel writer")); };
+      document.head.appendChild(s);
+    });
+    return coLoadExcelJs.p;
+  }
+  function coWorkbook(c){
+    return coLoadExcelJs().then(function(ExcelJS){
+      var r = coCalc(c), wb = new ExcelJS.Workbook();
+      wb.creator = "NMD Development Desk"; wb.created = new Date();
+      wb.calcProperties = {fullCalcOnLoad:true};
+      var thin = {style:"thin"}, BOX = {top:thin, left:thin, bottom:thin, right:thin};
+      var ACC = '_(* #,##0_);_(* \\(#,##0\\);_(* "-"??_);_(@_)', ACC2 = '_(* #,##0.00_);_(* \\(#,##0.00\\);_(* "-"??_);_(@_)';
+      function fill(argb){ return {type:"pattern", pattern:"solid", fgColor:{argb:argb}}; }
+      function put(ws, ref, v, st){
+        var cell = ws.getCell(ref); cell.value = v;
+        st = st || {};
+        cell.font = {name:"Calibri", size:st.size || 11, bold:!!st.bold};
+        if(st.fill) cell.fill = fill(st.fill);
+        if(st.border !== false) cell.border = BOX;
+        cell.alignment = {horizontal:st.h || "center", vertical:"middle", wrapText:!!st.wrap};
+        if(st.fmt) cell.numFmt = st.fmt;
+        return cell;
+      }
+      function F(formula, result){ return {formula:formula, result:(typeof result === "number" && isFinite(result)) ? result : undefined}; }
+      var sd = c.sd || "DB", desc = c.desc || "";
+
+      /* ===== Summary ===== */
+      var s = wb.addWorksheet("Summary");
+      [10.8,32.4,11.7,11.7,11.8,11.7,11.7,13.2,14.2,11.2,11.7,11.7,13.2,12.8,13.2,14.2].forEach(function(w, i){ s.getColumn(i + 1).width = w; });
+      s.getRow(1).height = 35.25; s.getRow(2).height = 36.75; s.getRow(3).height = 29.15; s.getRow(4).height = 22.95;
+      put(s, "P1", c.date ? new Date(c.date + "T00:00:00") : new Date(), {bold:true, size:12, fmt:"d-mmm-yy"});
+      s.mergeCells("C2:G2"); put(s, "C2", "RM Cost", {bold:true});
+      s.mergeCells("H2:K2"); put(s, "H2", "Contribution (JW)", {bold:true});
+      put(s, "L2", +c.ohpRm || 0, {bold:true, fmt:"0.00%", border:false});
+      put(s, "M2", +c.ohp || 0, {bold:true, fmt:"0.00%", border:false});
+      put(s, "O2", +c.disc || 0, {bold:true, fmt:"0.00%", border:false});
+      ["Parent \nAssembly","DB Description","Sheet Metal ","Powder Cost","Bought Out","PU Gasket","Total","Fabrication","Powder Coating","Assembly","Total",
+       "OHP on RM","OHP","Total Cost","Discount","Net Cost"].forEach(function(h, i){
+        put(s, s.getCell(3, i + 1).address, h, {bold:true, wrap:true, fill:i === 15 ? "FF92D050" : null});
+      });
+      var S = r.S;
+      put(s, "A4", sd, {h:"left"}); put(s, "B4", desc, {h:"left"});
+      put(s, "C4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!N:N)", S.C), {fmt:ACC});
+      put(s, "D4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!R:R)", S.D), {fmt:ACC});
+      put(s, "E4", F("SUMIF('B.O.M'!$A:$A,$A4,'B.O.M'!$J:$J)", S.E), {fmt:ACC});
+      put(s, "F4", F("Fabrication!$I$5*Fabrication!$E$2", S.F), {fmt:ACC});
+      put(s, "G4", F("SUM(C4:F4)", S.G), {fmt:ACC});
+      put(s, "H4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!O:O)", S.H), {fmt:ACC});
+      put(s, "I4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!T:T)", S.I), {fmt:ACC});
+      put(s, "J4", +c.assembly || 0, {fmt:ACC});
+      put(s, "K4", F("SUM(H4:J4)", S.K), {fmt:ACC});
+      put(s, "L4", F("L2*G4", S.L), {fmt:ACC});
+      put(s, "M4", F("K4*$M$2", S.M), {fmt:ACC});
+      put(s, "N4", F("G4+K4+M4+L4", S.N), {fmt:ACC});
+      put(s, "O4", F("N4*$O$2", S.O), {fmt:ACC});
+      put(s, "P4", F("N4-O4", S.P), {fmt:ACC, bold:true, fill:"FF92D050"});
+      put(s, "A6", "Made in NMD Development Desk on " + fmtDate(today()) + " by " + memberName(state.who) + (c.qty ? " · order qty " + c.qty : ""), {border:false, h:"left"});
+
+      /* ===== Fabrication ===== */
+      var f = wb.addWorksheet("Fabrication");
+      [10.7,32.8,14.2,25.6,12.2,9.2,7.7,7.7,9.7,9.2,7.7,9.6,9.7,10.6,10.8,11.7,10.7,9.0,9.0,9.8,11.2,12.8,9,11].forEach(function(w, i){ f.getColumn(i + 1).width = w; });
+      CO_RATES.forEach(function(x, i){
+        var row = i + 1;
+        put(f, "D" + row, x[1], {size:10, h:"left", fill:"FF92D050"});
+        put(f, "E" + row, +c.rates[x[0]] || 0, {size:10, bold:true, fill:"FF92D050", fmt:ACC2});
+        put(f, "F" + row, x[3], {size:10, h:"left"});
+      });
+      put(f, "H3", "Order qty", {size:10}); put(f, "I3", +c.qty || 0, {size:10, fill:"FFFABF8F"});
+      put(f, "H5", "PU gasket per DB (mtr)", {size:10, wrap:true}); put(f, "I5", +c.gasketM || 0, {size:10, fill:"FFFABF8F", fmt:"0.00"});
+      f.getRow(5).height = 27;
+      var heads = ["Parent \nAssembly","DB Description","","Component \nDescription","L","W","T","Qty","Blank Weight","Gross Wt","Scrap Wt.","Scrap Cost ",
+        "Net Blank weight ","Raw Material\nCost","Fabrication Cost","Total Cost (RM +FAB)","Surface Area","Powder Cost","PU Gasket","Powder\nCoating\nLabour",
+        "Total Coating Cost","Total Cost (RM + FAB + PC)","","Powder coat\n(Y/N)"];
+      heads.forEach(function(h, i){ if(i === 22) return; put(f, f.getCell(12, i + 1).address, h, {size:10, bold:true, wrap:true, fill:"FFFFC000"}); });
+      f.getRow(12).height = 38.6;
+      var first = 13;
+      c.fab.forEach(function(x, i){
+        var R = first + i, rr = r.rows[i], k = function(col){ return col + R; };
+        put(f, k("A"), sd, {size:10}); put(f, k("B"), desc, {size:10, h:"left", wrap:true}); put(f, k("C"), "", {size:10});
+        put(f, k("D"), x.d || "", {size:10, h:"left", wrap:true});
+        put(f, k("E"), +x.L || 0, {size:10, fill:"FFFABF8F"}); put(f, k("F"), +x.W || 0, {size:10, fill:"FFFABF8F"});
+        put(f, k("G"), +x.T || 0, {size:10, fill:"FFFABF8F"}); put(f, k("H"), +x.q || 0, {size:10, fill:"FFFABF8F"});
+        put(f, k("X"), x.coat === false ? "N" : "Y", {size:10, fill:"FFFABF8F"});
+        put(f, k("I"), F("E"+R+"*F"+R+"*G"+R+"*H"+R+"*0.00786/1000", rr.I), {size:10, fmt:"0.00"});
+        put(f, k("J"), F("(I"+R+"*0.1+I"+R+")", rr.J), {size:10, fmt:"0.00"});
+        put(f, k("K"), F("I"+R+"*2%+(J"+R+"-I"+R+")", rr.K), {size:10, fmt:"0.00"});
+        put(f, k("L"), F("K"+R+"*$E$9", rr.L), {size:10, fmt:"0.00"});
+        put(f, k("M"), F("J"+R+"-K"+R, rr.M), {size:10, fmt:"0.00"});
+        put(f, k("N"), F("(J"+R+"*$E$1)-L"+R, rr.N), {size:10, fmt:"0.00"});
+        put(f, k("O"), F("J"+R+"*IF(G"+R+">=1.2,$E$11,$E$10)", rr.O), {size:10, fmt:"0.00"});
+        put(f, k("P"), F("N"+R+"+O"+R, rr.P), {size:10, fmt:"0.00"});
+        put(f, k("Q"), F("E"+R+"*F"+R+"*H"+R+"*2/1000000", rr.Q), {size:10, fmt:"0.000"});
+        put(f, k("R"), F("IF(X"+R+"=\"N\",0,Q"+R+"*$E$4/$E$8)", rr.R), {size:10, fmt:"0.00"});
+        put(f, k("S"), "", {size:10});
+        put(f, k("T"), F("IF(X"+R+"=\"N\",0,Q"+R+"*$E$5)", rr.T), {size:10, fmt:"0.00"});
+        put(f, k("U"), F("T"+R+"+R"+R, rr.U), {size:10, fmt:"0.00"});
+        put(f, k("V"), F("P"+R+"+U"+R, rr.V), {size:10, fmt:"0.00"});
+      });
+      var last = first + Math.max(c.fab.length, 1) - 1, TR = last + 1;
+      put(f, "D" + TR, "TOTAL", {size:10, bold:true, h:"left", fill:"FFFFC000"});
+      ["I","J","K","L","M","N","O","P","Q","R","T","U","V"].forEach(function(col){
+        put(f, col + TR, F("SUM(" + col + first + ":" + col + last + ")", r.tot[col]), {size:10, bold:true, fmt:col === "Q" ? "0.000" : "0.00", fill:"FFFFC000"});
+      });
+      var PR = TR + 2;
+      put(f, "Q" + PR, "Required powder cost", {h:"left"}); put(f, "R" + PR, F("SUM(R" + first + ":R" + last + ")", r.tot.R), {fmt:"0.00"});
+      put(f, "Q" + (PR + 1), "powder rate", {h:"left"}); put(f, "R" + (PR + 1), F("$E$4", +c.rates.p9003 || 0), {fmt:"0.00"});
+      put(f, "Q" + (PR + 2), "Required powder (kg)", {h:"left"}); put(f, "R" + (PR + 2), F("IF(R" + (PR + 1) + "=0,0,R" + PR + "/R" + (PR + 1) + ")", r.powderKg), {fmt:"0.000"});
+      f.getColumn("Q").width = 21;
+
+      /* ===== B.O.M ===== */
+      var b = wb.addWorksheet("B.O.M", {views:[{state:"frozen", xSplit:3, ySplit:5}]});
+      [15.2,27.8,16,14,16.5,60,18,12,11,12].forEach(function(w, i){ b.getColumn(i + 1).width = w; });
+      b.mergeCells("A1:B4"); put(b, "A1", "SPECIAL DB", {bold:true, size:20});
+      b.mergeCells("D1:D2"); put(b, "D1", "SD CODE", {bold:true, size:12});
+      b.mergeCells("E1:H2"); put(b, "E1", "DB DESCRIPTION", {bold:true, size:12});
+      b.mergeCells("D3:D4"); put(b, "D3", sd, {bold:true, size:20});
+      b.mergeCells("E3:H4"); put(b, "E3", desc, {bold:true, size:16});
+      b.mergeCells("I1:J2"); put(b, "I1", "BOUGHT OUT TOTAL", {bold:true, size:11, wrap:true});
+      b.mergeCells("I3:J4");
+      var bf = 6, bl = bf + Math.max(c.bom.length, 1) - 1;
+      put(b, "I3", F("SUM(J" + bf + ":J" + bl + ")", r.S.E), {bold:true, size:16, fmt:"#,##0.00", fill:"FF92D050"});
+      ["Parent \nAssembly","Description Of Assembly","Assembly ","Item Code","ERP CODE","Component Description","Item Name","Quantity Per DB","Rate","Amount"]
+        .forEach(function(h, i){ put(b, b.getCell(5, i + 1).address, h, {bold:true, size:12, wrap:true, fill:i >= 8 ? "FF92D050" : null}); });
+      b.getRow(5).height = 35.25;
+      c.bom.forEach(function(x, i){
+        var R = bf + i, br = r.bom[i];
+        put(b, "A" + R, sd); put(b, "B" + R, desc, {h:"left"}); put(b, "C" + R, x.asm || "", {h:"left"});
+        put(b, "D" + R, x.code || "");
+        put(b, "E" + R, F("IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:C,3,0),\"\")", undefined), {h:"left"});
+        b.getCell("E" + R).value = {formula:"IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:C,3,0),\"\")", result:br.it ? (br.it.e || "") : "not in master"};
+        b.getCell("F" + R).value = {formula:"IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:B,2,0),\"not in master\")", result:br.it ? br.it.d : "not in master"};
+        b.getCell("G" + R).value = {formula:"IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:D,4,0),\"\")", result:br.it ? (br.it.t || "") : ""};
+        ["F","G"].forEach(function(col){ var cc = b.getCell(col + R); cc.font = {name:"Calibri", size:11}; cc.border = BOX; cc.alignment = {horizontal:"left", vertical:"middle"}; });
+        put(b, "H" + R, +x.q || 0, {fill:"FFFABF8F"});
+        put(b, "I" + R, F("IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:G,7,0),0)", br.rate), {fmt:"0.00"});
+        put(b, "J" + R, F("H" + R + "*I" + R, br.amt), {fmt:"0.00"});
+      });
+      var bt = bl + 1;
+      put(b, "H" + bt, "TOTAL", {bold:true}); put(b, "J" + bt, F("SUM(J" + bf + ":J" + bl + ")", r.S.E), {bold:true, fmt:"0.00", fill:"FF92D050"});
+      b.autoFilter = "A5:J" + bl;
+
+      /* ===== TCS MASTER BOM ===== */
+      var m = wb.addWorksheet("TCS MASTER BOM", {views:[{state:"frozen", ySplit:1}]});
+      [17.1,73.2,23.8,17.2,9.1,13.2,11].forEach(function(w, i){ m.getColumn(i + 1).width = w; });
+      m.addRow(["Item Code","Item Description","ERP CODE","Item Type","Site","HSN Code","Rate"]);
+      m.getRow(1).eachCell(function(cc){ cc.font = {name:"Calibri", size:14, bold:true}; cc.border = BOX; });
+      (state.cm || []).forEach(function(x){ m.addRow([x.c, x.d, x.e, x.t, x.s, x.h, +x.r || 0]); });
+      m.autoFilter = "A1:G" + Math.max(2, (state.cm || []).length + 1);
+      return wb.xlsx.writeBuffer();
+    });
+  }
+  function coDownload(c){
+    banner("Preparing the costing workbook…");
+    return coWorkbook(c).then(function(buf){
+      return claude.use("downloads").then(function(d){
+        if(!d) throw new Error("no downloads");
+        return d.save({filename:"Costing_" + (c.sd || "DB").replace(/[^\w\-]+/g, "_") + "_" + today() + ".xlsx", data:buf,
+                       mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+      });
+    }).then(function(){ banner("Costing workbook downloaded."); setTimeout(function(){ banner(""); }, 4000); },
+            function(e){ banner("The workbook could not be made (" + (e && e.message || "error") + "). Check the internet connection and try again."); });
+  }
+  /* saved costings */
+  function coLoadSaved(){
+    if(state.coLoaded || !state.db) return;
+    state.coLoaded = true;
+    state.db.collection("costings").get().then(function(snap){
+      state.costings = snap.docs.map(function(d){ var o = Object.assign({}, d.data() || {}); o.id = d.id; return o; });
+      if(state.tab === "tools") render();
+    }).catch(function(){});
+  }
+  function coStore(c){
+    var id = c.id || ("CO-" + Date.now().toString(36));
+    c.id = id; c.savedBy = state.who; c.savedAt = new Date().toISOString();
+    var r = coCalc(c); c.netCost = r.S.P;
+    coSave(c);
+    state.costings = (state.costings || []).filter(function(x){ return x.id !== id; }).concat([JSON.parse(JSON.stringify(c))]);
+    if(state.db) state.db.doc("costings/" + id).set(c).catch(onWriteErr);
+    banner("Costing saved" + (c.sd ? " — " + c.sd : "") + ". Net cost ₹" + r.S.P.toFixed(2) + ".");
+    setTimeout(function(){ banner(""); }, 4000);
+    render();
+  }
+
+  /* ----- the screen ----- */
+  function costingCard(){
+    cmLoad(); coLoadSaved();
+    var c = coLoad(), tab = state.coTab || "summary";
+    var card = el("div",{class:"card cocard"});
+    var r = coCalc(c);
+    var money = function(x){ return "₹ " + (+x || 0).toLocaleString("en-IN", {minimumFractionDigits:2, maximumFractionDigits:2}); };
+    var f2 = function(x){ return (+x || 0).toFixed(2); };
+    var live = [];                                     /* [node, fn] refreshed without a full redraw */
+    function L(fn, cls){ var s = el("span",{class:cls || ""}); live.push([s, fn]); return s; }
+    function refresh(){ coSave(c); r = coCalc(c); live.forEach(function(x){ x[0].textContent = x[1](r); }); }
+    function num(obj, key, attrs){
+      var i = el("input", Object.assign({type:"number", step:"any", value:obj[key] === "" || obj[key] == null ? "" : String(obj[key]), inputmode:"decimal"}, attrs || {}));
+      i.addEventListener("input", function(){ obj[key] = i.value === "" ? "" : +i.value; refresh(); });
+      return i;
+    }
+    function txt(obj, key, attrs){
+      var i = el("input", Object.assign({type:"text", value:obj[key] || ""}, attrs || {}));
+      i.addEventListener("input", function(){ obj[key] = i.value; refresh(); });
+      return i;
+    }
+    /* head */
+    var due = cmDue(), nItems = (state.cm || []).length;
+    card.appendChild(el("div",{class:"cardhead"},[
+      el("h3",{},["DB costing"]),
+      el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["Type the data — the costing is worked out like the company costing file, and downloads as Excel with the formulas."]),
+      el("div",{class:"spacer", style:"flex:1"}),
+      el("button",{class:"btn sm", type:"button", onclick:function(){ coStore(c); }},["Save for the team"]),
+      el("button",{class:"btn sm primary", type:"button", onclick:function(){ coDownload(c); }},["⤓ Download Excel"])
+    ]));
+    var body = el("div",{class:"cardbody cobody"});
+    card.appendChild(body);
+    if(state.cmLoaded && due){
+      body.appendChild(el("div",{class:"codue"},[
+        el("b",{},[nItems ? "Master BOM update due" : "Master BOM is empty"]),
+        el("span",{},[nItems ? " — last updated " + (cmDaysOld() == null ? "never" : cmDaysOld() + " days ago") + " (update every " + ((state.cmMeta && state.cmMeta.every) || 30) + " days). New items added to the BOM since then will not be found."
+                             : " — load your costing file (or the master BOM Excel) once, so item codes and rates can be looked up."]),
+        el("button",{class:"btn sm", type:"button", onclick:function(){ state.coTab = "master"; render(); }},["Update master BOM"])
+      ]));
+    }
+    body.appendChild(el("div",{class:"formgrid cohead"},[
+      el("div",{class:"field"},[el("label",{},["Parent assembly / SD code"]), txt(c, "sd", {placeholder:"e.g. SD10299"})]),
+      el("div",{class:"field cowide"},[el("label",{},["DB description"]), txt(c, "desc", {placeholder:"e.g. CJU DB 1.2MM D2672106 0"})]),
+      el("div",{class:"field"},[el("label",{},["Costing date"]), (function(){ var i = el("input",{type:"date", value:c.date || ""}); i.addEventListener("input", function(){ c.date = i.value; refresh(); }); return i; })()]),
+      el("div",{class:"field"},[el("label",{},["Order qty"]), num(c, "qty")])
+    ]));
+    /* net cost strip */
+    body.appendChild(el("div",{class:"costrip"},[
+      el("div",{},[el("span",{},["RM cost"]), L(function(r){ return money(r.S.G); })]),
+      el("div",{},[el("span",{},["Contribution (JW)"]), L(function(r){ return money(r.S.K); })]),
+      el("div",{},[el("span",{},["Total cost"]), L(function(r){ return money(r.S.N); })]),
+      el("div",{class:"net"},[el("span",{},["Net cost / DB"]), L(function(r){ return money(r.S.P); })])
+    ]));
+    /* tabs like the workbook sheets */
+    var TABS = [["summary","Summary"],["fab","Fabrication"],["bom","B.O.M"],["master","Master BOM"]];
+    body.appendChild(el("div",{class:"cotabs", role:"tablist"}, TABS.map(function(t){
+      return el("button",{type:"button", role:"tab", "aria-selected":tab === t[0] ? "true" : "false", class:"cotab" + (tab === t[0] ? " on" : ""),
+        onclick:function(){ state.coTab = t[0]; render(); }},[t[1] + (t[0] === "fab" ? " · " + c.fab.length : t[0] === "bom" ? " · " + c.bom.length : t[0] === "master" ? " · " + nItems : "")]);
+    })));
+    var pane = el("div",{class:"copane"});
+    body.appendChild(pane);
+
+    if(tab === "summary"){
+      var sumRows = [
+        ["Sheet metal (RM)", function(r){ return r.S.C; }, "Σ raw material cost of the fabrication parts"],
+        ["Powder cost", function(r){ return r.S.D; }, "Σ powder cost of the fabrication parts"],
+        ["Bought out", function(r){ return r.S.E; }, "Σ B.O.M qty × master rate"],
+        ["PU gasket", function(r){ return r.S.F; }, "gasket mtr × gasket rate"],
+        ["RM cost total", function(r){ return r.S.G; }, "", "tot"],
+        ["Fabrication", function(r){ return r.S.H; }, "Σ fabrication cost"],
+        ["Powder coating", function(r){ return r.S.I; }, "Σ powder coating labour"],
+        ["Assembly", null, "typed in"],
+        ["Contribution (JW) total", function(r){ return r.S.K; }, "", "tot"],
+        ["OHP on RM", function(r){ return r.S.L; }, "% × RM cost", null, "ohpRm"],
+        ["OHP", function(r){ return r.S.M; }, "% × contribution", null, "ohp"],
+        ["Total cost", function(r){ return r.S.N; }, "RM + contribution + OHP", "tot"],
+        ["Discount", function(r){ return r.S.O; }, "% × total cost", null, "disc"],
+        ["Net cost", function(r){ return r.S.P; }, "total cost − discount", "net"]
+      ];
+      var tb = el("tbody");
+      sumRows.forEach(function(x){
+        var pctIn = null;
+        if(x[4]){
+          pctIn = el("input",{type:"number", step:"0.01", value:String(Math.round((+c[x[4]] || 0) * 10000) / 100), class:"copct", "aria-label":x[0] + " percent"});
+          pctIn.addEventListener("input", function(){ c[x[4]] = (+pctIn.value || 0) / 100; refresh(); });
+        }
+        var valCell = x[1] ? L(function(r){ return f2(x[1](r)); }) : num(c, "assembly", {class:"coin"});
+        tb.appendChild(el("tr",{class:x[3] || ""},[ el("td",{},[x[0]]), el("td",{class:"muted"},[x[2]]),
+          el("td",{},[pctIn ? el("span",{class:"copctw"},[pctIn, "%"]) : null]), el("td",{class:"n"},[valCell]) ]));
+      });
+      pane.appendChild(el("div",{class:"tablewrap"},[el("table",{class:"cotable cosum"},[
+        el("thead",{},[el("tr",{},[el("th",{},["Head"]), el("th",{},["How it is worked out"]), el("th",{},["%"]), el("th",{class:"n"},["₹ per DB"])])]), tb ])]));
+      if(c.qty) pane.appendChild(el("p",{class:"muted", style:"font-size:12.5px;margin:10px 0 0"},[
+        "For the order of ", String(c.qty), " DBs: net value ", L(function(r){ return money(r.S.P * (+c.qty || 0)); }), "."]));
+    }
+
+    if(tab === "fab"){
+      var rg = el("div",{class:"corates"});
+      CO_RATES.forEach(function(x){
+        rg.appendChild(el("div",{class:"field"},[el("label",{},[x[1] + " (" + x[3] + ")"]), num(c.rates, x[0])]));
+      });
+      rg.appendChild(el("div",{class:"field"},[el("label",{},["PU gasket per DB (mtr)"]), num(c, "gasketM")]));
+      pane.appendChild(el("details",{class:"codetails", open:state.coRatesOpen ? "open" : null, ontoggle:function(e){ state.coRatesOpen = e.target.open; }},[
+        el("summary",{},["Rates (green block of the Fabrication sheet)"]), rg ]));
+      var cols = [["Blank wt","I","0.000"],["Gross wt","J","0.000"],["Scrap wt","K","0.000"],["Scrap ₹","L"],["RM ₹","N"],["Fab ₹","O"],["RM+Fab ₹","P"],
+                  ["Area m²","Q","0.000"],["Powder ₹","R"],["PC labour ₹","T"],["Total ₹","V"]];
+      var t = el("table",{class:"cotable cofab"});
+      t.appendChild(el("thead",{},[el("tr",{},[el("th",{},["#"]), el("th",{},["Component"]), el("th",{class:"n"},["L"]), el("th",{class:"n"},["W"]),
+        el("th",{class:"n"},["T"]), el("th",{class:"n"},["Qty"]), el("th",{title:"Powder coated? GI parts are not"},["Coat"])]
+        .concat(cols.map(function(k){ return el("th",{class:"n"},[k[0]]); })).concat([el("th",{},[""])]))]));
+      var fb = el("tbody");
+      c.fab.forEach(function(x, i){
+        var coat = el("input",{type:"checkbox", "aria-label":"Powder coated"}); coat.checked = x.coat !== false;
+        coat.addEventListener("change", function(){ x.coat = coat.checked; refresh(); });
+        fb.appendChild(el("tr",{},[ el("td",{class:"muted"},[String(i + 1)]),
+          el("td",{},[txt(x, "d", {class:"coname", placeholder:"Component"})]),
+          el("td",{},[num(x, "L", {class:"coin"})]), el("td",{},[num(x, "W", {class:"coin"})]),
+          el("td",{},[num(x, "T", {class:"coin sm"})]), el("td",{},[num(x, "q", {class:"coin sm"})]), el("td",{},[coat])
+        ].concat(cols.map(function(k){ return el("td",{class:"n"},[L(function(r){ var v = r.rows[i] ? r.rows[i][k[1]] : 0; return k[2] ? v.toFixed(3) : f2(v); })]); }))
+         .concat([el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove this part", onclick:function(){ c.fab.splice(i, 1); coSave(c); render(); }},["✕"])])])));
+      });
+      fb.appendChild(el("tr",{class:"tot"},[el("td",{}), el("td",{},["Total"]), el("td",{}), el("td",{}), el("td",{}), el("td",{}), el("td",{})]
+        .concat(cols.map(function(k){ return el("td",{class:"n"},[L(function(r){ var v = r.tot[k[1]]; return k[2] ? v.toFixed(3) : f2(v); })]); })).concat([el("td",{})])));
+      t.appendChild(fb);
+      pane.appendChild(el("div",{class:"tablewrap"},[t]));
+      var smv = smLoad(), smr = null; try { smr = smPartCalc(smv); } catch(e){}
+      pane.appendChild(el("div",{class:"coacts"},[
+        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.fab.push({d:"", L:"", W:"", T:(c.fab[c.fab.length - 1] || {}).T || 1.2, q:1, coat:true}); coSave(c); render(); }},["+ Add part"]),
+        smr ? el("button",{class:"btn sm", type:"button", title:"Blank X × Y and thickness from the sheet metal blank tool",
+          onclick:function(){ c.fab.push({d:"Part (from blank tool)", L:+smr.X.toFixed(2), W:+smr.Y.toFixed(2), T:+smv.t || 1.2, q:1, coat:true}); coSave(c); render(); }},
+          ["+ Add blank " + smr.X.toFixed(1) + " × " + smr.Y.toFixed(1) + " from the blank tool"]) : null,
+        el("span",{class:"muted", style:"font-size:12px"},["Fabrication rate: thickness ≥ 1.2 uses the “above 1.2” rate. Powder: area × powder rate ÷ coverage."])
+      ]));
+    }
+
+    if(tab === "bom"){
+      var dl = el("datalist",{id:"coCodes"}, (state.cm || []).slice(0, 3000).map(function(x){ return el("option",{value:x.c},[x.d]); }));
+      var adl = el("datalist",{id:"coAsm"}, CO_ASM.map(function(a){ return el("option",{value:a}); }));
+      var bt = el("table",{class:"cotable cobom"});
+      bt.appendChild(el("thead",{},[el("tr",{},["#","Assembly","Item code","ERP code","Component description","Item type","Qty / DB","Rate ₹","Amount ₹",""]
+        .map(function(h, i){ return el("th",{class:i >= 6 && i <= 8 ? "n" : ""},[h]); }))]));
+      var bb = el("tbody");
+      c.bom.forEach(function(x, i){
+        var info = el("td",{class:"coinfo"}), erp = el("td",{}), typ = el("td",{class:"muted"}), rateTd = el("td",{class:"n"});
+        function fillInfo(){
+          var it = cmItem(x.code);
+          erp.textContent = it ? (it.e || "—") : ""; typ.textContent = it ? (it.t || "") : "";
+          info.innerHTML = ""; rateTd.innerHTML = "";
+          if(!x.code){ info.appendChild(el("span",{class:"muted"},["type or pick an item code"])); return; }
+          if(!it){ info.appendChild(el("span",{class:"chip over"},[state.cmLoaded ? "not in master BOM" : "loading master…"]));
+            if(state.cmLoaded) info.appendChild(el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.coNew = x.code; state.coTab = "master"; render(); }},["Add to master"]));
+            return; }
+          info.appendChild(document.createTextNode(it.d || ""));
+          if(+it.r > 0){ rateTd.appendChild(document.createTextNode(f2(it.r))); rateTd.title = it.rb ? "Rate set by " + memberName(it.rb) + (it.ra ? " on " + fmtDate(it.ra) : "") : "From the master BOM"; }
+          else {
+            var ri = el("input",{type:"number", step:"any", class:"coin need", placeholder:"rate", "aria-label":"Rate for " + x.code});
+            ri.addEventListener("change", function(){ if(ri._done || !(+ri.value > 0)) return; ri._done = true; cmSetRate(x.code, +ri.value); refresh(); fillInfo(); });
+            rateTd.appendChild(ri);
+          }
+        }
+        var code = el("input",{type:"text", value:x.code || "", list:"coCodes", class:"cocode", placeholder:"PI00230", "aria-label":"Item code"});
+        code.addEventListener("input", function(){ x.code = code.value.trim(); refresh(); fillInfo(); });
+        code.addEventListener("change", function(){
+          if(!cmItem(code.value)){ var byE = cmByErp(code.value); if(byE){ code.value = byE.c; x.code = byE.c; refresh(); fillInfo(); } }
+        });
+        var asm = el("input",{type:"text", value:x.asm || "", list:"coAsm", class:"coasm", placeholder:"Assembly", "aria-label":"Assembly"});
+        asm.addEventListener("input", function(){ x.asm = asm.value; refresh(); });
+        fillInfo();
+        bb.appendChild(el("tr",{},[ el("td",{class:"muted"},[String(i + 1)]), el("td",{},[asm]), el("td",{},[code]), erp, info, typ,
+          el("td",{},[num(x, "q", {class:"coin sm"})]), rateTd,
+          el("td",{class:"n"},[L(function(r){ return r.bom[i] ? f2(r.bom[i].amt) : "0.00"; })]),
+          el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove", onclick:function(){ c.bom.splice(i, 1); coSave(c); render(); }},["✕"])]) ]));
+      });
+      bb.appendChild(el("tr",{class:"tot"},[el("td",{colspan:"8"},["Bought out total"]), el("td",{class:"n"},[L(function(r){ return f2(r.S.E); })]), el("td",{})]));
+      bt.appendChild(bb);
+      var missing = r.bom.filter(function(b){ return b.missing; }).length, noRate = r.bom.filter(function(b){ return b.noRate; }).length;
+      if(missing || noRate) pane.appendChild(el("p",{class:"codue", style:"margin:0 0 10px"},[
+        (missing ? missing + " item code" + (missing === 1 ? " is" : "s are") + " not in the master BOM. " : "") +
+        (noRate ? noRate + " item" + (noRate === 1 ? " has" : "s have") + " no rate yet — type the rate in the Rate column; it is saved into the master BOM for everyone." : "")]));
+      pane.appendChild(dl); pane.appendChild(adl);
+      /* find an item in the master BOM by any words of its description, code or ERP code */
+      var fq = el("input",{type:"search", class:"cmsearch", value:state.coFind || "", placeholder:"Find an item: type words of the description, item code or ERP code — e.g. hinge pin, washer m6, BO/HDW/040",
+        "aria-label":"Find an item in the master BOM"});
+      var fAsm = el("input",{type:"text", list:"coAsm", class:"coasm", value:state.coFindAsm || (c.bom[c.bom.length - 1] || {}).asm || "Box Assembly", "aria-label":"Assembly for added items"});
+      fAsm.addEventListener("input", function(){ state.coFindAsm = fAsm.value; });
+      var fQty = el("input",{type:"number", step:"any", class:"coin sm", value:"1", "aria-label":"Quantity for added items"});
+      var fRes = el("div",{class:"cofind"});
+      function drawFind(){
+        fRes.innerHTML = "";
+        var q = state.coFind || "";
+        if(!q.trim()) return;
+        if(!state.cmLoaded){ fRes.appendChild(el("p",{class:"muted"},["Loading the master BOM…"])); return; }
+        var hits = cmSearch(q, 25);
+        if(!hits.length){ fRes.appendChild(el("p",{class:"muted"},["Nothing in the master BOM matches “" + q + "”. Try fewer words, or add the item in the Master BOM tab."])); return; }
+        var have = {}; c.bom.forEach(function(b){ have[String(b.code).toUpperCase()] = true; });
+        fRes.appendChild(el("table",{class:"cotable"},[ el("tbody",{}, hits.map(function(x){
+          return el("tr",{},[ el("td",{class:"cocodecell"},[x.c]), el("td",{},[x.d]), el("td",{class:"muted"},[x.e || ""]),
+            el("td",{class:"n"},[+x.r > 0 ? "₹ " + (+x.r).toFixed(2) : el("span",{class:"chip nv"},["no rate"])]),
+            el("td",{},[ el("button",{class:"btn sm" + (have[x.c.toUpperCase()] ? "" : " primary"), type:"button", onclick:function(){
+              c.bom.push({asm:fAsm.value || "", code:x.c, q:+fQty.value || 1}); coSave(c);
+              banner(x.c + " added to the B.O.M (" + (+fQty.value || 1) + " per DB)."); setTimeout(function(){ banner(""); }, 2500);
+              render();
+            }},[have[x.c.toUpperCase()] ? "Add again" : "+ Add"]) ]) ]);
+        })) ]));
+        if(hits.length >= 25) fRes.appendChild(el("p",{class:"muted", style:"font-size:12px"},["Showing the first 25 — add more words to narrow it."]));
+      }
+      fq.addEventListener("input", function(){ state.coFind = fq.value; drawFind(); });
+      pane.appendChild(el("div",{class:"cofindbox"},[
+        el("h4",{},["Find items in the master BOM"]),
+        el("div",{class:"coacts"},[ fq, el("label",{class:"cmnr"},["Assembly ", fAsm]), el("label",{class:"cmnr"},["Qty ", fQty]) ]),
+        fRes,
+        el("p",{class:"muted", style:"font-size:12px;margin:0"},["Or just type the item code (or its ERP code) in a row below — the description, ERP code, item type and rate are filled from the master BOM by themselves."])
+      ]));
+      drawFind();
+      pane.appendChild(el("div",{class:"tablewrap"},[bt]));
+      var paste = el("textarea",{placeholder:"Paste rows from Excel: Item code ⇥ Qty (optionally Assembly first: Assembly ⇥ Item code ⇥ Qty)", rows:"3"});
+      pane.appendChild(el("div",{class:"coacts"},[
+        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.bom.push({asm:(c.bom[c.bom.length - 1] || {}).asm || "Box Assembly", code:"", q:1}); coSave(c); render(); }},["+ Add item"]),
+        el("details",{class:"codetails copaste"},[ el("summary",{},["Paste many items"]), paste,
+          el("button",{class:"btn sm", type:"button", onclick:function(){
+            var added = 0;
+            paste.value.split(/\r?\n/).forEach(function(line){
+              var p = line.split(/\t|;|,/).map(function(s){ return s.trim(); }).filter(function(s){ return s !== ""; });
+              if(!p.length) return;
+              var qty = parseFloat(p[p.length - 1]), hasQ = isFinite(qty) && p.length > 1;
+              var codeV = hasQ ? p[p.length - 2] : p[p.length - 1], asmV = hasQ ? (p.length > 2 ? p[0] : "") : (p.length > 1 ? p[0] : "");
+              c.bom.push({asm:asmV, code:codeV, q:hasQ ? qty : 1}); added++;
+            });
+            coSave(c); render(); banner(added + " item" + (added === 1 ? "" : "s") + " added."); setTimeout(function(){ banner(""); }, 3000);
+          }},["Add these rows"]) ])
+      ]));
+    }
+
+    if(tab === "master") pane.appendChild(masterPane());
+
+    /* saved costings */
+    var saved = (state.costings || []).slice().sort(function(a, b){ return String(b.savedAt).localeCompare(String(a.savedAt)); });
+    body.appendChild(el("div",{class:"coacts", style:"margin-top:16px"},[
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = coDefaults(); coSave(n); state.coTab = "summary"; render(); }},["New costing"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = JSON.parse(JSON.stringify(c)); n.id = ""; n.sd = (n.sd || "") + " copy"; n.date = today(); coSave(n); render(); }},["Copy as new"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coSave(coExample()); render(); }},["Load example SD10299"]),
+      el("span",{class:"muted", style:"font-size:12px"},[c.id ? "Saved costing · last saved " + (c.savedAt ? fmtDate(String(c.savedAt).slice(0,10)) : "") : "Not saved for the team yet"])
+    ]));
+    if(saved.length){
+      body.appendChild(el("div",{class:"frsaved"},[ el("h4",{},["Saved costings"]),
+        el("div",{class:"card"}, saved.slice(0, 40).map(function(s){
+          return el("div",{class:"task"},[
+            el("div",{class:"taskmain"},[ el("div",{class:"tt"},[(s.sd || "—") + " · " + (s.desc || "—")]),
+              el("div",{class:"tmeta"},[ el("span",{class:"chip today"},["Net ₹" + (+s.netCost || 0).toFixed(2)]),
+                el("span",{class:"chip plain"},[memberName(s.savedBy) + " · " + fmtDate(String(s.savedAt || "").slice(0, 10))]) ]) ]),
+            el("div",{class:"taskact"},[
+              el("button",{class:"btn sm", type:"button", onclick:function(){ coSave(JSON.parse(JSON.stringify(s))); state.coTab = "summary"; render(); window.scrollTo({top:0}); }},["Open"]),
+              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coDownload(s); }},["Excel"]),
+              el("button",{class:"btn sm ghost", type:"button", title:"Delete this saved costing", onclick:function(){
+                if(state.coDel !== s.id){ state.coDel = s.id; render(); return; }
+                state.coDel = null; state.costings = state.costings.filter(function(x){ return x.id !== s.id; });
+                if(state.db) state.db.doc("costings/" + s.id).delete().catch(onWriteErr); render();
+              }},[state.coDel === s.id ? "Click again to delete" : "✕"]) ])
+          ]);
+        })) ]));
+    }
+    refresh();
+    return card;
+  }
+  /* master BOM tab: search, rates, update from Excel, reminder period */
+  function masterPane(){
+    var wrap = el("div",{class:"comaster"});
+    var meta = state.cmMeta || {}, items = state.cm || [], every = +meta.every || 30;
+    if(!state.cmLoaded){ wrap.appendChild(el("p",{class:"muted"},["Loading the master BOM…"])); return wrap; }
+    var d = cmDaysOld();
+    wrap.appendChild(el("div",{class:"cmhead"},[
+      el("div",{class:"cmstat"},[el("b",{},[items.length.toLocaleString("en-IN")]), el("span",{},["items"])]),
+      el("div",{class:"cmstat"},[el("b",{},[String(items.filter(function(x){ return +x.r > 0; }).length)]), el("span",{},["with a rate"])]),
+      el("div",{class:"cmstat" + (cmDue() ? " due" : "")},[el("b",{},[d == null ? "never" : d + " d"]), el("span",{},["since last update" + (meta.updatedBy ? " · " + shortName(meta.updatedBy) : "")])]),
+      el("div",{class:"field"},[el("label",{},["Remind to update every"]),
+        el("select",{onchange:function(e){ state.cmMeta = Object.assign({}, meta, {every:+e.target.value}); if(state.db) state.db.doc("costmaster/meta").set(state.cmMeta).catch(onWriteErr); render(); }},
+          [7, 15, 30, 60, 90].map(function(n){ return el("option",{value:String(n), selected:n === every ? "selected" : null},[n + " days"]); }))])
+    ]));
+    /* update from Excel */
+    var fileIn = el("input",{type:"file", accept:".xlsx,.xls,.xlsm", class:"cmfile"});
+    var info = el("div",{class:"cminfo"});
+    fileIn.addEventListener("change", function(){
+      var fl = fileIn.files && fileIn.files[0]; if(!fl) return;
+      state.cmPending = {reading:fl.name}; render();
+      fl.arrayBuffer().then(function(buf){
+        var p = typeof XLSX !== "undefined" ? cmParseWorkbook(buf) : null;
+        state.cmPending = p ? {name:fl.name, p:p} : {name:fl.name, bad:true};
+        render();
+      });
+    });
+    var pend = state.cmPending;
+    if(pend && pend.reading) info.appendChild(el("p",{class:"muted"},["Reading " + pend.reading + "…"]));
+    else if(pend && pend.bad) info.appendChild(el("p",{class:"codue"},["No sheet with an “Item Code” column was found in " + pend.name + ". Use the costing file (TCS MASTER BOM sheet) or the master BOM Excel."]));
+    else if(pend){
+        var fl = {name:pend.name}, p = pend.p, m = cmMerge(p.items);
+        info.appendChild(el("div",{class:"cmprev"},[
+          el("p",{},[el("b",{},[fl.name]), " — " + p.items.length + " items read from “" + p.sheet + "”" + (p.rateSheet ? ", rates taken from “" + p.rateSheet + "” (" + p.rates + " ERP codes)" : "") + "."]),
+          el("p",{},[el("b",{},[m.added.length + " new item" + (m.added.length === 1 ? "" : "s")]), " · " + m.changed + " changed · " + m.rated + " rate" + (m.rated === 1 ? "" : "s") + " updated. Items not in the file are kept."]),
+          m.added.length ? el("ul",{}, m.added.slice(0, 12).map(function(x){ return el("li",{},[x.c + " — " + x.d]); }).concat(m.added.length > 12 ? [el("li",{class:"muted"},["… and " + (m.added.length - 12) + " more"])] : [])) : null,
+          el("div",{class:"coacts"},[
+            el("button",{class:"btn sm primary", type:"button", onclick:function(){
+              var hist = (meta.history || []).slice(0, 9);
+              hist.unshift({at:new Date().toISOString(), by:state.who, file:fl.name, added:m.added.length, changed:m.changed, rated:m.rated});
+              state.cmPending = null;
+              cmWriteAll(m.items, {updatedAt:new Date().toISOString(), updatedBy:state.who, file:fl.name, history:hist, every:every}).then(function(){
+                banner("Master BOM updated — " + m.added.length + " new, " + m.changed + " changed."); setTimeout(function(){ banner(""); }, 5000); render(); });
+              render();
+            }},["Apply update"]),
+            el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.cmPending = null; render(); }},["Cancel"]) ])
+        ]));
+    }
+    wrap.appendChild(el("div",{class:"cmupd"},[
+      el("h4",{},["Update the master BOM"]),
+      el("p",{class:"muted"},["Choose the latest costing file or master BOM Excel. New item codes are added, changed descriptions and rates are updated, nothing is deleted. Rates come from a “Rate” column, or from the old master BOM sheet (ERP Code → Landed Cost)."]),
+      el("div",{class:"coacts"},[ fileIn, el("button",{class:"btn sm ghost", type:"button", onclick:cmDownload},["⤓ Download master BOM"]) ]),
+      info
+    ]));
+    /* one new item by hand */
+    var nC = el("input",{type:"text", placeholder:"Item code", value:state.coNew || ""}), nD = el("input",{type:"text", placeholder:"Description"}),
+        nE = el("input",{type:"text", placeholder:"ERP code"}), nT = el("input",{type:"text", placeholder:"Item type", value:"Purchase Items"}), nR = el("input",{type:"number", step:"any", placeholder:"Rate ₹"});
+    wrap.appendChild(el("details",{class:"codetails", open:state.coNew ? "open" : null},[ el("summary",{},["Add one item by hand"]),
+      el("div",{class:"cmadd"},[nC, nD, nE, nT, nR, el("button",{class:"btn sm", type:"button", onclick:function(){
+        var code = nC.value.trim(); if(!code || !nD.value.trim()){ nC.focus(); return; }
+        if(cmItem(code)){ banner(code + " is already in the master BOM."); setTimeout(function(){ banner(""); }, 3000); return; }
+        cmAddItem({c:code, d:nD.value.trim(), e:nE.value.trim(), t:nT.value.trim(), s:"NMD65", h:"", r:+nR.value || 0});
+        state.coNew = ""; render();
+      }},["Add item"])]) ]));
+    /* search */
+    var q = state.cmQ || "";
+    var sIn = el("input",{type:"search", placeholder:"Search item code, description or ERP code", value:q, class:"cmsearch"});
+    var res = el("div",{class:"tablewrap"});
+    function drawRes(){
+      var term = (state.cmQ || "").toLowerCase(), list = items;
+      if(term){ var ws = term.split(/\s+/).filter(Boolean); list = items.filter(function(x){ var h = (x.c + " " + x.d + " " + (x.e || "") + " " + (x.t || "")).toLowerCase(); return ws.every(function(w){ return h.indexOf(w) >= 0; }); }); }
+      if(state.cmNoRate) list = list.filter(function(x){ return !(+x.r > 0); });
+      var tb = el("tbody", {}, list.slice(0, 120).map(function(x){
+        var ri = el("input",{type:"number", step:"any", value:+x.r > 0 ? String(x.r) : "", class:"coin" + (+x.r > 0 ? "" : " need"), placeholder:"rate"});
+        ri.addEventListener("change", function(){ cmSetRate(x.c, +ri.value || 0); ri.classList.toggle("need", !(+ri.value > 0)); });
+        return el("tr",{},[ el("td",{},[x.c]), el("td",{},[x.d]), el("td",{},[x.e || ""]), el("td",{class:"muted"},[x.t || ""]), el("td",{},[ri]),
+          el("td",{class:"muted", style:"font-size:11.5px"},[x.rb ? shortName(x.rb) + (x.ra ? " · " + fmtDate(x.ra) : "") : ""]) ]);
+      }));
+      res.innerHTML = "";
+      res.appendChild(el("table",{class:"cotable"},[ el("thead",{},[el("tr",{},["Item code","Description","ERP code","Type","Rate ₹","Rate set by"].map(function(h){ return el("th",{},[h]); }))]), tb ]));
+      res.appendChild(el("p",{class:"muted", style:"font-size:12px"},[list.length > 120 ? "Showing 120 of " + list.length + " — type to narrow the search." : list.length + " item" + (list.length === 1 ? "" : "s")]));
+    }
+    sIn.addEventListener("input", function(){ state.cmQ = sIn.value; drawRes(); });
+    var nr = el("label",{class:"cmnr"},[ (function(){ var b = el("input",{type:"checkbox"}); b.checked = !!state.cmNoRate; b.addEventListener("change", function(){ state.cmNoRate = b.checked; drawRes(); }); return b; })(), " only items without a rate" ]);
+    wrap.appendChild(el("div",{class:"coacts"},[sIn, nr]));
+    wrap.appendChild(res);
+    drawRes();
+    if((meta.history || []).length) wrap.appendChild(el("div",{class:"cmhist"},[ el("h4",{},["Update history"]),
+      el("ul",{}, meta.history.map(function(h){ return el("li",{},[fmtDate(String(h.at).slice(0,10)) + " · " + memberName(h.by) + " · " + (h.file || "") + " — " + h.added + " new, " + h.changed + " changed, " + h.rated + " rates"]); })) ]));
+    return wrap;
+  }
+
   /* the Tools tab: every tool is an app tile; open one to use it */
   var TOOLS = [
     {id:"cal", name:"Company calendar", desc:"Company paid leaves (holidays) and weekly offs. No tasks are given on these days.",
@@ -7884,6 +8713,10 @@ body.cad[data-sec]{--sec:var(--sel)}
     {id:"feas", name:"Feasibility review", desc:"New enquiry (Distribution Box) — fill the 18 check points, save for the team and print.",
      tag:"Form · Print", open:feasibilityCard,
      icon:'<rect x="8" y="5" width="24" height="31" rx="2.5"/><path d="M14 5v-1h12v1"/><path d="M13 14l2 2 3-4M13 22l2 2 3-4M13 30l2 2 3-4"/><path d="M21 14h6M21 22h6M21 30h6"/>'}
+,
+    {id:"cost", name:"DB costing", desc:"Summary, Fabrication, B.O.M and Master BOM like the costing file — type the data, download Excel with formulas.",
+     tag:"Costing · Excel", open:costingCard,
+     icon:'<path d="M8 5h24v30H8z"/><path d="M8 12h24M15 12v23M8 19h24M8 26h24"/><path d="M22 31l3-3 3 3"/>'}
   ];
   function viewTools(){
     var wrap = el("div");
@@ -7925,12 +8758,13 @@ body.cad[data-sec]{--sec:var(--sel)}
       tile.appendChild(ic);
       tile.appendChild(el("span",{class:"toolname"},[t.name]));
       tile.appendChild(el("span",{class:"tooldesc"},[t.desc]));
-      tile.appendChild(el("span",{class:"tooltag"},[t.tag + (t.id === "feas" && saved ? " · " + saved + " saved" : "")]));
+      tile.appendChild(el("span",{class:"tooltag" + (t.id === "cost" && cmDue() ? " due" : "")},[t.tag + (t.id === "feas" && saved ? " · " + saved + " saved" : "") +
+        (t.id === "cost" && state.cmLoaded ? (cmDue() ? " · master BOM update due" : " · " + (state.cm || []).length + " items") : "")]));
       return tile;
     }).concat([ el("div",{class:"toolapp soon", "aria-hidden":"true"},[
       el("span",{class:"toolicon"},["+"]), el("span",{class:"toolname"},["More tools coming"]),
       el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ])) ]));
-    if(state.db) frLoadSaved();
+    if(state.db){ frLoadSaved(); cmLoad(); }
     return wrap;
   }
   function viewValue(){
