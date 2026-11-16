@@ -1487,6 +1487,32 @@ button.calcell:hover{border-color:var(--sel)}
   .cad .whoami .greet{font-size:12px}
   .cad .whoami #whoName{font-size:14.5px}
 }
+
+/* costing: variants, row selection, copy / paste, suggestions */
+.covars{display:grid; gap:8px; padding:12px; border:1px solid var(--frame, var(--line)); border-radius:8px; background:var(--paper); min-width:0}
+.covhead{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.covhead h4{margin:0; flex:1}
+.covt .covsd{width:120px; font-family:var(--mono, ui-monospace, monospace)}
+.covt .covdesc{width:260px; max-width:100%}
+.cotable .covar{font-size:12.5px; padding:3px 4px; max-width:120px; font-family:var(--mono, ui-monospace, monospace)}
+.cotable .covd{font-size:12px; white-space:nowrap}
+.cotable tr.sel td{background:color-mix(in srgb, var(--sel) 12%, var(--paper))}
+.cotable tr.vbreak td{border-top:2px solid color-mix(in srgb, var(--sel) 45%, var(--line))}
+.cotable .cosel{width:15px; height:15px}
+.covdrow td{font-size:11.5px}
+.corowtools{display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:8px 10px; border:1px dashed var(--frame, var(--line)); border-radius:6px; font-size:12.5px}
+.corowtools .copastefor{font-size:12.5px; padding:3px 6px; width:auto; max-width:200px}
+.corowtools .cohint{font-size:11.5px; flex:1 1 220px}
+.coac{position:relative}
+.coac .cocode{width:150px}
+.coaclist{position:fixed; z-index:60; width:min(460px, 80vw); max-height:280px; overflow:auto; background:var(--paper);
+  border:1px solid var(--frame, var(--line)); border-radius:6px; box-shadow:0 12px 28px -12px rgba(0,0,0,.45)}
+.coacitem{display:flex; gap:6px; align-items:baseline; padding:6px 9px; cursor:pointer; font-size:12.5px; border-bottom:1px solid var(--frame-soft, var(--line))}
+.coacitem b{font-family:var(--mono, ui-monospace, monospace); white-space:nowrap}
+.coacitem span{flex:1; min-width:0}
+.coacitem i{font-style:normal; font-size:11px; color:var(--ink2); white-space:nowrap}
+.coacitem.on, .coacitem:hover{background:color-mix(in srgb, var(--sel) 14%, var(--paper))}
+.cofilter{font-size:12.5px}
 /* DB costing tool */
 .cofindbox{display:grid; gap:8px; padding:12px; border:1px solid color-mix(in srgb, var(--sel) 35%, var(--line)); border-radius:8px;
   background:color-mix(in srgb, var(--sel) 5%, var(--paper)); min-width:0}
@@ -1958,7 +1984,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "04 Nov 2026 · greeting";
+  var APP_VERSION = "16 Nov 2026 · costing variants, copy-paste";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -7998,13 +8024,14 @@ body.cad[data-sec]{--sec:var(--sel)}
   var CO_ASM = ["Box Assembly", "Door Assembly", "Frame Assembly", "Packaging"];
   function coDefaults(){
     var r = {}; CO_RATES.forEach(function(x){ r[x[0]] = x[2]; });
-    return {id:"", sd:"", desc:"", date:today(), qty:"", rates:r, gasketM:0, ohpRm:0.06, ohp:0.07, disc:0.0105, assembly:100,
-            fab:[{d:"BOX", L:"", W:"", T:1.2, q:1, coat:true}], bom:[]};
+    return coNorm({id:"", sd:"", desc:"", date:today(), qty:"", rates:r, gasketM:0, ohpRm:0.06, ohp:0.07, disc:0.0105,
+            variants:[{id:"V1", sd:"", desc:"", assembly:100}],
+            fab:[{vid:"V1", d:"BOX", L:"", W:"", T:1.2, q:1, coat:true}], bom:[]});
   }
   /* the SD10299 costing from the workbook, as a worked example */
   function coExample(){
     var c = coDefaults();
-    c.sd = "SD10299"; c.desc = "CJU DB 1.2MM D2672106 0"; c.qty = 466;
+    c.variants = [{id:"V1", sd:"SD10299", desc:"CJU DB 1.2MM D2672106 0", assembly:100}]; c.qty = 466;
     c.fab = [["BOX",643.2,340.2],["TOP SIDE PLATE",448,98],["BOTTOM SIDE PLATE",448,98],["TOP SIDE PLATE PART",398,64],["FRAME",539.6,401.6],
       ["DOOR (Perforated)",470.5,313],["BRACKET PART 1",170,52],["BRACKET PART 2",283,174],["BRACKET PART 3",101,55],["GI BKT SMALL SD9477",84,40,1,false],
       ["TATA MOD SWITCH SKT",178,15,2],["GI BKT BIG",121,60,1,false]].map(function(x){ return {d:x[0], L:x[1], W:x[2], T:1.2, q:x[3] || 1, coat:x[4] !== false}; });
@@ -8015,9 +8042,9 @@ body.cad[data-sec]{--sec:var(--sel)}
       ["Door Assembly","PI00149",1],["Door Assembly","PI00247",1],["Frame Assembly","PI00448",3],["Frame Assembly","PI00290",4],["Packaging","PM00296",6],
       ["Packaging","PI00374",1],["Packaging","PM00227",1.4],["Packaging","PM00248",0.0181],["Packaging","PM00336",1],["","RM00069",0.2533]]
       .map(function(x){ return {asm:x[0], code:x[1], q:x[2]}; });
-    return c;
+    return coNorm(c);
   }
-  function coLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_co") || "null"); if(v && v.fab && v.bom && v.rates) return v; } catch(e){} return coExample(); }
+  function coLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_co") || "null"); if(v && v.fab && v.bom && v.rates) return coNorm(v); } catch(e){} return coExample(); }
   function coSave(v){ try { localStorage.setItem("pmi_dd_co", JSON.stringify(v)); } catch(e){} }
 
   /* ----- master BOM ----- */
@@ -8194,11 +8221,18 @@ body.cad[data-sec]{--sec:var(--sel)}
       var it = cmItem(b.code), rate = it ? (+it.r || 0) : 0;
       return {it:it, rate:rate, amt:rate * n(b.q), missing:!it, noRate:!!it && !(+it.r > 0)};
     });
-    var bo = bom.reduce(function(a, b){ return a + b.amt; }, 0);
-    var S = {C:tot.N, D:tot.R, E:bo, F:n(c.gasketM) * n(R.gasket)};
-    S.G = S.C + S.D + S.E + S.F; S.H = tot.O; S.I = tot.T; S.J = n(c.assembly); S.K = S.H + S.I + S.J;
-    S.L = n(c.ohpRm) * S.G; S.M = S.K * n(c.ohp); S.N = S.G + S.K + S.M + S.L; S.O = S.N * n(c.disc); S.P = S.N - S.O;
-    return {rows:rows, tot:tot, bom:bom, S:S, powderKg:n(R.p9003) ? tot.R / n(R.p9003) : 0};
+    /* one summary line per parent assembly (variant) */
+    var V = {};
+    (c.variants || []).forEach(function(v){
+      var S = {C:0, D:0, E:0, F:n(c.gasketM) * n(R.gasket), H:0, I:0};
+      c.fab.forEach(function(f, i){ if(f.vid === v.id){ S.C += rows[i].N; S.D += rows[i].R; S.H += rows[i].O; S.I += rows[i].T; } });
+      c.bom.forEach(function(b, i){ if(b.vid === v.id) S.E += bom[i].amt; });
+      S.G = S.C + S.D + S.E + S.F; S.J = n(v.assembly); S.K = S.H + S.I + S.J;
+      S.L = n(c.ohpRm) * S.G; S.M = S.K * n(c.ohp); S.N = S.G + S.K + S.M + S.L; S.O = S.N * n(c.disc); S.P = S.N - S.O;
+      V[v.id] = S;
+    });
+    var first = c.variants && c.variants[0] ? V[c.variants[0].id] : {};
+    return {rows:rows, tot:tot, bom:bom, V:V, S:first, powderKg:n(R.p9003) ? tot.R / n(R.p9003) : 0};
   }
 
   /* ----- Excel export with formulas (ExcelJS, loaded only when needed) ----- */
@@ -8233,7 +8267,8 @@ body.cad[data-sec]{--sec:var(--sel)}
         return cell;
       }
       function F(formula, result){ return {formula:formula, result:(typeof result === "number" && isFinite(result)) ? result : undefined}; }
-      var sd = c.sd || "DB", desc = c.desc || "";
+      var sd = coTitle(c), desc = coTitleDesc(c);
+      var vSd = function(x){ return coVarCode(coVar(c, x.vid)); }, vDesc = function(x){ return coVar(c, x.vid).desc || ""; };
 
       /* ===== Summary ===== */
       var s = wb.addWorksheet("Summary");
@@ -8249,23 +8284,26 @@ body.cad[data-sec]{--sec:var(--sel)}
        "OHP on RM","OHP","Total Cost","Discount","Net Cost"].forEach(function(h, i){
         put(s, s.getCell(3, i + 1).address, h, {bold:true, wrap:true, fill:i === 15 ? "FF92D050" : null});
       });
-      var S = r.S;
-      put(s, "A4", sd, {h:"left"}); put(s, "B4", desc, {h:"left"});
-      put(s, "C4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!N:N)", S.C), {fmt:ACC});
-      put(s, "D4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!R:R)", S.D), {fmt:ACC});
-      put(s, "E4", F("SUMIF('B.O.M'!$A:$A,$A4,'B.O.M'!$J:$J)", S.E), {fmt:ACC});
-      put(s, "F4", F("Fabrication!$I$5*Fabrication!$E$2", S.F), {fmt:ACC});
-      put(s, "G4", F("SUM(C4:F4)", S.G), {fmt:ACC});
-      put(s, "H4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!O:O)", S.H), {fmt:ACC});
-      put(s, "I4", F("SUMIF(Fabrication!$A:$A,$A4,Fabrication!T:T)", S.I), {fmt:ACC});
-      put(s, "J4", +c.assembly || 0, {fmt:ACC});
-      put(s, "K4", F("SUM(H4:J4)", S.K), {fmt:ACC});
-      put(s, "L4", F("L2*G4", S.L), {fmt:ACC});
-      put(s, "M4", F("K4*$M$2", S.M), {fmt:ACC});
-      put(s, "N4", F("G4+K4+M4+L4", S.N), {fmt:ACC});
-      put(s, "O4", F("N4*$O$2", S.O), {fmt:ACC});
-      put(s, "P4", F("N4-O4", S.P), {fmt:ACC, bold:true, fill:"FF92D050"});
-      put(s, "A6", "Made in NMD Development Desk on " + fmtDate(today()) + " by " + memberName(state.who) + (c.qty ? " · order qty " + c.qty : ""), {border:false, h:"left"});
+      c.variants.forEach(function(v, vi){
+        var R = 4 + vi, S = r.V[v.id], a = function(col){ return col + R; };
+        s.getRow(R).height = 22.95;
+        put(s, a("A"), coVarCode(v), {h:"left"}); put(s, a("B"), v.desc || "", {h:"left"});
+        put(s, a("C"), F("SUMIF(Fabrication!$A:$A,$A" + R + ",Fabrication!N:N)", S.C), {fmt:ACC});
+        put(s, a("D"), F("SUMIF(Fabrication!$A:$A,$A" + R + ",Fabrication!R:R)", S.D), {fmt:ACC});
+        put(s, a("E"), F("SUMIF('B.O.M'!$A:$A,$A" + R + ",'B.O.M'!$J:$J)", S.E), {fmt:ACC});
+        put(s, a("F"), F("Fabrication!$I$5*Fabrication!$E$2", S.F), {fmt:ACC});
+        put(s, a("G"), F("SUM(C" + R + ":F" + R + ")", S.G), {fmt:ACC});
+        put(s, a("H"), F("SUMIF(Fabrication!$A:$A,$A" + R + ",Fabrication!O:O)", S.H), {fmt:ACC});
+        put(s, a("I"), F("SUMIF(Fabrication!$A:$A,$A" + R + ",Fabrication!T:T)", S.I), {fmt:ACC});
+        put(s, a("J"), +v.assembly || 0, {fmt:ACC});
+        put(s, a("K"), F("SUM(H" + R + ":J" + R + ")", S.K), {fmt:ACC});
+        put(s, a("L"), F("$L$2*G" + R, S.L), {fmt:ACC});
+        put(s, a("M"), F("K" + R + "*$M$2", S.M), {fmt:ACC});
+        put(s, a("N"), F("G" + R + "+K" + R + "+M" + R + "+L" + R, S.N), {fmt:ACC});
+        put(s, a("O"), F("N" + R + "*$O$2", S.O), {fmt:ACC});
+        put(s, a("P"), F("N" + R + "-O" + R, S.P), {fmt:ACC, bold:true, fill:"FF92D050"});
+      });
+      put(s, "A" + (c.variants.length + 5), "Made in NMD Development Desk on " + fmtDate(today()) + " by " + memberName(state.who) + (c.qty ? " · order qty " + c.qty : ""), {border:false, h:"left"});
 
       /* ===== Fabrication ===== */
       var f = wb.addWorksheet("Fabrication");
@@ -8285,9 +8323,11 @@ body.cad[data-sec]{--sec:var(--sel)}
       heads.forEach(function(h, i){ if(i === 22) return; put(f, f.getCell(12, i + 1).address, h, {size:10, bold:true, wrap:true, fill:"FFFFC000"}); });
       f.getRow(12).height = 38.6;
       var first = 13;
-      c.fab.forEach(function(x, i){
-        var R = first + i, rr = r.rows[i], k = function(col){ return col + R; };
-        put(f, k("A"), sd, {size:10}); put(f, k("B"), desc, {size:10, h:"left", wrap:true}); put(f, k("C"), "", {size:10});
+      var vOrder = {}; c.variants.forEach(function(v, i){ vOrder[v.id] = i; });
+      var byVar = function(list){ return list.map(function(x, i){ return i; }).sort(function(a, b){ return (vOrder[list[a].vid] - vOrder[list[b].vid]) || (a - b); }); };
+      byVar(c.fab).forEach(function(i, n){
+        var x = c.fab[i], R = first + n, rr = r.rows[i], k = function(col){ return col + R; };
+        put(f, k("A"), vSd(x), {size:10}); put(f, k("B"), vDesc(x), {size:10, h:"left", wrap:true}); put(f, k("C"), "", {size:10});
         put(f, k("D"), x.d || "", {size:10, h:"left", wrap:true});
         put(f, k("E"), +x.L || 0, {size:10, fill:"FFFABF8F"}); put(f, k("F"), +x.W || 0, {size:10, fill:"FFFABF8F"});
         put(f, k("G"), +x.T || 0, {size:10, fill:"FFFABF8F"}); put(f, k("H"), +x.q || 0, {size:10, fill:"FFFABF8F"});
@@ -8329,13 +8369,13 @@ body.cad[data-sec]{--sec:var(--sel)}
       b.mergeCells("I1:J2"); put(b, "I1", "BOUGHT OUT TOTAL", {bold:true, size:11, wrap:true});
       b.mergeCells("I3:J4");
       var bf = 6, bl = bf + Math.max(c.bom.length, 1) - 1;
-      put(b, "I3", F("SUM(J" + bf + ":J" + bl + ")", r.S.E), {bold:true, size:16, fmt:"#,##0.00", fill:"FF92D050"});
+      put(b, "I3", F("SUM(J" + bf + ":J" + bl + ")", r.bom.reduce(function(a, x){ return a + x.amt; }, 0)), {bold:true, size:16, fmt:"#,##0.00", fill:"FF92D050"});
       ["Parent \nAssembly","Description Of Assembly","Assembly ","Item Code","ERP CODE","Component Description","Item Name","Quantity Per DB","Rate","Amount"]
         .forEach(function(h, i){ put(b, b.getCell(5, i + 1).address, h, {bold:true, size:12, wrap:true, fill:i >= 8 ? "FF92D050" : null}); });
       b.getRow(5).height = 35.25;
-      c.bom.forEach(function(x, i){
-        var R = bf + i, br = r.bom[i];
-        put(b, "A" + R, sd); put(b, "B" + R, desc, {h:"left"}); put(b, "C" + R, x.asm || "", {h:"left"});
+      byVar(c.bom).forEach(function(i, n){
+        var x = c.bom[i], R = bf + n, br = r.bom[i];
+        put(b, "A" + R, vSd(x)); put(b, "B" + R, vDesc(x), {h:"left"}); put(b, "C" + R, x.asm || "", {h:"left"});
         put(b, "D" + R, x.code || "");
         put(b, "E" + R, F("IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:C,3,0),\"\")", undefined), {h:"left"});
         b.getCell("E" + R).value = {formula:"IFERROR(VLOOKUP(D" + R + ",'TCS MASTER BOM'!A:C,3,0),\"\")", result:br.it ? (br.it.e || "") : "not in master"};
@@ -8347,7 +8387,7 @@ body.cad[data-sec]{--sec:var(--sel)}
         put(b, "J" + R, F("H" + R + "*I" + R, br.amt), {fmt:"0.00"});
       });
       var bt = bl + 1;
-      put(b, "H" + bt, "TOTAL", {bold:true}); put(b, "J" + bt, F("SUM(J" + bf + ":J" + bl + ")", r.S.E), {bold:true, fmt:"0.00", fill:"FF92D050"});
+      put(b, "H" + bt, "TOTAL", {bold:true}); put(b, "J" + bt, F("SUM(J" + bf + ":J" + bl + ")", r.bom.reduce(function(a, x){ return a + x.amt; }, 0)), {bold:true, fmt:"0.00", fill:"FF92D050"});
       b.autoFilter = "A5:J" + bl;
 
       /* ===== TCS MASTER BOM ===== */
@@ -8365,7 +8405,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     return coWorkbook(c).then(function(buf){
       return claude.use("downloads").then(function(d){
         if(!d) throw new Error("no downloads");
-        return d.save({filename:"Costing_" + (c.sd || "DB").replace(/[^\w\-]+/g, "_") + "_" + today() + ".xlsx", data:buf,
+        return d.save({filename:"Costing_" + coTitle(c).replace(/[^\w\-]+/g, "_") + "_" + today() + ".xlsx", data:buf,
                        mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
       });
     }).then(function(){ banner("Costing workbook downloaded."); setTimeout(function(){ banner(""); }, 4000); },
@@ -8384,18 +8424,220 @@ body.cad[data-sec]{--sec:var(--sel)}
     var id = c.id || ("CO-" + Date.now().toString(36));
     c.id = id; c.savedBy = state.who; c.savedAt = new Date().toISOString();
     var r = coCalc(c); c.netCost = r.S.P;
+    c.nets = c.variants.map(function(v){ return {sd:coVarCode(v), net:(r.V[v.id] || {}).P || 0}; });
+    c.title = coTitle(c); c.titleDesc = coTitleDesc(c);
     coSave(c);
     state.costings = (state.costings || []).filter(function(x){ return x.id !== id; }).concat([JSON.parse(JSON.stringify(c))]);
     if(state.db) state.db.doc("costings/" + id).set(c).catch(onWriteErr);
-    banner("Costing saved" + (c.sd ? " — " + c.sd : "") + ". Net cost ₹" + r.S.P.toFixed(2) + ".");
+    banner("Costing saved — " + coTitle(c) + ". " + c.nets.map(function(x){ return (c.nets.length > 1 ? x.sd + " " : "Net cost ") + "₹" + x.net.toFixed(2); }).join(" · ") + ".");
     setTimeout(function(){ banner(""); }, 4000);
     render();
   }
 
   /* ----- the screen ----- */
+  /* ----- variants: one costing file can hold several DBs (parent assemblies) ----- */
+  function coNorm(c){
+    if(!c) return c;
+    if(!c.variants || !c.variants.length){
+      c.variants = [{id:"V1", sd:String(c.sd || "").trim(), desc:String(c.desc || "").trim(), assembly:c.assembly == null ? 100 : c.assembly}];
+    }
+    var ids = {};
+    c.variants.forEach(function(v, i){ if(!v.id || ids[v.id]) v.id = "V" + (i + 1) + "-" + Math.random().toString(36).slice(2, 6); ids[v.id] = true;
+      if(v.assembly == null || v.assembly === "") v.assembly = 100; });
+    var first = c.variants[0].id;
+    (c.fab || []).forEach(function(x){ if(!x.vid || !ids[x.vid]) x.vid = first; if(!x.rid) x.rid = uid("r"); });
+    (c.bom || []).forEach(function(x){ if(!x.vid || !ids[x.vid]) x.vid = first; if(!x.rid) x.rid = uid("r"); });
+    return c;
+  }
+  function coVar(c, vid){ return c.variants.filter(function(v){ return v.id === vid; })[0] || c.variants[0]; }
+  function coVarCode(v){ return String((v && v.sd) || "").trim(); }
+  function coTitle(c){
+    if(String(c.sd || "").trim()) return String(c.sd).trim();
+    var codes = c.variants.map(coVarCode).filter(Boolean);
+    return codes.length > 1 ? codes[0] + " TO " + codes[codes.length - 1] : (codes[0] || "DB");
+  }
+  function coTitleDesc(c){
+    if(String(c.desc || "").trim()) return String(c.desc).trim();
+    return c.variants.length === 1 ? String(c.variants[0].desc || "") : c.variants.map(function(v){ return v.desc; }).filter(Boolean).join(" / ");
+  }
+  /* find the variant for a pasted parent-assembly code; make a new one if it is not there */
+  function coVarByCode(c, code, desc){
+    var k = String(code || "").trim().toUpperCase(); if(!k) return null;
+    var v = c.variants.filter(function(x){ return coVarCode(x).toUpperCase() === k; })[0];
+    if(!v){
+      var blank = c.variants.length === 1 && !coVarCode(c.variants[0]) ? c.variants[0] : null;
+      if(blank){ blank.sd = String(code).trim(); v = blank; }
+      else { v = {id:uid("V"), sd:String(code).trim(), desc:"", assembly:100}; c.variants.push(v); }
+    }
+    if(desc && !String(v.desc || "").trim()) v.desc = String(desc).trim();
+    return v;
+  }
+  /* rows <-> tab separated text, in the same column order as the Excel sheets */
+  var CO_FAB_COLS = ["vid","vdesc","d","L","W","T","q","coat"];
+  var CO_BOM_COLS = ["vid","vdesc","asm","code","q"];
+  function coRowsToTsv(c, kind, rows){
+    return rows.map(function(x){
+      var v = coVar(c, x.vid);
+      return kind === "fab"
+        ? [coVarCode(v), v.desc || "", x.d || "", x.L, x.W, x.T, x.q, x.coat === false ? "N" : "Y"].join("\t")
+        : [coVarCode(v), v.desc || "", x.asm || "", x.code || "", x.q].join("\t");
+    }).join("\n");
+  }
+  function coParseGrid(text){
+    var lines = String(text || "").replace(/\r/g, "").split("\n");
+    while(lines.length && lines[lines.length - 1] === "") lines.pop();
+    return lines.map(function(l){ return l.split("\t"); });
+  }
+  /* paste a block of cells (from Excel or from this table) starting at one cell, like Excel does */
+  function coPasteCells(c, kind, startRid, startCol, grid, visible, defaultVid){
+    var cols = kind === "fab" ? CO_FAB_COLS : CO_BOM_COLS, list = c[kind];
+    var order = visible.slice(), pos = order.indexOf(startRid);
+    if(pos < 0) pos = order.length;
+    var added = 0, touched = 0;
+    grid.forEach(function(cells, gi){
+      cells = cells.slice();
+      var ci = cols.indexOf(startCol);
+      /* a block copied straight from the costing workbook */
+      if(ci === 0 && kind === "fab" && cells.length >= 8 && String(cells[2]).trim() === "" && !/^[yn]$/i.test(String(cells[7]).trim())) cells.splice(2, 1);
+      if(ci === 0 && kind === "bom" && cells.length >= 8){ cells = [cells[0], cells[1], cells[2], cells[3], cells[7]]; }
+      var rid = order[pos + gi], row = rid ? list.filter(function(x){ return x.rid === rid; })[0] : null;
+      if(!row){
+        var prev = list[list.length - 1] || {};
+        row = kind === "fab" ? {rid:uid("r"), vid:defaultVid || prev.vid, d:"", L:"", W:"", T:prev.T || 1.2, q:1, coat:true}
+                             : {rid:uid("r"), vid:defaultVid || prev.vid, asm:prev.asm || "", code:"", q:1};
+        list.push(row); added++;
+      } else touched++;
+      var pendingDesc = null;
+      cells.forEach(function(raw, k){
+        var key = cols[ci + k]; if(!key) return;
+        var val = String(raw == null ? "" : raw).trim();
+        if(key === "vid"){ if(val){ var v = coVarByCode(c, val); if(v) row.vid = v.id; } }
+        else if(key === "vdesc"){ pendingDesc = val; }
+        else if(key === "coat"){ row.coat = !/^(n|no|0|false)$/i.test(val); }
+        else if(key === "d" || key === "asm"){ row[key] = val; }
+        else if(key === "code"){ var it = cmItem(val) || cmByErp(val); row.code = it ? it.c : val; }
+        else { var nv = parseFloat(val.replace(/,/g, "")); row[key] = isFinite(nv) ? nv : (val === "" ? "" : row[key]); }
+      });
+      if(pendingDesc){ var vv = coVar(c, row.vid); if(!String(vv.desc || "").trim()) vv.desc = pendingDesc; }
+    });
+    return {added:added, touched:touched};
+  }
+  function coCopyRows(c, kind, rows){
+    state.coClip = {kind:kind, rows:JSON.parse(JSON.stringify(rows))};
+    var tsv = coRowsToTsv(c, kind, rows);
+    try { if(navigator.clipboard) navigator.clipboard.writeText(tsv).catch(function(){}); } catch(e){}
+    banner(rows.length + " row" + (rows.length === 1 ? "" : "s") + " copied — paste them here with “Paste rows” (or Ctrl+V), or into Excel.");
+    setTimeout(function(){ banner(""); }, 4000);
+    render();
+  }
+  function coPasteRows(c, kind, afterRid, targetVid){
+    var clip = state.coClip; if(!clip || clip.kind !== kind || !clip.rows.length) return 0;
+    var list = c[kind], at = list.length;
+    if(targetVid){                                   /* pasting for another variant: put them after that variant's rows */
+      for(var j = list.length - 1; j >= 0; j--){ if(list[j].vid === targetVid){ at = j + 1; break; } }
+    } else if(afterRid){ var i = list.map(function(x){ return x.rid; }).indexOf(afterRid); if(i >= 0) at = i + 1; }
+    var copies = clip.rows.map(function(x){ var y = JSON.parse(JSON.stringify(x)); y.rid = uid("r"); if(targetVid) y.vid = targetVid; if(!c.variants.some(function(v){ return v.id === y.vid; })) y.vid = c.variants[0].id; return y; });
+    Array.prototype.splice.apply(list, [at, 0].concat(copies));
+    state.coSel = state.coSel || {}; state.coSel[kind] = {}; copies.forEach(function(y){ state.coSel[kind][y.rid] = true; });
+    return copies.length;
+  }
+  /* the row toolbar + keyboard shortcuts shared by the Fabrication and B.O.M tables */
+  function coRowTools(c, kind, visibleRows, tableWrap){
+    state.coSel = state.coSel || {}; var sel = state.coSel[kind] = state.coSel[kind] || {};
+    var chosen = visibleRows.filter(function(x){ return sel[x.rid]; });
+    var clip = state.coClip && state.coClip.kind === kind ? state.coClip.rows.length : 0;
+    var target = el("select",{"aria-label":"Paste the rows for", class:"copastefor"},
+      [el("option",{value:""},["same parent assembly"])].concat(c.variants.map(function(v){ return el("option",{value:v.id, selected:state.coPasteFor === v.id ? "selected" : null},["for " + (coVarCode(v) || "variant")]); })));
+    target.addEventListener("change", function(){ state.coPasteFor = target.value; });
+    function lastSel(){ var s = c[kind].filter(function(x){ return sel[x.rid]; }); return s.length ? s[s.length - 1].rid : null; }
+    function doPaste(){ var n = coPasteRows(c, kind, lastSel(), target.value); if(n){ coSave(c); render(); banner(n + " row" + (n === 1 ? "" : "s") + " pasted."); setTimeout(function(){ banner(""); }, 2500); } }
+    function doCopy(){ if(chosen.length) coCopyRows(c, kind, chosen); }
+    function doDelete(){ if(!chosen.length) return; c[kind] = c[kind].filter(function(x){ return !sel[x.rid]; }); state.coSel[kind] = {}; coSave(c); render(); }
+    function doDup(){ if(!chosen.length) return; state.coClip = {kind:kind, rows:JSON.parse(JSON.stringify(chosen))}; doPaste(); }
+    /* Ctrl+C / Ctrl+V / Delete on selected rows (not while typing in a cell) */
+    tableWrap.addEventListener("keydown", function(e){
+      var a = document.activeElement, typing = a && (a.tagName === "INPUT" && a.type !== "checkbox" || a.tagName === "TEXTAREA" || a.tagName === "SELECT");
+      if(typing) return;
+      var k = (e.key || "").toLowerCase();
+      if((e.ctrlKey || e.metaKey) && k === "c" && chosen.length){ e.preventDefault(); doCopy(); }
+      else if((e.ctrlKey || e.metaKey) && k === "v" && state.coClip && state.coClip.kind === kind){ e.preventDefault(); doPaste(); }
+      else if((e.ctrlKey || e.metaKey) && k === "d" && chosen.length){ e.preventDefault(); doDup(); }
+      else if(k === "delete" && chosen.length){ e.preventDefault(); doDelete(); }
+    });
+    return el("div",{class:"corowtools"},[
+      el("span",{class:"muted"},[chosen.length ? chosen.length + " selected" : "Tick rows to copy them"]),
+      el("button",{class:"btn sm", type:"button", disabled:chosen.length ? null : "disabled", title:"Ctrl+C", onclick:doCopy},["Copy rows"]),
+      el("button",{class:"btn sm", type:"button", disabled:clip ? null : "disabled", title:"Ctrl+V — pasted below the last ticked row (or at the end)", onclick:doPaste},["Paste rows" + (clip ? " (" + clip + ")" : "")]),
+      target,
+      el("button",{class:"btn sm ghost", type:"button", disabled:chosen.length ? null : "disabled", title:"Ctrl+D", onclick:doDup},["Duplicate"]),
+      el("button",{class:"btn sm ghost", type:"button", disabled:chosen.length ? null : "disabled", title:"Delete key", onclick:doDelete},["Delete selected"]),
+      el("span",{class:"muted cohint"},["Cells copied from Excel can be pasted straight into any cell — new rows are added as needed."])
+    ]);
+  }
+  /* a tick box per row and one in the header for all visible rows */
+  function coSelBox(kind, x){
+    var b = el("input",{type:"checkbox", class:"cosel", "aria-label":"Select this row"});
+    b.checked = !!(state.coSel && state.coSel[kind] && state.coSel[kind][x.rid]);
+    b.addEventListener("change", function(){ state.coSel = state.coSel || {}; state.coSel[kind] = state.coSel[kind] || {};
+      if(b.checked) state.coSel[kind][x.rid] = true; else delete state.coSel[kind][x.rid]; render(); });
+    return b;
+  }
+  function coSelAll(kind, rows){
+    var sel = (state.coSel && state.coSel[kind]) || {};
+    var b = el("input",{type:"checkbox", class:"cosel", "aria-label":"Select all rows shown"});
+    b.checked = rows.length > 0 && rows.every(function(x){ return sel[x.rid]; });
+    b.addEventListener("change", function(){ state.coSel = state.coSel || {}; state.coSel[kind] = {};
+      if(b.checked) rows.forEach(function(x){ state.coSel[kind][x.rid] = true; }); render(); });
+    return b;
+  }
+  /* item code box that also searches the master by name, with a suggestion list */
+  function coItemInput(x, onPick){
+    var wrap = el("div",{class:"coac"});
+    var inp = el("input",{type:"text", value:x.code || "", class:"cocode", placeholder:"code or name…", autocomplete:"off", "aria-label":"Item code or component name", "data-col":"code"});
+    var list = el("div",{class:"coaclist", role:"listbox", hidden:true});
+    var hits = [], act = -1;
+    function close(){ list.hidden = true; act = -1; }
+    function pick(it){ inp.value = it.c; close(); onPick(it.c); }
+    function draw(){
+      list.innerHTML = "";
+      hits.forEach(function(it, i){
+        var o = el("div",{class:"coacitem" + (i === act ? " on" : ""), role:"option"},[
+          el("b",{},[it.c]), el("span",{},[" " + (it.d || "")]), el("i",{},[+it.r > 0 ? "₹" + (+it.r).toFixed(2) : "no rate"]) ]);
+        o.addEventListener("mousedown", function(e){ e.preventDefault(); pick(it); });
+        list.appendChild(o);
+      });
+      list.hidden = !hits.length;
+      if(!list.hidden){                              /* fixed position, so the table's scroll box does not cut it off */
+        var rc = inp.getBoundingClientRect(), w = Math.min(460, window.innerWidth - 16);
+        list.style.left = Math.max(8, Math.min(rc.left, window.innerWidth - w - 8)) + "px";
+        list.style.width = w + "px";
+        var below = window.innerHeight - rc.bottom;
+        if(below < 220 && rc.top > below){ list.style.top = ""; list.style.bottom = (window.innerHeight - rc.top + 2) + "px"; }
+        else { list.style.bottom = ""; list.style.top = (rc.bottom + 2) + "px"; }
+      }
+    }
+    window.addEventListener("scroll", function(){ if(!list.hidden) close(); }, {passive:true, capture:true});
+    inp.addEventListener("input", function(){
+      var v = inp.value.trim();
+      onPick(v, true);
+      if(v.length < 2 || (cmItem(v) && !/\s/.test(v))){ hits = []; close(); return; }
+      hits = cmSearch(v, 8); act = hits.length ? 0 : -1; draw();
+    });
+    inp.addEventListener("keydown", function(e){
+      if(list.hidden) return;
+      if(e.key === "ArrowDown"){ e.preventDefault(); act = Math.min(hits.length - 1, act + 1); draw(); }
+      else if(e.key === "ArrowUp"){ e.preventDefault(); act = Math.max(0, act - 1); draw(); }
+      else if(e.key === "Enter" && act >= 0){ e.preventDefault(); pick(hits[act]); }
+      else if(e.key === "Escape"){ close(); }
+    });
+    inp.addEventListener("blur", function(){ setTimeout(close, 120);
+      if(!cmItem(inp.value)){ var byE = cmByErp(inp.value); if(byE){ inp.value = byE.c; onPick(byE.c); } } });
+    wrap.appendChild(inp); wrap.appendChild(list);
+    return wrap;
+  }
   function costingCard(){
     cmLoad(); coLoadSaved();
-    var c = coLoad(), tab = state.coTab || "summary";
+    var c = coNorm(coLoad()), tab = state.coTab || "summary";
     var card = el("div",{class:"card cocard"});
     var r = coCalc(c);
     var money = function(x){ return "₹ " + (+x || 0).toLocaleString("en-IN", {minimumFractionDigits:2, maximumFractionDigits:2}); };
@@ -8413,6 +8655,19 @@ body.cad[data-sec]{--sec:var(--sel)}
       i.addEventListener("input", function(){ obj[key] = i.value; refresh(); });
       return i;
     }
+    /* parent assembly cell: type or pick a code; a new code makes a new variant (and cells can be pasted into it) */
+    function varSelect(x){
+      var s = el("input",{type:"text", class:"covar", list:"coVarList", value:coVarCode(coVar(c, x.vid)), "aria-label":"Parent assembly", "data-col":"vid", autocomplete:"off"});
+      s.addEventListener("change", function(){
+        var val = s.value.trim();
+        if(!val){ s.value = coVarCode(coVar(c, x.vid)); return; }
+        var before = c.variants.length, v = coVarByCode(c, val);
+        if(v){ x.vid = v.id; coSave(c); render(); if(c.variants.length > before){ banner("New variant " + val + " added — fill its DB description at the top."); setTimeout(function(){ banner(""); }, 4000); } }
+      });
+      return s;
+    }
+    var multi = c.variants.length > 1;
+    var varList = el("datalist",{id:"coVarList"}, c.variants.map(function(v){ return el("option",{value:coVarCode(v)},[v.desc || ""]); }));
     /* head */
     var due = cmDue(), nItems = (state.cm || []).length;
     card.appendChild(el("div",{class:"cardhead"},[
@@ -8433,18 +8688,57 @@ body.cad[data-sec]{--sec:var(--sel)}
       ]));
     }
     body.appendChild(el("div",{class:"formgrid cohead"},[
-      el("div",{class:"field"},[el("label",{},["Parent assembly / SD code"]), txt(c, "sd", {placeholder:"e.g. SD10299"})]),
-      el("div",{class:"field cowide"},[el("label",{},["DB description"]), txt(c, "desc", {placeholder:"e.g. CJU DB 1.2MM D2672106 0"})]),
+      el("div",{class:"field"},[el("label",{},["Costing name / SD code(s)"]), txt(c, "sd", {placeholder:coTitle(c) === "DB" ? "e.g. SD9559 TO SD9562" : coTitle(c)})]),
+      el("div",{class:"field cowide"},[el("label",{},["Description (B.O.M sheet heading)"]), txt(c, "desc", {placeholder:coTitleDesc(c) || "e.g. IP42 8COMP 4W TO 12W DB"})]),
       el("div",{class:"field"},[el("label",{},["Costing date"]), (function(){ var i = el("input",{type:"date", value:c.date || ""}); i.addEventListener("input", function(){ c.date = i.value; refresh(); }); return i; })()]),
       el("div",{class:"field"},[el("label",{},["Order qty"]), num(c, "qty")])
     ]));
-    /* net cost strip */
-    body.appendChild(el("div",{class:"costrip"},[
-      el("div",{},[el("span",{},["RM cost"]), L(function(r){ return money(r.S.G); })]),
-      el("div",{},[el("span",{},["Contribution (JW)"]), L(function(r){ return money(r.S.K); })]),
-      el("div",{},[el("span",{},["Total cost"]), L(function(r){ return money(r.S.N); })]),
-      el("div",{class:"net"},[el("span",{},["Net cost / DB"]), L(function(r){ return money(r.S.P); })])
+    /* variants = parent assemblies in this costing */
+    var vt = el("tbody");
+    c.variants.forEach(function(v, vi){
+      var nF = c.fab.filter(function(x){ return x.vid === v.id; }).length, nB = c.bom.filter(function(x){ return x.vid === v.id; }).length;
+      var sdIn = el("input",{type:"text", value:v.sd || "", placeholder:"e.g. SD9560", class:"covsd", "aria-label":"Parent assembly code"});
+      sdIn.addEventListener("input", function(){ v.sd = sdIn.value; refresh(); });
+      sdIn.addEventListener("change", function(){ v.sd = sdIn.value.trim(); coSave(c); render(); });
+      var dIn = el("input",{type:"text", value:v.desc || "", placeholder:"e.g. IP42 8COMP 4W", class:"covdesc", "aria-label":"DB description"});
+      dIn.addEventListener("input", function(){ v.desc = dIn.value; refresh(); });
+      vt.appendChild(el("tr",{},[
+        el("td",{},[sdIn]), el("td",{},[dIn]), el("td",{},[num(v, "assembly", {class:"coin", "aria-label":"Assembly cost"})]),
+        el("td",{class:"n muted"},[nF + " parts · " + nB + " items"]),
+        el("td",{class:"n"},[el("b",{},[L(function(r){ return money((r.V[v.id] || {}).P); })])]),
+        el("td",{},[
+          el("button",{class:"btn sm ghost", type:"button", title:"Make a new variant with a copy of all parts and items of this one", onclick:function(){
+            var nv = {id:uid("V"), sd:"", desc:v.desc || "", assembly:v.assembly};
+            c.variants.splice(vi + 1, 0, nv);
+            c.fab.filter(function(x){ return x.vid === v.id; }).forEach(function(x){ var y = JSON.parse(JSON.stringify(x)); y.rid = uid("r"); y.vid = nv.id; c.fab.push(y); });
+            c.bom.filter(function(x){ return x.vid === v.id; }).forEach(function(x){ var y = JSON.parse(JSON.stringify(x)); y.rid = uid("r"); y.vid = nv.id; c.bom.push(y); });
+            coSave(c); render(); banner("Variant copied — type its SD code, then change the sizes in the Fabrication tab."); setTimeout(function(){ banner(""); }, 5000);
+          }},["Copy"]),
+          c.variants.length > 1 ? el("button",{class:"btn sm ghost", type:"button", title:"Remove this variant and its rows", onclick:function(){
+            if(state.coVarDel !== v.id && (nF || nB)){ state.coVarDel = v.id; render(); return; }
+            state.coVarDel = null;
+            c.variants.splice(vi, 1); c.fab = c.fab.filter(function(x){ return x.vid !== v.id; }); c.bom = c.bom.filter(function(x){ return x.vid !== v.id; });
+            coSave(c); render();
+          }},[state.coVarDel === v.id ? "Click again — removes " + nF + " parts and " + nB + " items" : "✕"]) : null
+        ])
+      ]));
+    });
+    body.appendChild(el("div",{class:"covars"},[
+      el("div",{class:"covhead"},[ el("h4",{},["Parent assemblies in this costing" + (multi ? " (" + c.variants.length + " variants)" : "")]),
+        el("button",{class:"btn sm", type:"button", onclick:function(){ c.variants.push({id:uid("V"), sd:"", desc:"", assembly:100}); coSave(c); render(); }},["+ Add variant"]) ]),
+      el("div",{class:"tablewrap"},[ el("table",{class:"cotable covt"},[
+        el("thead",{},[el("tr",{},[el("th",{},["Parent assembly"]), el("th",{},["DB description"]), el("th",{},["Assembly ₹"]), el("th",{class:"n"},["Rows"]), el("th",{class:"n"},["Net cost / DB"]), el("th",{},[""])])]), vt ]) ])
     ]));
+    /* net cost strip */
+    if(!multi){
+      var v0 = c.variants[0].id;
+      body.appendChild(el("div",{class:"costrip"},[
+        el("div",{},[el("span",{},["RM cost"]), L(function(r){ return money(r.V[v0].G); })]),
+        el("div",{},[el("span",{},["Contribution (JW)"]), L(function(r){ return money(r.V[v0].K); })]),
+        el("div",{},[el("span",{},["Total cost"]), L(function(r){ return money(r.V[v0].N); })]),
+        el("div",{class:"net"},[el("span",{},["Net cost / DB"]), L(function(r){ return money(r.V[v0].P); })])
+      ]));
+    }
     /* tabs like the workbook sheets */
     var TABS = [["summary","Summary"],["fab","Fabrication"],["bom","B.O.M"],["master","Master BOM"]];
     body.appendChild(el("div",{class:"cotabs", role:"tablist"}, TABS.map(function(t){
@@ -8453,39 +8747,66 @@ body.cad[data-sec]{--sec:var(--sel)}
     })));
     var pane = el("div",{class:"copane"});
     body.appendChild(pane);
+    body.appendChild(varList);
+    /* show one variant or all (Fabrication and B.O.M) */
+    var vf = state.coVF && c.variants.some(function(v){ return v.id === state.coVF; }) ? state.coVF : "";
+    function filterBar(){
+      if(!multi) return null;
+      var s = el("select",{"aria-label":"Show rows of", class:"cofilter"}, [el("option",{value:""},["All variants"])].concat(c.variants.map(function(v){
+        return el("option",{value:v.id, selected:vf === v.id ? "selected" : null},["Only " + (coVarCode(v) || "variant") + (v.desc ? " · " + v.desc : "")]); })));
+      s.addEventListener("change", function(){ state.coVF = s.value; render(); });
+      return el("label",{class:"cmnr"},["Show ", s]);
+    }
+    function attachPaste(table, kind, visible){
+      table.addEventListener("paste", function(e){
+        var t = e.target; if(!t || !t.getAttribute) return;
+        var col = t.getAttribute("data-col"), tr = t.closest ? t.closest("tr[data-rid]") : null;
+        if(!col || !tr) return;
+        var text = (e.clipboardData || window.clipboardData).getData("text") || "";
+        if(!/[\t\n]/.test(text.replace(/\n$/, ""))) return;      /* a single value: normal paste */
+        e.preventDefault();
+        var res = coPasteCells(c, kind, tr.getAttribute("data-rid"), col, coParseGrid(text), visible.map(function(x){ return x.rid; }), vf || null);
+        coSave(c); render();
+        banner("Pasted " + (res.touched + res.added) + " row" + (res.touched + res.added === 1 ? "" : "s") + (res.added ? " (" + res.added + " new)" : "") + ".");
+        setTimeout(function(){ banner(""); }, 3000);
+      });
+    }
 
     if(tab === "summary"){
-      var sumRows = [
-        ["Sheet metal (RM)", function(r){ return r.S.C; }, "Σ raw material cost of the fabrication parts"],
-        ["Powder cost", function(r){ return r.S.D; }, "Σ powder cost of the fabrication parts"],
-        ["Bought out", function(r){ return r.S.E; }, "Σ B.O.M qty × master rate"],
-        ["PU gasket", function(r){ return r.S.F; }, "gasket mtr × gasket rate"],
-        ["RM cost total", function(r){ return r.S.G; }, "", "tot"],
-        ["Fabrication", function(r){ return r.S.H; }, "Σ fabrication cost"],
-        ["Powder coating", function(r){ return r.S.I; }, "Σ powder coating labour"],
-        ["Assembly", null, "typed in"],
-        ["Contribution (JW) total", function(r){ return r.S.K; }, "", "tot"],
-        ["OHP on RM", function(r){ return r.S.L; }, "% × RM cost", null, "ohpRm"],
-        ["OHP", function(r){ return r.S.M; }, "% × contribution", null, "ohp"],
-        ["Total cost", function(r){ return r.S.N; }, "RM + contribution + OHP", "tot"],
-        ["Discount", function(r){ return r.S.O; }, "% × total cost", null, "disc"],
-        ["Net cost", function(r){ return r.S.P; }, "total cost − discount", "net"]
+      var heads = [
+        ["Sheet metal (RM)", "C", "Σ raw material cost of the fabrication parts"],
+        ["Powder cost", "D", "Σ powder cost of the fabrication parts"],
+        ["Bought out", "E", "Σ B.O.M qty × master rate"],
+        ["PU gasket", "F", "gasket mtr × gasket rate"],
+        ["RM cost total", "G", "", "tot"],
+        ["Fabrication", "H", "Σ fabrication cost"],
+        ["Powder coating", "I", "Σ powder coating labour"],
+        ["Assembly", "J", "typed in (per variant)"],
+        ["Contribution (JW) total", "K", "", "tot"],
+        ["OHP on RM", "L", "% × RM cost", null, "ohpRm"],
+        ["OHP", "M", "% × contribution", null, "ohp"],
+        ["Total cost", "N", "RM + contribution + OHP", "tot"],
+        ["Discount", "O", "% × total cost", null, "disc"],
+        ["Net cost", "P", "total cost − discount", "net"]
       ];
       var tb = el("tbody");
-      sumRows.forEach(function(x){
+      heads.forEach(function(x){
         var pctIn = null;
         if(x[4]){
           pctIn = el("input",{type:"number", step:"0.01", value:String(Math.round((+c[x[4]] || 0) * 10000) / 100), class:"copct", "aria-label":x[0] + " percent"});
           pctIn.addEventListener("input", function(){ c[x[4]] = (+pctIn.value || 0) / 100; refresh(); });
         }
-        var valCell = x[1] ? L(function(r){ return f2(x[1](r)); }) : num(c, "assembly", {class:"coin"});
         tb.appendChild(el("tr",{class:x[3] || ""},[ el("td",{},[x[0]]), el("td",{class:"muted"},[x[2]]),
-          el("td",{},[pctIn ? el("span",{class:"copctw"},[pctIn, "%"]) : null]), el("td",{class:"n"},[valCell]) ]));
+          el("td",{},[pctIn ? el("span",{class:"copctw"},[pctIn, "%"]) : null]) ].concat(c.variants.map(function(v){
+            return el("td",{class:"n"},[ x[1] === "J" ? num(v, "assembly", {class:"coin", "aria-label":"Assembly cost " + coVarCode(v)}) : L(function(r){ return f2((r.V[v.id] || {})[x[1]]); }) ]); }))));
       });
       pane.appendChild(el("div",{class:"tablewrap"},[el("table",{class:"cotable cosum"},[
-        el("thead",{},[el("tr",{},[el("th",{},["Head"]), el("th",{},["How it is worked out"]), el("th",{},["%"]), el("th",{class:"n"},["₹ per DB"])])]), tb ])]));
+        el("thead",{},[el("tr",{},[el("th",{},["Head"]), el("th",{},["How it is worked out"]), el("th",{},["%"])].concat(c.variants.map(function(v){
+          return el("th",{class:"n", title:v.desc || ""},[(coVarCode(v) || "₹ per DB") + (multi && v.desc ? "" : "")]); })))]),
+        el("tbody",{},[ el("tr",{class:"muted covdrow"},[el("td",{},["DB description"]), el("td",{}), el("td",{})].concat(c.variants.map(function(v){ return el("td",{class:"n"},[v.desc || "—"]); }))) ]),
+        tb ])]));
       if(c.qty) pane.appendChild(el("p",{class:"muted", style:"font-size:12.5px;margin:10px 0 0"},[
-        "For the order of ", String(c.qty), " DBs: net value ", L(function(r){ return money(r.S.P * (+c.qty || 0)); }), "."]));
+        "For an order of ", String(c.qty), " DBs: net value ", L(function(r){ return c.variants.map(function(v){ return (multi ? coVarCode(v) + " " : "") + money(((r.V[v.id] || {}).P || 0) * (+c.qty || 0)); }).join(" · "); }), "."]));
     }
 
     if(tab === "fab"){
@@ -8498,51 +8819,69 @@ body.cad[data-sec]{--sec:var(--sel)}
         el("summary",{},["Rates (green block of the Fabrication sheet)"]), rg ]));
       var cols = [["Blank wt","I","0.000"],["Gross wt","J","0.000"],["Scrap wt","K","0.000"],["Scrap ₹","L"],["RM ₹","N"],["Fab ₹","O"],["RM+Fab ₹","P"],
                   ["Area m²","Q","0.000"],["Powder ₹","R"],["PC labour ₹","T"],["Total ₹","V"]];
+      var vis = c.fab.filter(function(x){ return !vf || x.vid === vf; });
+      var idxOf = {}; c.fab.forEach(function(x, i){ idxOf[x.rid] = i; });
       var t = el("table",{class:"cotable cofab"});
-      t.appendChild(el("thead",{},[el("tr",{},[el("th",{},["#"]), el("th",{},["Component"]), el("th",{class:"n"},["L"]), el("th",{class:"n"},["W"]),
+      t.appendChild(el("thead",{},[el("tr",{},[el("th",{},[coSelAll("fab", vis)]), el("th",{},["#"]), el("th",{},["Parent assembly"]), el("th",{},["DB description"]),
+        el("th",{},["Component"]), el("th",{class:"n"},["L"]), el("th",{class:"n"},["W"]),
         el("th",{class:"n"},["T"]), el("th",{class:"n"},["Qty"]), el("th",{title:"Powder coated? GI parts are not"},["Coat"])]
         .concat(cols.map(function(k){ return el("th",{class:"n"},[k[0]]); })).concat([el("th",{},[""])]))]));
-      var fb = el("tbody");
-      c.fab.forEach(function(x, i){
-        var coat = el("input",{type:"checkbox", "aria-label":"Powder coated"}); coat.checked = x.coat !== false;
+      var fb = el("tbody"), prevVid = null;
+      vis.forEach(function(x, n){
+        var i = idxOf[x.rid];
+        var coat = el("input",{type:"checkbox", "aria-label":"Powder coated", "data-col":"coat"}); coat.checked = x.coat !== false;
         coat.addEventListener("change", function(){ x.coat = coat.checked; refresh(); });
-        fb.appendChild(el("tr",{},[ el("td",{class:"muted"},[String(i + 1)]),
-          el("td",{},[txt(x, "d", {class:"coname", placeholder:"Component"})]),
-          el("td",{},[num(x, "L", {class:"coin"})]), el("td",{},[num(x, "W", {class:"coin"})]),
-          el("td",{},[num(x, "T", {class:"coin sm"})]), el("td",{},[num(x, "q", {class:"coin sm"})]), el("td",{},[coat])
+        var dCell = L(function(){ return coVar(c, x.vid).desc || "—"; }, "muted covd");
+        var sel = state.coSel && state.coSel.fab && state.coSel.fab[x.rid];
+        fb.appendChild(el("tr",{"data-rid":x.rid, class:(sel ? "sel" : "") + (multi && prevVid && prevVid !== x.vid ? " vbreak" : "")},[
+          el("td",{},[coSelBox("fab", x)]), el("td",{class:"muted"},[String(n + 1)]),
+          el("td",{},[varSelect(x)]), el("td",{},[dCell]),
+          el("td",{},[txt(x, "d", {class:"coname", placeholder:"Component", "data-col":"d"})]),
+          el("td",{},[num(x, "L", {class:"coin", "data-col":"L"})]), el("td",{},[num(x, "W", {class:"coin", "data-col":"W"})]),
+          el("td",{},[num(x, "T", {class:"coin sm", "data-col":"T"})]), el("td",{},[num(x, "q", {class:"coin sm", "data-col":"q"})]), el("td",{},[coat])
         ].concat(cols.map(function(k){ return el("td",{class:"n"},[L(function(r){ var v = r.rows[i] ? r.rows[i][k[1]] : 0; return k[2] ? v.toFixed(3) : f2(v); })]); }))
-         .concat([el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove this part", onclick:function(){ c.fab.splice(i, 1); coSave(c); render(); }},["✕"])])])));
+         .concat([el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove this part", onclick:function(){ c.fab.splice(idxOf[x.rid], 1); coSave(c); render(); }},["✕"])])])));
+        prevVid = x.vid;
       });
-      fb.appendChild(el("tr",{class:"tot"},[el("td",{}), el("td",{},["Total"]), el("td",{}), el("td",{}), el("td",{}), el("td",{}), el("td",{})]
-        .concat(cols.map(function(k){ return el("td",{class:"n"},[L(function(r){ var v = r.tot[k[1]]; return k[2] ? v.toFixed(3) : f2(v); })]); })).concat([el("td",{})])));
+      fb.appendChild(el("tr",{class:"tot"},[el("td",{}), el("td",{}), el("td",{colspan:"2"},[vf ? "Total " + coVarCode(coVar(c, vf)) : "Total"]), el("td",{}), el("td",{}), el("td",{}), el("td",{}), el("td",{}), el("td",{})]
+        .concat(cols.map(function(k){ return el("td",{class:"n"},[L(function(r){
+          var v = vis.reduce(function(a, x){ var rr = r.rows[idxOf[x.rid]]; return a + (rr ? rr[k[1]] : 0); }, 0); return k[2] ? v.toFixed(3) : f2(v); })]); })).concat([el("td",{})])));
       t.appendChild(fb);
-      pane.appendChild(el("div",{class:"tablewrap"},[t]));
+      var tw = el("div",{class:"tablewrap", tabindex:"-1"},[t]);
+      attachPaste(t, "fab", vis);
+      pane.appendChild(el("div",{class:"coacts"},[filterBar()]));
+      pane.appendChild(coRowTools(c, "fab", vis, tw));
+      pane.appendChild(tw);
       var smv = smLoad(), smr = null; try { smr = smPartCalc(smv); } catch(e){}
+      var addVid = vf || (c.fab[c.fab.length - 1] || {}).vid || c.variants[0].id;
       pane.appendChild(el("div",{class:"coacts"},[
-        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.fab.push({d:"", L:"", W:"", T:(c.fab[c.fab.length - 1] || {}).T || 1.2, q:1, coat:true}); coSave(c); render(); }},["+ Add part"]),
+        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.fab.push({rid:uid("r"), vid:addVid, d:"", L:"", W:"", T:(c.fab[c.fab.length - 1] || {}).T || 1.2, q:1, coat:true}); coSave(c); render(); }},
+          ["+ Add part" + (multi ? " to " + (coVarCode(coVar(c, addVid)) || "variant") : "")]),
         smr ? el("button",{class:"btn sm", type:"button", title:"Blank X × Y and thickness from the sheet metal blank tool",
-          onclick:function(){ c.fab.push({d:"Part (from blank tool)", L:+smr.X.toFixed(2), W:+smr.Y.toFixed(2), T:+smv.t || 1.2, q:1, coat:true}); coSave(c); render(); }},
+          onclick:function(){ c.fab.push({rid:uid("r"), vid:addVid, d:"Part (from blank tool)", L:+smr.X.toFixed(2), W:+smr.Y.toFixed(2), T:+smv.t || 1.2, q:1, coat:true}); coSave(c); render(); }},
           ["+ Add blank " + smr.X.toFixed(1) + " × " + smr.Y.toFixed(1) + " from the blank tool"]) : null,
         el("span",{class:"muted", style:"font-size:12px"},["Fabrication rate: thickness ≥ 1.2 uses the “above 1.2” rate. Powder: area × powder rate ÷ coverage."])
       ]));
     }
 
     if(tab === "bom"){
-      var dl = el("datalist",{id:"coCodes"}, (state.cm || []).slice(0, 3000).map(function(x){ return el("option",{value:x.c},[x.d]); }));
       var adl = el("datalist",{id:"coAsm"}, CO_ASM.map(function(a){ return el("option",{value:a}); }));
+      var bvis = c.bom.filter(function(x){ return !vf || x.vid === vf; });
+      var bIdx = {}; c.bom.forEach(function(x, i){ bIdx[x.rid] = i; });
       var bt = el("table",{class:"cotable cobom"});
-      bt.appendChild(el("thead",{},[el("tr",{},["#","Assembly","Item code","ERP code","Component description","Item type","Qty / DB","Rate ₹","Amount ₹",""]
-        .map(function(h, i){ return el("th",{class:i >= 6 && i <= 8 ? "n" : ""},[h]); }))]));
-      var bb = el("tbody");
-      c.bom.forEach(function(x, i){
+      bt.appendChild(el("thead",{},[el("tr",{},[el("th",{},[coSelAll("bom", bvis)])].concat(["#","Parent assembly","DB description","Assembly","Item code / name","ERP code","Component description","Item type","Qty / DB","Rate ₹","Amount ₹",""]
+        .map(function(h, i){ return el("th",{class:i >= 9 && i <= 11 ? "n" : ""},[h]); })))]));
+      var bb = el("tbody"), bPrev = null;
+      bvis.forEach(function(x, n){
+        var i = bIdx[x.rid];
         var info = el("td",{class:"coinfo"}), erp = el("td",{}), typ = el("td",{class:"muted"}), rateTd = el("td",{class:"n"});
         function fillInfo(){
           var it = cmItem(x.code);
           erp.textContent = it ? (it.e || "—") : ""; typ.textContent = it ? (it.t || "") : "";
           info.innerHTML = ""; rateTd.innerHTML = "";
-          if(!x.code){ info.appendChild(el("span",{class:"muted"},["type or pick an item code"])); return; }
-          if(!it){ info.appendChild(el("span",{class:"chip over"},[state.cmLoaded ? "not in master BOM" : "loading master…"]));
-            if(state.cmLoaded) info.appendChild(el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.coNew = x.code; state.coTab = "master"; render(); }},["Add to master"]));
+          if(!x.code){ info.appendChild(el("span",{class:"muted"},["type a code or part of the name"])); return; }
+          if(!it){ info.appendChild(el("span",{class:"chip over"},[state.cmLoaded ? "pick from the list, or not in master BOM" : "loading master…"]));
+            if(state.cmLoaded && !/\s/.test(x.code)) info.appendChild(el("button",{class:"btn sm ghost", type:"button", onclick:function(){ state.coNew = x.code; state.coTab = "master"; render(); }},["Add to master"]));
             return; }
           info.appendChild(document.createTextNode(it.d || ""));
           if(+it.r > 0){ rateTd.appendChild(document.createTextNode(f2(it.r))); rateTd.title = it.rb && it.rb !== "file" ? "Rate set by " + memberName(it.rb) + (it.ra ? " on " + fmtDate(it.ra) : "") : "Landed cost from the master BOM"; }
@@ -8552,32 +8891,37 @@ body.cad[data-sec]{--sec:var(--sel)}
             rateTd.appendChild(ri);
           }
         }
-        var code = el("input",{type:"text", value:x.code || "", list:"coCodes", class:"cocode", placeholder:"PI00230", "aria-label":"Item code"});
-        code.addEventListener("input", function(){ x.code = code.value.trim(); refresh(); fillInfo(); });
-        code.addEventListener("change", function(){
-          if(!cmItem(code.value)){ var byE = cmByErp(code.value); if(byE){ code.value = byE.c; x.code = byE.c; refresh(); fillInfo(); } }
-        });
-        var asm = el("input",{type:"text", value:x.asm || "", list:"coAsm", class:"coasm", placeholder:"Assembly", "aria-label":"Assembly"});
+        var code = coItemInput(x, function(val){ x.code = val; refresh(); fillInfo(); });
+        var asm = el("input",{type:"text", value:x.asm || "", list:"coAsm", class:"coasm", placeholder:"Assembly", "aria-label":"Assembly", "data-col":"asm"});
         asm.addEventListener("input", function(){ x.asm = asm.value; refresh(); });
         fillInfo();
-        bb.appendChild(el("tr",{},[ el("td",{class:"muted"},[String(i + 1)]), el("td",{},[asm]), el("td",{},[code]), erp, info, typ,
-          el("td",{},[num(x, "q", {class:"coin sm"})]), rateTd,
+        var sel = state.coSel && state.coSel.bom && state.coSel.bom[x.rid];
+        bb.appendChild(el("tr",{"data-rid":x.rid, class:(sel ? "sel" : "") + (multi && bPrev && bPrev !== x.vid ? " vbreak" : "")},[
+          el("td",{},[coSelBox("bom", x)]), el("td",{class:"muted"},[String(n + 1)]),
+          el("td",{},[varSelect(x)]), el("td",{},[L(function(){ return coVar(c, x.vid).desc || "—"; }, "muted covd")]),
+          el("td",{},[asm]), el("td",{},[code]), erp, info, typ,
+          el("td",{},[num(x, "q", {class:"coin sm", "data-col":"q"})]), rateTd,
           el("td",{class:"n"},[L(function(r){ return r.bom[i] ? f2(r.bom[i].amt) : "0.00"; })]),
-          el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove", onclick:function(){ c.bom.splice(i, 1); coSave(c); render(); }},["✕"])]) ]));
+          el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove", onclick:function(){ c.bom.splice(bIdx[x.rid], 1); coSave(c); render(); }},["✕"])]) ]));
+        bPrev = x.vid;
       });
-      bb.appendChild(el("tr",{class:"tot"},[el("td",{colspan:"8"},["Bought out total"]), el("td",{class:"n"},[L(function(r){ return f2(r.S.E); })]), el("td",{})]));
+      bb.appendChild(el("tr",{class:"tot"},[el("td",{colspan:"11"},[vf ? "Bought out total " + coVarCode(coVar(c, vf)) : "Bought out total"]),
+        el("td",{class:"n"},[L(function(r){ return f2(bvis.reduce(function(a, x){ var b = r.bom[bIdx[x.rid]]; return a + (b ? b.amt : 0); }, 0)); })]), el("td",{})]));
       bt.appendChild(bb);
       var missing = r.bom.filter(function(b){ return b.missing; }).length, noRate = r.bom.filter(function(b){ return b.noRate; }).length;
       if(missing || noRate) pane.appendChild(el("p",{class:"codue", style:"margin:0 0 10px"},[
         (missing ? missing + " item code" + (missing === 1 ? " is" : "s are") + " not in the master BOM. " : "") +
         (noRate ? noRate + " item" + (noRate === 1 ? " has" : "s have") + " no rate yet — type the rate in the Rate column; it is saved into the master BOM for everyone." : "")]));
-      pane.appendChild(dl); pane.appendChild(adl);
+      pane.appendChild(adl);
       /* find an item in the master BOM by any words of its description, code or ERP code */
       var fq = el("input",{type:"search", class:"cmsearch", value:state.coFind || "", placeholder:"Find an item: type words of the description, item code or ERP code — e.g. hinge pin, washer m6, BO/HDW/040",
         "aria-label":"Find an item in the master BOM"});
       var fAsm = el("input",{type:"text", list:"coAsm", class:"coasm", value:state.coFindAsm || (c.bom[c.bom.length - 1] || {}).asm || "Box Assembly", "aria-label":"Assembly for added items"});
       fAsm.addEventListener("input", function(){ state.coFindAsm = fAsm.value; });
       var fQty = el("input",{type:"number", step:"any", class:"coin sm", value:"1", "aria-label":"Quantity for added items"});
+      var fVar = el("select",{class:"covar", "aria-label":"Parent assembly for added items"}, c.variants.map(function(v){
+        return el("option",{value:v.id, selected:(vf || state.coFindVar) === v.id ? "selected" : null},[coVarCode(v) || "(no code)"]); }));
+      fVar.addEventListener("change", function(){ state.coFindVar = fVar.value; });
       var fRes = el("div",{class:"cofind"});
       function drawFind(){
         fRes.innerHTML = "";
@@ -8586,13 +8930,13 @@ body.cad[data-sec]{--sec:var(--sel)}
         if(!state.cmLoaded){ fRes.appendChild(el("p",{class:"muted"},["Loading the master BOM…"])); return; }
         var hits = cmSearch(q, 25);
         if(!hits.length){ fRes.appendChild(el("p",{class:"muted"},["Nothing in the master BOM matches “" + q + "”. Try fewer words, or add the item in the Master BOM tab."])); return; }
-        var have = {}; c.bom.forEach(function(b){ have[String(b.code).toUpperCase()] = true; });
+        var have = {}; c.bom.forEach(function(b){ if(b.vid === fVar.value) have[String(b.code).toUpperCase()] = true; });
         fRes.appendChild(el("table",{class:"cotable"},[ el("tbody",{}, hits.map(function(x){
           return el("tr",{},[ el("td",{class:"cocodecell"},[x.c]), el("td",{},[x.d]), el("td",{class:"muted"},[x.e || ""]),
             el("td",{class:"n"},[+x.r > 0 ? "₹ " + (+x.r).toFixed(2) : el("span",{class:"chip nv"},["no rate"])]),
             el("td",{},[ el("button",{class:"btn sm" + (have[x.c.toUpperCase()] ? "" : " primary"), type:"button", onclick:function(){
-              c.bom.push({asm:fAsm.value || "", code:x.c, q:+fQty.value || 1}); coSave(c);
-              banner(x.c + " added to the B.O.M (" + (+fQty.value || 1) + " per DB)."); setTimeout(function(){ banner(""); }, 2500);
+              c.bom.push({rid:uid("r"), vid:fVar.value, asm:fAsm.value || "", code:x.c, q:+fQty.value || 1}); coSave(c);
+              banner(x.c + " added to the B.O.M of " + (coVarCode(coVar(c, fVar.value)) || "the DB") + " (" + (+fQty.value || 1) + " per DB)."); setTimeout(function(){ banner(""); }, 2500);
               render();
             }},[have[x.c.toUpperCase()] ? "Add again" : "+ Add"]) ]) ]);
         })) ]));
@@ -8601,27 +8945,22 @@ body.cad[data-sec]{--sec:var(--sel)}
       fq.addEventListener("input", function(){ state.coFind = fq.value; drawFind(); });
       pane.appendChild(el("div",{class:"cofindbox"},[
         el("h4",{},["Find items in the master BOM"]),
-        el("div",{class:"coacts"},[ fq, el("label",{class:"cmnr"},["Assembly ", fAsm]), el("label",{class:"cmnr"},["Qty ", fQty]) ]),
+        el("div",{class:"coacts"},[ fq, multi ? el("label",{class:"cmnr"},["For ", fVar]) : null, el("label",{class:"cmnr"},["Assembly ", fAsm]), el("label",{class:"cmnr"},["Qty ", fQty]) ]),
         fRes,
-        el("p",{class:"muted", style:"font-size:12px;margin:0"},["Or just type the item code (or its ERP code) in a row below — the description, ERP code, item type and rate are filled from the master BOM by themselves."])
+        el("p",{class:"muted", style:"font-size:12px;margin:0"},["Or type in a row below: an item code, an ERP code, or part of the component name — pick from the suggestions and the description, item type and rate fill in by themselves."])
       ]));
+      if(!multi) fVar.hidden = true;
       drawFind();
-      pane.appendChild(el("div",{class:"tablewrap"},[bt]));
-      var paste = el("textarea",{placeholder:"Paste rows from Excel: Item code ⇥ Qty (optionally Assembly first: Assembly ⇥ Item code ⇥ Qty)", rows:"3"});
+      var btw = el("div",{class:"tablewrap", tabindex:"-1"},[bt]);
+      attachPaste(bt, "bom", bvis);
+      pane.appendChild(el("div",{class:"coacts"},[filterBar()]));
+      pane.appendChild(coRowTools(c, "bom", bvis, btw));
+      pane.appendChild(btw);
+      var bAddVid = vf || (c.bom[c.bom.length - 1] || {}).vid || c.variants[0].id;
       pane.appendChild(el("div",{class:"coacts"},[
-        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.bom.push({asm:(c.bom[c.bom.length - 1] || {}).asm || "Box Assembly", code:"", q:1}); coSave(c); render(); }},["+ Add item"]),
-        el("details",{class:"codetails copaste"},[ el("summary",{},["Paste many items"]), paste,
-          el("button",{class:"btn sm", type:"button", onclick:function(){
-            var added = 0;
-            paste.value.split(/\r?\n/).forEach(function(line){
-              var p = line.split(/\t|;|,/).map(function(s){ return s.trim(); }).filter(function(s){ return s !== ""; });
-              if(!p.length) return;
-              var qty = parseFloat(p[p.length - 1]), hasQ = isFinite(qty) && p.length > 1;
-              var codeV = hasQ ? p[p.length - 2] : p[p.length - 1], asmV = hasQ ? (p.length > 2 ? p[0] : "") : (p.length > 1 ? p[0] : "");
-              c.bom.push({asm:asmV, code:codeV, q:hasQ ? qty : 1}); added++;
-            });
-            coSave(c); render(); banner(added + " item" + (added === 1 ? "" : "s") + " added."); setTimeout(function(){ banner(""); }, 3000);
-          }},["Add these rows"]) ])
+        el("button",{class:"btn sm primary", type:"button", onclick:function(){ c.bom.push({rid:uid("r"), vid:bAddVid, asm:(c.bom[c.bom.length - 1] || {}).asm || "Box Assembly", code:"", q:1}); coSave(c); render();
+          setTimeout(function(){ var ins = document.querySelectorAll(".cobom .cocode"); if(ins.length) ins[ins.length - 1].focus(); }, 30); }},
+          ["+ Add item" + (multi ? " to " + (coVarCode(coVar(c, bAddVid)) || "variant") : "")])
       ]));
     }
 
@@ -8630,21 +8969,23 @@ body.cad[data-sec]{--sec:var(--sel)}
     /* saved costings */
     var saved = (state.costings || []).slice().sort(function(a, b){ return String(b.savedAt).localeCompare(String(a.savedAt)); });
     body.appendChild(el("div",{class:"coacts", style:"margin-top:16px"},[
-      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = coDefaults(); coSave(n); state.coTab = "summary"; render(); }},["New costing"]),
-      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = JSON.parse(JSON.stringify(c)); n.id = ""; n.sd = (n.sd || "") + " copy"; n.date = today(); coSave(n); render(); }},["Copy as new"]),
-      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coSave(coExample()); render(); }},["Load example SD10299"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = coDefaults(); coSave(n); state.coTab = "summary"; state.coVF = ""; render(); }},["New costing"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ var n = JSON.parse(JSON.stringify(c)); n.id = ""; n.sd = (coTitle(c) || "") + " copy"; n.date = today(); coSave(n); render(); }},["Copy as new"]),
+      el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coSave(coExample()); state.coVF = ""; render(); }},["Load example SD10299"]),
       el("span",{class:"muted", style:"font-size:12px"},[c.id ? "Saved costing · last saved " + (c.savedAt ? fmtDate(String(c.savedAt).slice(0,10)) : "") : "Not saved for the team yet"])
     ]));
     if(saved.length){
       body.appendChild(el("div",{class:"frsaved"},[ el("h4",{},["Saved costings"]),
         el("div",{class:"card"}, saved.slice(0, 40).map(function(s){
+          var nets = s.nets && s.nets.length ? s.nets : [{sd:s.sd, net:s.netCost}];
           return el("div",{class:"task"},[
-            el("div",{class:"taskmain"},[ el("div",{class:"tt"},[(s.sd || "—") + " · " + (s.desc || "—")]),
-              el("div",{class:"tmeta"},[ el("span",{class:"chip today"},["Net ₹" + (+s.netCost || 0).toFixed(2)]),
+            el("div",{class:"taskmain"},[ el("div",{class:"tt"},[(s.title || s.sd || "—") + " · " + (s.titleDesc || s.desc || "—")]),
+              el("div",{class:"tmeta"},[ el("span",{class:"chip today"},[nets.length > 1 ? nets.length + " variants · ₹" + Math.min.apply(null, nets.map(function(x){ return +x.net || 0; })).toFixed(0) + "–" + Math.max.apply(null, nets.map(function(x){ return +x.net || 0; })).toFixed(0)
+                                                                      : "Net ₹" + (+nets[0].net || 0).toFixed(2)]),
                 el("span",{class:"chip plain"},[memberName(s.savedBy) + " · " + fmtDate(String(s.savedAt || "").slice(0, 10))]) ]) ]),
             el("div",{class:"taskact"},[
-              el("button",{class:"btn sm", type:"button", onclick:function(){ coSave(JSON.parse(JSON.stringify(s))); state.coTab = "summary"; render(); window.scrollTo({top:0}); }},["Open"]),
-              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coDownload(s); }},["Excel"]),
+              el("button",{class:"btn sm", type:"button", onclick:function(){ coSave(coNorm(JSON.parse(JSON.stringify(s)))); state.coTab = "summary"; state.coVF = ""; render(); window.scrollTo({top:0}); }},["Open"]),
+              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ coDownload(coNorm(JSON.parse(JSON.stringify(s)))); }},["Excel"]),
               el("button",{class:"btn sm ghost", type:"button", title:"Delete this saved costing", onclick:function(){
                 if(state.coDel !== s.id){ state.coDel = s.id; render(); return; }
                 state.coDel = null; state.costings = state.costings.filter(function(x){ return x.id !== s.id; });
