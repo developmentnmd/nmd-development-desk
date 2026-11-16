@@ -1687,6 +1687,108 @@ button.calcell:hover{border-color:var(--sel)}
 .cad .frsgrow span{font-size:13px; font-weight:500}
 @media (max-width:640px){ .cad .frsgrow{grid-template-columns:minmax(0, 1fr)} }
 .cad .fractions{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:18px; padding-top:12px; border-top:1px solid var(--frame-soft)}
+
+/* feasibility: tools and other requirements */
+.cad .frlist{margin-top:16px; display:grid; gap:8px; padding:12px; border:1px solid var(--frame); border-radius:4px; min-width:0}
+.cad .frlisthd{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.cad .frlisthd h4{margin:0; font:600 11.5px/1.3 var(--mono, ui-monospace, monospace); letter-spacing:.06em; text-transform:uppercase; color:var(--ink)}
+.cad .frlistrows{display:grid; gap:6px; min-width:0}
+.cad .frlrow{display:grid; gap:6px; align-items:center; min-width:0}
+.cad .frlrow input, .cad .frlrow select{min-width:0; width:100%}
+.cad .frlrow .frn{font:600 12px var(--mono, ui-monospace, monospace); color:var(--ink3); text-align:center}
+.cad .frtool{grid-template-columns:26px minmax(0, 2.2fr) minmax(0, 1fr) 70px minmax(0, 1fr) minmax(0, 1.2fr) 150px auto}
+.cad .frreq{grid-template-columns:26px minmax(0, 1.6fr) minmax(0, 2fr) minmax(0, 1.2fr) 150px auto}
+@media (max-width:900px){
+  .cad .frtool, .cad .frreq{display:flex; flex-wrap:wrap; gap:6px; padding:8px 0; border-top:1px solid var(--frame-soft)}
+  .cad .frlrow > .frn{flex:0 0 22px}
+  .cad .frlrow > :nth-child(2){flex:1 1 calc(100% - 80px)}
+  .cad .frlrow > .btn{flex:0 0 auto}
+  .cad .frlrow > input:not(:nth-child(2)), .cad .frlrow > select{flex:1 1 calc(50% - 6px)}
+}
+@media print{
+  .frp .frt.frtl{margin-top:-1px}
+  .frp .frt .frli td, .frp .frt .frli th{height:17px; padding-top:1px; padding-bottom:1px}
+  /* a little tighter so the form with the tool list still fits one A4 page */
+  .frp .frt .frq td{height:19px !important; padding-top:1px; padding-bottom:1px}
+  .frp .frt .frsg td{height:19px !important}
+  .frp .frt .frtall{height:34px !important}
+  .frp .frt td, .frp .frt th{height:19px}
+}
+
+/* ===== Workshop v2: tool cards with their own colour, live info and a tool switcher ===== */
+.workshop .toolgrid.v2{grid-template-columns:repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap:16px}
+.workshop .toolapp.v2{display:flex; align-items:stretch; gap:0; padding:0; min-height:0; text-align:left; overflow:hidden; border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--tc) 28%, var(--frame)); background:var(--paper);
+  box-shadow:0 1px 0 color-mix(in srgb, var(--tc) 18%, transparent), 0 14px 28px -22px color-mix(in srgb, var(--tc) 70%, #000)}
+.workshop .toolapp.v2::before{display:none}
+.workshop .toolapp.v2:hover, .workshop .toolapp.v2:focus-visible{transform:translateY(-3px); border-color:var(--tc);
+  box-shadow:0 18px 34px -20px color-mix(in srgb, var(--tc) 85%, #000)}
+.workshop .toolicon2{flex:0 0 96px; display:grid; place-items:center; color:#fff; font:600 30px/1 var(--cond, inherit);
+  background:
+    linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px) 0 0/14px 14px,
+    linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px) 0 0/14px 14px,
+    linear-gradient(160deg, color-mix(in srgb, var(--tc) 78%, #fff), var(--tc) 55%, color-mix(in srgb, var(--tc) 70%, #000))}
+.workshop .toolicon2 svg{filter:drop-shadow(0 2px 3px rgba(0,0,0,.25)); transition:transform .35s cubic-bezier(.3,.75,.2,1)}
+.workshop .toolapp.v2:hover .toolicon2 svg{transform:scale(1.12) rotate(-6deg)}
+.workshop .toolmain{flex:1; min-width:0; display:grid; align-content:start; gap:6px; padding:16px 18px 14px}
+.workshop .tooltag2{font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.12em; text-transform:uppercase; color:var(--tc)}
+.workshop .toolapp.v2 .toolname{margin:0; font-size:18px}
+.workshop .toolapp.v2 .tooldesc{font-size:13px}
+.workshop .toolinfo{display:grid; gap:2px; margin-top:4px; padding:7px 10px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--ink);
+  background:color-mix(in srgb, var(--tc) 8%, var(--paper)); border:1px solid color-mix(in srgb, var(--tc) 16%, transparent)}
+.workshop .toolinfo .ti-dim{font-weight:400; color:var(--ink2)}
+.workshop .toolinfo .ti-warn{color:var(--crit)}
+.workshop .toolgo{justify-self:start; margin-top:4px; font:700 12.5px/1 inherit; color:var(--tc); letter-spacing:.02em}
+.workshop .toolapp.v2:hover .toolgo span{display:inline-block; transform:translateX(3px); transition:transform .2s}
+.workshop .toolapp.v2.soon{border-style:dashed; box-shadow:none; background:transparent}
+.workshop .toolapp.v2.soon .toolicon2{background:var(--surface); color:var(--ink3)}
+.workshop .toolapp.v2.soon:hover{transform:none}
+@media (max-width:520px){ .workshop .toolicon2{flex-basis:70px} .workshop .toolmain{padding:12px 12px 10px} }
+.wshero.slim{flex-wrap:wrap}
+.wsswitch{position:relative; z-index:1; display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+.wssw{display:inline-flex; align-items:center; gap:6px; font:600 12.5px/1 inherit; padding:7px 11px; border-radius:999px; cursor:pointer;
+  color:var(--wsink); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16)}
+.wssw:hover{background:rgba(255,255,255,.14)}
+.wssw.on{background:#fff; color:var(--ws1); border-color:#fff}
+.wssw .wsswi{display:grid; place-items:center; color:var(--tc)}
+.wssw.on .wsswi{color:var(--tc)}
+@media (max-width:700px){ .wsswitch{margin-left:0; width:100%} }
+/* ===== Tool & Fixture List segment ===== */
+.tlseg{margin-top:16px; display:grid; gap:10px; padding:14px; border-radius:10px; border:1px solid color-mix(in srgb, #7c4dcc 35%, var(--frame, var(--line)));
+  background:linear-gradient(180deg, color-mix(in srgb, #7c4dcc 7%, var(--paper)), var(--paper) 90px); min-width:0}
+.tlhead{display:flex; gap:12px 20px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap}
+.tltitle h3{margin:2px 0 0; font-size:18px}
+.tlkick{font:600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing:.12em; text-transform:uppercase; color:#7c4dcc}
+.tlstats{display:flex; gap:8px; flex-wrap:wrap}
+.tlstats div{display:grid; gap:1px; padding:6px 12px; border-radius:8px; background:var(--paper); border:1px solid var(--frame, var(--line)); min-width:76px}
+.tlstats b{font-family:var(--mono, ui-monospace, monospace); font-size:16px}
+.tlstats span{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink2)}
+.tlnote{margin:0; padding:8px 10px; border-radius:6px; font-size:13px; background:color-mix(in srgb, var(--hot, #e8a33d) 14%, var(--paper)); border:1px solid color-mix(in srgb, var(--hot, #e8a33d) 50%, transparent)}
+.tltable th{background:color-mix(in srgb, #7c4dcc 16%, var(--paper)) !important}
+.tltable input, .tltable select{font-size:12.5px; padding:4px 6px}
+.tltable .tldesc{width:210px}
+.tltable .tlmid{width:110px}
+.tltable .tlcostin{width:90px; text-align:right}
+.tltable input[type=date]{width:130px}
+.tlstage{width:76px}
+.tlstage.s-Done{background:color-mix(in srgb, #2e8b3e 18%, var(--paper)); border-color:#2e8b3e; color:var(--ink); font-weight:600}
+.tlstage.s-WIP{background:color-mix(in srgb, var(--hot, #e8a33d) 22%, var(--paper)); border-color:var(--hot, #e8a33d)}
+.tlstage.s-NA{color:var(--ink3)}
+.tltable .tlpri{width:96px}
+.tlpri.p-High{background:color-mix(in srgb, var(--crit) 14%, var(--paper)); border-color:var(--crit)}
+.tlpri.p-Medium{background:color-mix(in srgb, var(--hot, #e8a33d) 14%, var(--paper))}
+.tlst{display:inline-block; white-space:nowrap; font-size:11.5px; font-weight:600; padding:3px 8px; border-radius:999px; border:1px solid var(--frame, var(--line))}
+.tlst.ok{background:color-mix(in srgb, #2e8b3e 16%, var(--paper)); border-color:#2e8b3e; color:#1d6b2c}
+.tlst.wip{background:color-mix(in srgb, var(--hot, #e8a33d) 18%, var(--paper)); border-color:var(--hot, #e8a33d)}
+.tlst.no{color:var(--ink3)}
+.tlacts{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+@media print{
+  @page tlland{size:A4 landscape; margin:9mm}
+  .frp.frtlpage{page:tlland; break-before:page}
+  .frp.frtlpage.first{break-before:auto}
+  .frp .frtlt td, .frp .frtlt th{font-size:9.5px; padding:2px 3px; height:20px}
+  .frp .frtlt .frhd th{font-size:9px; line-height:1.1}
+}
 #printArea{display:none}
 @media print{
   @page{size:A4 portrait; margin:10mm}
@@ -1984,7 +2086,7 @@ body.cad[data-sec]{--sec:var(--sel)}
     "Vendor delay","Tool / fixture not ready","Machine not available","Manpower short / pulled to other work",
     "Quality issue / rework","Costing or BOM input pending","Not enough time — planned too much","Project on hold","Other"];
   var HOLD_REASON = "Project on hold";
-  var APP_VERSION = "16 Nov 2026 · costing variants, copy-paste";
+  var APP_VERSION = "16 Nov 2026 · tool & fixture list";
 
   var STEP = {
     live:{"1. Feasibility":"Check feasibility and list the open questions",
@@ -7698,10 +7800,44 @@ body.cad[data-sec]{--sec:var(--sel)}
                  ["size","Enclosure Size (H x W x D)"],["qty","Sample Qty / Order Qty"],["deliv","Expected Delivery Date"]];
   function frBlank(){
     var o = {id:"", formatNo:"", revDate:"", enq:"", cust:"", prod:"", dwg:"", size:"", qty:"", deliv:"", orderType:"",
-             ans:{}, rem:{}, concl:"", concRem:"", sign:{}, approved:""};
+             ans:{}, rem:{}, tl:[], reqs:[], concl:"", concRem:"", sign:{}, approved:""};
     return o;
   }
-  function frLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_fr") || "null"); if(v && v.ans) return v; } catch(e){} return frBlank(); }
+  function frLoad(){ try { var v = JSON.parse(localStorage.getItem("pmi_dd_fr") || "null"); if(v && v.ans) return frNorm(v); } catch(e){} return frBlank(); }
+  /* Tool & Fixture List (the company "Tool status list" format), kept with the form */
+  var TL_STAGES = [["design","Design"],["rm","RM Planning"],["os","Out Source Processing"],["assy","Assy."],["trial","Trail"]];
+  var TL_STAGE_VALS = ["", "WIP", "Done", "NA"];
+  var TL_PRI = ["High", "Medium", "Low"];
+  function frNorm(v){
+    v.reqs = v.reqs || [];
+    if(!v.tl){
+      v.tl = (v.tools || []).filter(function(t){ return t && t.name; }).map(function(t){
+        var q = +t.qty || 1;
+        return {desc:t.name, cust:v.cust || "", type:t.type || "", rem:q > 1 ? "Qty " + q : "", pri:"", target:t.date || "", maker:t.by || "", cost:(+t.cost || 0) ? (+t.cost) * q : ""};
+      });
+    }
+    delete v.tools;
+    return v;
+  }
+  function tlStatus(t){
+    var all = TL_STAGES.every(function(s){ return t[s[0]] === "Done" || t[s[0]] === "NA"; });
+    if(all && TL_STAGES.some(function(s){ return t[s[0]] === "Done"; })) return "Ready";
+    for(var i = 0; i < TL_STAGES.length; i++){
+      var x = t[TL_STAGES[i][0]];
+      if(x === "WIP") return TL_STAGES[i][1] + " in progress";
+      if(x !== "Done" && x !== "NA") return i === 0 ? "Not started" : TL_STAGES[i][1] + " pending";
+    }
+    return "Not started";
+  }
+  /* a calendar date for Excel (no time zone shift) */
+  function xlDate(sv){ var p = String(sv || "").split("-"); return p.length === 3 ? new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])) : ""; }
+  function tlCost(list){ return (list || []).reduce(function(a, t){ return a + (+t.cost || 0); }, 0); }
+  var FR_TOOL_TYPES = ["New", "Existing", "Modify", "Outsource"];
+  var FR_TOOL_HINTS = ["Punching tool", "Bending tool / die", "Welding fixture", "Assembly fixture", "Checking gauge", "Powder coating hanger",
+    "Notching tool", "Forming tool", "Knock-out tool", "Louver tool", "Spot welding fixture", "Drilling jig", "Press tool", "Laser program / nesting"];
+  var FR_REQ_HINTS = ["Sample approval from customer", "Drawing / BOM revision", "Raw material procurement", "Bought-out item sourcing", "Testing (IP / HV / insulation)",
+    "Third-party inspection", "Special packing", "Manpower / training", "Machine capacity", "Customer document / PPAP"];
+  function frMoney(x){ return (+x || 0) ? (+x).toLocaleString("en-IN") : ""; }
   function frSave(v){ try { localStorage.setItem("pmi_dd_fr", JSON.stringify(v)); } catch(e){} }
   function frEsc(t){ return String(t == null ? "" : t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function frDate(sv){ if(!sv) return ""; var p = String(sv).split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : sv; }
@@ -7729,6 +7865,17 @@ body.cad[data-sec]{--sec:var(--sel)}
         h += '<tr class="frq"><td class="c">' + n + '</td><td>' + frEsc(q) + '</td><td class="c"><b>' + frEsc(v.ans[n] || "") + '</b></td><td>' + frEsc(v.rem[n] || "") + '</td></tr>';
       });
     });
+    h += '</table>';
+    /* other requirements */
+    var rl = (v.reqs || []).filter(function(t){ return t && (t.req || t.det || t.by); });
+    var rRows = rl.concat([]); while(rRows.length < Math.max(3, rl.length + 1)) rRows.push({});
+    h += '<table class="frt frtl"><colgroup><col style="width:6%"><col style="width:30%"><col style="width:34%"><col style="width:17%"><col style="width:13%"></colgroup>' +
+      '<tr><td class="frband" colspan="5">OTHER REQUIREMENTS</td></tr>' +
+      '<tr class="frhd"><th>Sr.</th><th>Requirement</th><th>Details</th><th>Responsibility</th><th>Target Date</th></tr>';
+    rRows.forEach(function(t, i){
+      h += '<tr class="frli"><td class="c">' + (t.req ? i + 1 : "") + '</td><td>' + frEsc(t.req || "") + '</td><td>' + frEsc(t.det || "") + '</td><td>' + frEsc(t.by || "") +
+        '</td><td class="c">' + frEsc(frDate(t.date || "")) + '</td></tr>';
+    });
     h += '</table><table class="frt"><colgroup><col style="width:34%"><col style="width:66%"></colgroup>' +
       '<tr><th class="frl frsoft">CONCLUSION (tick one)</th><td class="c frconc">' +
         box(v.concl === "Feasible") + ' <b>Feasible</b> &nbsp;&nbsp; ' + box(v.concl === "Feasible with changes") + ' <b>Feasible with changes</b> &nbsp;&nbsp; ' +
@@ -7742,7 +7889,84 @@ body.cad[data-sec]{--sec:var(--sel)}
       h += '<tr class="frsg"><td>' + frEsc(d) + '</td><td>' + frEsc(sg.name || "") + '</td><td class="c">' + frEsc(frDate(sg.date || "")) + '</td><td></td></tr>';
     });
     h += '<tr><th class="frl" colspan="2">Approved by (Plant Head / MD): ' + frEsc(v.approved) + '</th><td colspan="2"></td></tr></table></div>';
+    return h + tlPrintHtml(v);
+  }
+  /* the attached Tool & Fixture List: its own landscape page, in the company format */
+  function tlPrintHtml(v){
+    var list = (v.tl || []).filter(function(t){ return t && (t.desc || t.type || t.cost); });
+    var rows = list.slice(); while(rows.length < Math.max(12, list.length + 2)) rows.push({});
+    var stage = function(x){ return x === "Done" ? "&#10004; Done" : (x || ""); };
+    var h = '<div class="frp frtlpage"><table class="frt"><tr><td class="frlogo" colspan="2"><span class="nmdlogo frlogoimg"></span><span class="frco">Nasik Metaldust Pvt. Ltd.</span></td>' +
+      '<td class="frfmt" style="width:22%">Attached to: Feasibility Review<br>Printed: ' + frEsc(frDate(today())) + '</td></tr>' +
+      '<tr><td class="frband" colspan="3">TOOL &amp; FIXTURE LIST</td></tr></table>' +
+      '<table class="frt"><colgroup><col style="width:14%"><col style="width:36%"><col style="width:14%"><col style="width:36%"></colgroup>' +
+      '<tr><th class="frl">Enquiry No. / Date</th><td>' + frEsc(v.enq || "") + '</td><th class="frl">Customer Name</th><td>' + frEsc(v.cust || "") + '</td></tr>' +
+      '<tr><th class="frl">Product Name</th><td>' + frEsc(v.prod || "") + '</td><th class="frl">Drawing No. / Rev</th><td>' + frEsc(v.dwg || "") + '</td></tr></table>' +
+      '<table class="frt frtlt"><colgroup><col style="width:4%"><col style="width:17%"><col style="width:9%"><col style="width:8%"><col style="width:11%"><col style="width:5.5%">' +
+      '<col style="width:9%"><col style="width:6.5%"><col style="width:5%"><col style="width:5%"><col style="width:6%"><col style="width:4.5%"><col style="width:4.5%"><col style="width:7%"><col style="width:6%"></colgroup>' +
+      '<tr class="frhd"><th>Sr. No</th><th>Tool Description</th><th>Customer</th><th>Type</th><th>Remark</th><th>Priority</th><th>Current Status</th><th>Target Date</th>' +
+      '<th>Design</th><th>RM Planning</th><th>Out Source Processing</th><th>Assy.</th><th>Trail</th><th>Tool Maker</th><th>Cost (&#8377;)</th></tr>';
+    rows.forEach(function(t, i){
+      var has = !!(t.desc || t.type || t.cost);
+      h += '<tr class="frli"><td class="c">' + (has ? i + 1 : "") + '</td><td>' + frEsc(t.desc || "") + '</td><td>' + frEsc(has ? (t.cust || v.cust || "") : "") + '</td><td>' + frEsc(t.type || "") +
+        '</td><td>' + frEsc(t.rem || "") + '</td><td class="c">' + frEsc(t.pri || "") + '</td><td class="c">' + (has ? frEsc(tlStatus(t)) : "") + '</td><td class="c">' + frEsc(frDate(t.target || "")) + '</td>' +
+        TL_STAGES.map(function(sx){ return '<td class="c">' + stage(t[sx[0]]) + '</td>'; }).join("") +
+        '<td>' + frEsc(t.maker || "") + '</td><td class="c">' + frEsc(frMoney(t.cost)) + '</td></tr>';
+    });
+    var tc = tlCost(list);
+    h += '<tr class="frli"><th class="frl" colspan="14" style="text-align:right">Total tooling cost</th><td class="c"><b>' + (tc ? "&#8377; " + tc.toLocaleString("en-IN") : "") + '</b></td></tr></table>' +
+      '<table class="frt"><tr class="frsg"><th class="frl" style="width:33%">Prepared by:</th><th class="frl" style="width:33%">Checked by:</th><th class="frl">Approved by:</th></tr></table></div>';
     return h;
+  }
+  function tlPrint(v){
+    var area = document.getElementById("printArea");
+    if(!area){ area = document.createElement("div"); area.id = "printArea"; document.body.appendChild(area); }
+    area.innerHTML = tlPrintHtml(v).replace('frp frtlpage', 'frp frtlpage first');
+    document.body.classList.add("printing");
+    var done = function(){ document.body.classList.remove("printing"); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    setTimeout(function(){ try { window.print(); } catch(e){} setTimeout(done, 1500); }, 60);
+  }
+  function tlDownload(v){
+    var list = (v.tl || []).filter(function(t){ return t && (t.desc || t.type || t.cost); });
+    banner("Preparing the tool list…");
+    return coLoadExcelJs().then(function(ExcelJS){
+      var wb = new ExcelJS.Workbook(), ws = wb.addWorksheet("Tool list", {pageSetup:{orientation:"landscape", paperSize:9, fitToPage:true, fitToWidth:1, fitToHeight:0}});
+      var thin = {style:"thin"}, BOX = {top:thin, left:thin, bottom:thin, right:thin};
+      [9, 40, 21, 14, 26, 10, 22, 13, 10, 13, 16, 9, 9, 15, 12].forEach(function(w, i){ ws.getColumn(i + 1).width = w; });
+      ws.mergeCells("A1:O1");
+      ws.getCell("A1").value = "TOOL & FIXTURE LIST — " + [v.cust, v.prod, v.enq].filter(Boolean).join(" · ");
+      ws.getCell("A1").font = {name:"Calibri", size:14, bold:true}; ws.getCell("A1").alignment = {horizontal:"center"};
+      var heads = ["Sr. No", "Tool Discription", "Customer", "Type", "Remark", "priority", "CURRENTN STATUS", "Target date", "Design", "RM Planning", "Out Source Processing", "Assy.", "Trail", "Tool maker", "Cost"];
+      heads.forEach(function(hd, i){ var c = ws.getCell(2, i + 1); c.value = hd; c.font = {name:"Calibri", size:12, bold:true}; c.border = BOX;
+        c.alignment = {horizontal:"center", vertical:"middle", wrapText:true}; });
+      ws.getRow(2).height = 32;
+      var rows = list.slice(); while(rows.length < 10) rows.push(null);
+      rows.forEach(function(t, i){
+        var R = 3 + i, vals = t ? [i + 1, t.desc || "", t.cust || v.cust || "", t.type || "", t.rem || "", t.pri || "", tlStatus(t), t.target ? xlDate(t.target) : ""]
+          .concat(TL_STAGES.map(function(sx){ return t[sx[0]] || ""; })).concat([t.maker || "", +t.cost || ""]) : [i + 1];
+        for(var k = 0; k < 15; k++){
+          var c = ws.getCell(R, k + 1); c.value = vals[k] === undefined ? null : vals[k]; c.border = BOX; c.font = {name:"Calibri", size:11};
+          c.alignment = {horizontal:(k === 1 || k === 4 || k === 13) ? "left" : "center", vertical:"middle", wrapText:k === 1 || k === 4};
+          if(k === 7) c.numFmt = "dd/mm/yyyy";
+          if(k === 14) c.numFmt = "#,##0";
+        }
+      });
+      var TR = 3 + rows.length;
+      ws.mergeCells("A" + TR + ":N" + TR); ws.getCell("A" + TR).value = "Total tooling cost";
+      ws.getCell("A" + TR).font = {bold:true}; ws.getCell("A" + TR).alignment = {horizontal:"right"};
+      ws.getCell("O" + TR).value = {formula:"SUM(O3:O" + (TR - 1) + ")", result:tlCost(list)};
+      ws.getCell("O" + TR).font = {bold:true}; ws.getCell("O" + TR).numFmt = "#,##0";
+      ["A" + TR, "O" + TR].forEach(function(r){ ws.getCell(r).border = BOX; });
+      return wb.xlsx.writeBuffer();
+    }).then(function(buf){
+      return claude.use("downloads").then(function(d){
+        if(!d) throw new Error("no downloads");
+        return d.save({filename:"Tool_list_" + String(v.cust || v.prod || "enquiry").replace(/[^\w\-]+/g, "_") + "_" + today() + ".xlsx", data:buf,
+                       mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+      });
+    }).then(function(){ banner("Tool list downloaded."); setTimeout(function(){ banner(""); }, 3000); },
+            function(e){ banner("The tool list could not be made (" + (e && e.message || "error") + ")."); });
   }
   function frPrint(v){
     var area = document.getElementById("printArea");
@@ -7773,6 +7997,61 @@ body.cad[data-sec]{--sec:var(--sel)}
       state.feas = snap.docs.map(function(d){ var o = Object.assign({}, d.data() || {}); o.id = d.id; return o; });
       if(state.tab === "tools") render();
     }).catch(function(){});
+  }
+  /* the Tool & Fixture List segment of the feasibility form */
+  function tlSegment(v, toolQ, tdl, team){
+    var list = v.tl;
+    var wrap = el("section",{class:"tlseg"});
+    var cost = tlCost(list), ready = list.filter(function(t){ return tlStatus(t) === "Ready"; }).length;
+    wrap.appendChild(el("div",{class:"tlhead"},[
+      el("div",{class:"tltitle"},[ el("span",{class:"tlkick"},["Attached to this form · prints as page 2"]), el("h3",{},["Tool & Fixture List"]) ]),
+      el("div",{class:"tlstats"},[
+        el("div",{},[el("b",{},[String(list.length)]), el("span",{},["tools"])]),
+        el("div",{},[el("b",{},[String(ready)]), el("span",{},["ready"])]),
+        el("div",{},[el("b",{class:"tlcost"},[cost ? "₹ " + cost.toLocaleString("en-IN") : "—"]), el("span",{},["total cost"])])
+      ])
+    ]));
+    if(v.ans[toolQ] === "Yes" && !list.length) wrap.appendChild(el("p",{class:"tlnote"},["Check point " + toolQ + " says new tooling is needed — list the tools and fixtures here."]));
+    function inp(t, key, attrs){
+      var i = el("input", Object.assign({type:"text", value:t[key] == null ? "" : String(t[key])}, attrs || {}));
+      i.addEventListener("input", function(){ t[key] = i.value; frSave(v); if(key === "cost"){ var c = tlCost(list); var b = wrap.querySelector(".tlcost"); if(b) b.textContent = c ? "₹ " + c.toLocaleString("en-IN") : "—"; } });
+      return i;
+    }
+    function sel(t, key, opts, cls){
+      var s = el("select",{class:cls || "", "aria-label":key}, [el("option",{value:""},["—"])].concat(opts.filter(Boolean).map(function(o){ return el("option",{value:o, selected:t[key] === o ? "selected" : null},[o]); })));
+      s.addEventListener("change", function(){ t[key] = s.value; frSave(v); render(); });
+      return s;
+    }
+    var heads = ["Sr.", "Tool description", "Customer", "Type", "Remark", "Priority", "Current status", "Target date"].concat(TL_STAGES.map(function(x){ return x[1]; })).concat(["Tool maker", "Cost ₹", ""]);
+    var tb = el("tbody");
+    list.forEach(function(t, i){
+      var dt = el("input",{type:"date", value:t.target || "", "aria-label":"Target date"}); dt.addEventListener("input", function(){ t.target = dt.value; frSave(v); });
+      var st = tlStatus(t);
+      tb.appendChild(el("tr",{},[ el("td",{class:"c muted"},[String(i + 1)]),
+        el("td",{},[inp(t, "desc", {list:"frToolHints", placeholder:"e.g. Bending tool for side plate", class:"tldesc", "aria-label":"Tool description"})]),
+        el("td",{},[inp(t, "cust", {placeholder:v.cust || "Customer", class:"tlmid", "aria-label":"Customer"})]),
+        el("td",{},[inp(t, "type", {list:"tlTypes", placeholder:"Type", class:"tlmid", "aria-label":"Type"})]),
+        el("td",{},[inp(t, "rem", {placeholder:"Remark", class:"tlmid", "aria-label":"Remark"})]),
+        el("td",{},[sel(t, "pri", TL_PRI, "tlpri p-" + (t.pri || "none"))]),
+        el("td",{},[el("span",{class:"tlst " + (st === "Ready" ? "ok" : /progress/.test(st) ? "wip" : st === "Not started" ? "no" : "pend")},[st])]),
+        el("td",{},[dt])
+      ].concat(TL_STAGES.map(function(sx){ return el("td",{class:"c"},[sel(t, sx[0], TL_STAGE_VALS, "tlstage s-" + (t[sx[0]] || "none"))]); }))
+       .concat([ el("td",{},[inp(t, "maker", {placeholder:"Tool maker", class:"tlmid", "aria-label":"Tool maker"})]),
+        el("td",{},[inp(t, "cost", {type:"number", min:"0", step:"any", placeholder:"₹", class:"tlcostin", "aria-label":"Cost"})]),
+        el("td",{},[el("button",{class:"btn sm ghost", type:"button", title:"Remove", onclick:function(){ list.splice(i, 1); frSave(v); render(); }},["✕"])]) ])));
+    });
+    var types = el("datalist",{id:"tlTypes"}, ["New", "Modification", "Existing", "Outsource", "Press tool", "Bending die", "Welding fixture", "Assembly fixture", "Gauge", "Jig"].map(function(x){ return el("option",{value:x}); }));
+    wrap.appendChild(types); if(tdl) wrap.appendChild(tdl); if(team) wrap.appendChild(team);
+    wrap.appendChild(list.length ? el("div",{class:"tablewrap"},[ el("table",{class:"cotable tltable"},[ el("thead",{},[el("tr",{}, heads.map(function(h){ return el("th",{},[h]); }))]), tb ]) ])
+                                 : el("p",{class:"muted", style:"margin:0;font-size:13px"},["No tools listed yet — add the tools, dies, fixtures and gauges this enquiry needs. The list is saved and printed with the form."]));
+    function add(name){ list.push({desc:name || "", cust:v.cust || "", type:"New", rem:"", pri:"Medium", target:"", maker:"", cost:""}); frSave(v); render(); }
+    wrap.appendChild(el("div",{class:"tlacts"},[
+      el("button",{class:"btn sm primary", type:"button", onclick:function(){ add(""); }},["+ Add tool / fixture"])
+    ].concat(FR_TOOL_HINTS.slice(0, 6).map(function(hn){ return el("button",{class:"btn sm ghost", type:"button", title:"Add “" + hn + "”", onclick:function(){ add(hn); }},["+ " + hn]); }))
+     .concat([ el("span",{class:"spacer", style:"flex:1"}),
+      el("button",{class:"btn sm", type:"button", onclick:function(){ tlPrint(v); }},["Print tool list"]),
+      el("button",{class:"btn sm", type:"button", onclick:function(){ tlDownload(v); }},["⤓ Excel"]) ])));
+    return wrap;
   }
   function feasibilityCard(){
     frLoadSaved();
@@ -7826,6 +8105,34 @@ body.cad[data-sec]{--sec:var(--sel)}
       });
     });
     body.appendChild(tbl);
+    /* required tools / fixtures and other requirements (printed under the check points) */
+    frNorm(v);
+    var tdl = el("datalist",{id:"frToolHints"}, FR_TOOL_HINTS.map(function(x){ return el("option",{value:x}); }));
+    var rdl = el("datalist",{id:"frReqHints"}, FR_REQ_HINTS.map(function(x){ return el("option",{value:x}); }));
+    var team = el("datalist",{id:"frPeople"}, state.team.map(function(m){ return el("option",{value:m.name}); }).concat(FR_DEPTS.map(function(d){ return el("option",{value:d}); })));
+    function cell(obj, key, attrs){
+      var i = el("input", Object.assign({type:"text", value:obj[key] == null ? "" : String(obj[key])}, attrs || {}));
+      i.addEventListener("input", function(){ obj[key] = i.value; frSave(v); if(attrs && attrs.onsum) attrs.onsum(); });
+      return i;
+    }
+    var reqRows = el("div",{class:"frlistrows"});
+    v.reqs.forEach(function(t, i){
+      var dt = el("input",{type:"date", value:t.date || "", "aria-label":"Target date"}); dt.addEventListener("input", function(){ t.date = dt.value; frSave(v); });
+      reqRows.appendChild(el("div",{class:"frlrow frreq"},[ el("span",{class:"frn"},[String(i + 1)]),
+        cell(t, "req", {list:"frReqHints", placeholder:"Requirement — e.g. IP54 test at outside lab", "aria-label":"Requirement"}),
+        cell(t, "det", {placeholder:"Details", "aria-label":"Details"}),
+        cell(t, "by", {list:"frPeople", placeholder:"Responsibility", "aria-label":"Responsibility"}), dt,
+        el("button",{class:"btn sm ghost", type:"button", title:"Remove", onclick:function(){ v.reqs.splice(i, 1); frSave(v); render(); }},["✕"]) ]));
+    });
+    var toolQ = FR_SECTIONS[0][1].length + 5;                      /* check point 11: new tooling needed? */
+    body.appendChild(tlSegment(v, toolQ, tdl, team));
+    body.appendChild(rdl);
+    body.appendChild(el("div",{class:"frlist"},[
+      el("div",{class:"frlisthd"},[ el("h4",{},["E. Other requirements"]) ]),
+      v.reqs.length ? reqRows : el("p",{class:"muted", style:"margin:0;font-size:12.5px"},["No other requirements listed yet."]),
+      el("div",{class:"frseg"},[ el("button",{class:"btn sm", type:"button", onclick:function(){ v.reqs.push({req:"", det:"", by:"", date:""}); frSave(v); render(); }},["+ Add requirement"]) ].concat(
+        FR_REQ_HINTS.slice(0, 5).map(function(hn){ return el("button",{class:"btn sm ghost", type:"button", title:"Add “" + hn + "”", onclick:function(){ v.reqs.push({req:hn, det:"", by:"", date:""}); frSave(v); render(); }},["+ " + hn]); })))
+    ]));
     var answered = Object.keys(v.ans).filter(function(k){ return v.ans[k]; }).length;
     /* conclusion */
     var cr = el("textarea",{placeholder:"Remarks / changes / reason"}); cr.value = v.concRem || "";
@@ -7862,10 +8169,11 @@ body.cad[data-sec]{--sec:var(--sel)}
             el("div",{class:"taskmain"},[ el("div",{class:"tt"},[(f.cust || "—") + " · " + (f.prod || "—")]),
               el("div",{class:"tmeta"},[ f.enq ? el("span",{class:"chip"},[f.enq]) : null,
                 f.concl ? el("span",{class:"chip " + (f.concl === "Not Feasible" ? "over" : (f.concl === "Feasible" ? "today" : "p2"))},[f.concl]) : null,
+                (f.tl || f.tools || []).length ? el("span",{class:"chip plain"},[(f.tl || f.tools).length + " tools"]) : null,
                 el("span",{class:"chip plain"},[memberName(f.savedBy) + " · " + fmtDate(String(f.savedAt || "").slice(0, 10))]) ]) ]),
             el("div",{class:"taskact"},[
-              el("button",{class:"btn sm", type:"button", onclick:function(){ frSave(JSON.parse(JSON.stringify(f))); render(); window.scrollTo({top:0}); }},["Open"]),
-              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ frPrint(f); }},["Print"]),
+              el("button",{class:"btn sm", type:"button", onclick:function(){ frSave(frNorm(JSON.parse(JSON.stringify(f)))); render(); window.scrollTo({top:0}); }},["Open"]),
+              el("button",{class:"btn sm ghost", type:"button", onclick:function(){ frPrint(frNorm(JSON.parse(JSON.stringify(f)))); }},["Print"]),
               el("button",{class:"btn sm ghost", type:"button", title:"Delete this saved review", onclick:function(){
                 if(state.frDel !== f.id){ state.frDel = f.id; render(); return; }
                 state.frDel = null; state.feas = state.feas.filter(function(x){ return x.id !== f.id; });
@@ -8274,7 +8582,7 @@ body.cad[data-sec]{--sec:var(--sel)}
       var s = wb.addWorksheet("Summary");
       [10.8,32.4,11.7,11.7,11.8,11.7,11.7,13.2,14.2,11.2,11.7,11.7,13.2,12.8,13.2,14.2].forEach(function(w, i){ s.getColumn(i + 1).width = w; });
       s.getRow(1).height = 35.25; s.getRow(2).height = 36.75; s.getRow(3).height = 29.15; s.getRow(4).height = 22.95;
-      put(s, "P1", c.date ? new Date(c.date + "T00:00:00") : new Date(), {bold:true, size:12, fmt:"d-mmm-yy"});
+      put(s, "P1", xlDate(c.date || today()), {bold:true, size:12, fmt:"d-mmm-yy"});
       s.mergeCells("C2:G2"); put(s, "C2", "RM Cost", {bold:true});
       s.mergeCells("H2:K2"); put(s, "H2", "Contribution (JW)", {bold:true});
       put(s, "L2", +c.ohpRm || 0, {bold:true, fmt:"0.00%", border:false});
@@ -9091,17 +9399,25 @@ body.cad[data-sec]{--sec:var(--sel)}
   /* the Tools tab: every tool is an app tile; open one to use it */
   var TOOLS = [
     {id:"cal", name:"Company calendar", desc:"Company paid leaves (holidays) and weekly offs. No tasks are given on these days.",
-     tag:"Calendar", open:function(){ return calendarCard(function(){ render(); }); },
+     tag:"Calendar", open:function(){ return calendarCard(function(){ render(); }); }, color:"#0f9d8a", short:"Calendar",
+     info:function(){ var up = Object.keys(HOLIDAYS).filter(function(k){ return k >= today(); }).sort();
+       return up.length ? [["Next holiday: " + HOLIDAYS[up[0]] + " · " + fmtDate(up[0])], [up.length + " marked ahead", "dim"]] : [["No company holidays marked yet", "dim"]]; },
      icon:'<rect x="5" y="8" width="30" height="27" rx="3"/><path d="M5 16h30M13 4v8M27 4v8"/><path d="M12 23h4M20 23h4M28 23h0M12 29h4M20 29h4"/>'},
     {id:"blank", name:"Sheet metal blank size", desc:"3D plate — click an edge to bend it — and get the exact flat blank size, bend lines and weight.",
-     tag:"Calculator", open:sheetMetalCard,
+     tag:"Calculator", open:sheetMetalCard, color:"#2b7fd4", short:"Blank size",
+     info:function(){ var v = smLoad(), r = smPartCalc(v); return [["Last blank: " + r.X.toFixed(1) + " × " + r.Y.toFixed(1) + " mm"], [(+v.t || 0) + " mm · " + ((SM_MATERIALS.filter(function(m){ return m.id === v.mat; })[0] || {}).name || ""), "dim"]]; },
      icon:'<path d="M5 30V12a4 4 0 0 1 4-4h22a4 4 0 0 1 4 4v18"/><path d="M5 30h30"/><path d="M11 24h18" stroke-dasharray="3 3"/><path d="M11 8v-3M29 8v-3M11 5h18"/>'},
-    {id:"feas", name:"Feasibility review", desc:"New enquiry (Distribution Box) — fill the 18 check points, save for the team and print.",
-     tag:"Form · Print", open:feasibilityCard,
+    {id:"feas", name:"Feasibility review", desc:"New enquiry (Distribution Box) — 18 check points plus the attached Tool & Fixture List; saved and printed together.",
+     tag:"Form · Print", open:feasibilityCard, color:"#7c4dcc", short:"Feasibility",
+     info:function(){ var f = (state.feas || []).slice().sort(function(a, b){ return String(b.savedAt).localeCompare(String(a.savedAt)); });
+       var d = frLoad(); return (f.length ? [[f.length + " saved · last: " + (f[0].cust || "—")]] : [["No reviews saved yet", "dim"]]).concat((d.tl || []).length ? [["Draft: " + d.tl.length + " tools listed", "dim"]] : []); },
      icon:'<rect x="8" y="5" width="24" height="31" rx="2.5"/><path d="M14 5v-1h12v1"/><path d="M13 14l2 2 3-4M13 22l2 2 3-4M13 30l2 2 3-4"/><path d="M21 14h6M21 22h6M21 30h6"/>'}
 ,
     {id:"cost", name:"DB costing", desc:"Summary, Fabrication, B.O.M and Master BOM like the costing file — type the data, download Excel with formulas.",
-     tag:"Costing · Excel", open:costingCard,
+     tag:"Costing · Excel", open:costingCard, color:"#2e8b3e", short:"Costing",
+     info:function(){ var out = [[(state.costings || []).length + " costings saved"]];
+       if(state.cmLoaded) out.push(cmDue() ? ["Master BOM update due", "warn"] : [(state.cm || []).length.toLocaleString("en-IN") + " items in master BOM", "dim"]);
+       return out; },
      icon:'<path d="M8 5h24v30H8z"/><path d="M8 12h24M15 12v23M8 19h24M8 26h24"/><path d="M22 31l3-3 3 3"/>'}
   ];
   function viewTools(){
@@ -9115,6 +9431,14 @@ body.cad[data-sec]{--sec:var(--sel)}
       ]);
       var ic0 = el("span",{class:"wsgear", "aria-hidden":"true"}); ic0.innerHTML = '<svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + tool.icon + '</svg>';
       bar.insertBefore(ic0, bar.children[1]);
+      /* jump straight to another tool */
+      bar.appendChild(el("div",{class:"wsswitch", role:"tablist", "aria-label":"Other tools"}, TOOLS.map(function(t){
+        var b = el("button",{type:"button", role:"tab", "aria-selected":t.id === tool.id ? "true" : "false", class:"wssw" + (t.id === tool.id ? " on" : ""), style:"--tc:" + t.color,
+          onclick:function(){ if(t.id === tool.id) return; state.tool = t.id; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"}); }});
+        var ic = el("span",{class:"wsswi", "aria-hidden":"true"}); ic.innerHTML = '<svg viewBox="0 0 40 40" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg>';
+        b.appendChild(ic); b.appendChild(document.createTextNode(t.short || t.name));
+        return b;
+      })));
       wrap.appendChild(bar);
       wrap.appendChild(el("div",{class:"wsbody"},[tool.open()]));
       return wrap;
@@ -9123,11 +9447,12 @@ body.cad[data-sec]{--sec:var(--sel)}
       el("div",{class:"wstitle"},[
         el("span",{class:"wskick"},["Special section · Design & Development"]),
         el("h2",{},["NMD Workshop"]),
-        el("p",{},["The team's own engineering tools — calculators, review forms and the company calendar. Open a tool to use it."])
+        el("p",{},["The team's own engineering tools — blank size calculator, DB costing, feasibility review with tool list, and the company calendar. Open a tool to use it."])
       ]),
       el("div",{class:"wsstats"},[
         el("div",{},[el("b",{},[String(TOOLS.length)]), el("span",{},["tools"])]),
         el("div",{},[el("b",{},[String((state.feas || []).length)]), el("span",{},["reviews saved"])]),
+        el("div",{},[el("b",{},[String((state.costings || []).length)]), el("span",{},["costings saved"])]),
         el("div",{},[el("b",{},[String(Object.keys(HOLIDAYS).filter(function(k){ return k >= today(); }).length)]), el("span",{},["holidays ahead"])])
       ])
     ]);
@@ -9136,21 +9461,26 @@ body.cad[data-sec]{--sec:var(--sel)}
     hero.appendChild(heroGear);
     wrap.appendChild(hero);
     var saved = (state.feas || []).length;
-    wrap.appendChild(el("div",{class:"wsbody"},[ el("div",{class:"toolgrid"}, TOOLS.map(function(t){
-      var tile = el("button",{class:"toolapp", type:"button", "aria-label":"Open " + t.name, onclick:function(){
+    wrap.appendChild(el("div",{class:"wsbody"},[ el("div",{class:"toolgrid v2"}, TOOLS.map(function(t){
+      var tile = el("button",{class:"toolapp v2", type:"button", "aria-label":"Open " + t.name, style:"--tc:" + t.color, onclick:function(){
         state.tool = t.id; state.enterAnim = true; render(); window.scrollTo({top:0, behavior:"instant"});
       }});
-      var ic = el("span",{class:"toolicon"}); ic.innerHTML = '<svg viewBox="0 0 40 40" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + t.icon + '</svg>';
+      var ic = el("span",{class:"toolicon2", "aria-hidden":"true"}); ic.innerHTML = '<svg viewBox="0 0 40 40" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg>';
+      var info = [];
+      try { info = t.info ? t.info() : []; } catch(e){ info = []; }
       tile.appendChild(ic);
-      tile.appendChild(el("span",{class:"toolname"},[t.name]));
-      tile.appendChild(el("span",{class:"tooldesc"},[t.desc]));
-      tile.appendChild(el("span",{class:"tooltag" + (t.id === "cost" && cmDue() ? " due" : "")},[t.tag + (t.id === "feas" && saved ? " · " + saved + " saved" : "") +
-        (t.id === "cost" && state.cmLoaded ? (cmDue() ? " · master BOM update due" : " · " + (state.cm || []).length + " items") : "")]));
+      tile.appendChild(el("span",{class:"toolmain"},[
+        el("span",{class:"tooltag2"},[t.tag]),
+        el("span",{class:"toolname"},[t.name]),
+        el("span",{class:"tooldesc"},[t.desc]),
+        info.length ? el("span",{class:"toolinfo"}, info.map(function(x){ return el("span",{class:x[1] ? "ti-" + x[1] : ""},[x[0]]); })) : null,
+        el("span",{class:"toolgo"},["Open", el("span",{"aria-hidden":"true"},[" →"])])
+      ]));
       return tile;
-    }).concat([ el("div",{class:"toolapp soon", "aria-hidden":"true"},[
-      el("span",{class:"toolicon"},["+"]), el("span",{class:"toolname"},["More tools coming"]),
-      el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ])) ]));
-    if(state.db){ frLoadSaved(); cmLoad(); }
+    }).concat([ el("div",{class:"toolapp v2 soon", "aria-hidden":"true", style:"--tc:var(--ink3)"},[
+      el("span",{class:"toolicon2"},["+"]), el("span",{class:"toolmain"},[ el("span",{class:"toolname"},["More tools coming"]),
+      el("span",{class:"tooldesc"},["Tell Claude which calculator or form the team needs next."]) ]) ]) ])) ]));
+    if(state.db){ frLoadSaved(); cmLoad(); coLoadSaved(); }
     return wrap;
   }
   function viewValue(){
